@@ -27,8 +27,18 @@
 ```
 
 1.2. (21.06.2024)
-- Create the basic folder structure (e.g., components, services, models, state management).
 - Set up Git for version control.
-- Create initial commits and push the project to a remote repository (e.g., GitHub).
+- Create initial commits and push the project to a remote repository (e.g., GitHub). (feature branches etc...)
+- Create the basic folder structure (e.g., components, services, models, state management).
 
 
+"STANDARD GIT FLOW"
+root/main (production)
+root/develop (QA)
+root/feature/feature-name
+
+"Discover-ability"
+
+
+2.1 (25.06.2024)
+... TBD... 

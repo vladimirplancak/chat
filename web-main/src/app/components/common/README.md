@@ -1,0 +1,1 @@
+You are supposed to add files that are shared across multiple components here.
