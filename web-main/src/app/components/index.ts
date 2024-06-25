@@ -1,1 +1,2 @@
-export * as layout from './layout'
+export * as layout from './core'
+export * as pages from './pages'

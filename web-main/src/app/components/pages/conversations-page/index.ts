@@ -1,0 +1,1 @@
+export { ConversationsPageComponent as Component } from './conversations-page.component'

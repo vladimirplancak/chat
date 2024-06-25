@@ -1,13 +1,13 @@
 import * as ngCore from '@angular/core'
+import * as ngRouter from '@angular/router'
 import { MatButtonModule } from '@angular/material/button'
-import * as models from './models'
-import * as components from './components'
 
 @ngCore.Component({
   selector: 'app-root',
   standalone: true,
   imports: [ 
-    MatButtonModule, 
+    MatButtonModule,
+    ngRouter.RouterOutlet,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

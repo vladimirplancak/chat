@@ -1,0 +1,1 @@
+export { LoginPageComponent as Component } from './login-page.component'

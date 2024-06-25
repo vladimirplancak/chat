@@ -1,0 +1,1 @@
+export { SignUpPageComponent as Component } from './sign-up-page.component'

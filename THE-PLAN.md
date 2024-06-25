@@ -41,4 +41,12 @@ root/feature/feature-name
 
 
 2.1 (25.06.2024)
-... TBD... 
+- Set up Angular routing for navigating between Channels, Users, and Messages.
+- Create placeholder components for Channels, Users, and Messages.
+- Implement navigation links and test routing.
+
+2.2 (27.06.2024)
+Integrate Angular Material components (e.g., toolbar, sidenav, lists).
+Design a basic layout with a toolbar and a side navigation.
+Create a responsive layout for the main components (Channels, Users, Messages).
+

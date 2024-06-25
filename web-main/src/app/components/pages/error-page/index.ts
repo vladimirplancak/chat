@@ -1,0 +1,1 @@
+export { ErrorPageComponent as Component } from './error-page.component'
