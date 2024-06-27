@@ -1,8 +1,13 @@
-<div> conversations header </div>
-
-<div> 
-  <div>list of conversations</div>
-  
-  <!-- Single conversation -->
-  <router-outlet />
+<div class="conversation-page">
+  <div class="conversation-page__header rich-black">
+    <app-conversations-header/>
+  </div>
+  <div class="conversation-page__body">
+    <div class="conversation-page__body-con-list gray">
+      <app-conversation-list />
+    </div>
+    <div class="conversation-page__body-con-item baby-powder">
+      <router-outlet />
+    </div>
+  </div>
 </div>

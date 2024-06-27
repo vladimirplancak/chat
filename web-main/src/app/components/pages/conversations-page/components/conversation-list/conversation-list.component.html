@@ -1,0 +1,5 @@
+<div class="conversation-list">
+  @for (conversation of conversationsSg(); track $index) {
+    <app-conversation-item [conversation]="conversation" />
+  }
+</div>

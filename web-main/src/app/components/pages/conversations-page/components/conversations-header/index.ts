@@ -1,0 +1,1 @@
+export { ConversationsHeaderComponent as Component } from './conversations-header.component'

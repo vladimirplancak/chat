@@ -23,7 +23,7 @@ export const ROUTES: ngRouter.Routes = [
   { path: 'error', component: components.pages.errorPage.Component },
   // NOTE: If everything is fine we want to redirect a user to a page, that is
   // actually expected in 90% of the cases.
-  { path: '', pathMatch: 'full', redirectTo: 'channels' },
+  { path: '', pathMatch: 'full', redirectTo: 'conversations' },
   // NOTE: whenever we hit a route that doesn't exist, we will redirect to the
   // error page
   { path: '**', pathMatch: 'full', redirectTo: 'error' },

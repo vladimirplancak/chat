@@ -1,0 +1,24 @@
+.conversation-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  &__header {
+    height: 60px;
+  }
+
+  &__body { 
+    height: calc(100% - 60px);
+    display: flex;
+    flex-direction: row; 
+  }
+
+  &__body-con-list{
+    width: 80px;
+  }
+
+  &__body-con-item {
+    flex: 1;
+  }
+}
