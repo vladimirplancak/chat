@@ -1,6 +1,5 @@
 import * as ngCore from '@angular/core';
 import * as components from './components'
-import { ParticipantListComponent } from "./components/participant-list/participant-list.component";
 
 @ngCore.Component({
     standalone: true,
@@ -9,9 +8,8 @@ import { ParticipantListComponent } from "./components/participant-list/particip
     selector: 'app-conversation-item',
     imports: [
         components.messageList.Component,
-        components.participantList.participantItem.Component,
+        components.participantList.Component,
         components.messageSender.Component,
-        ParticipantListComponent
     ]
 })
 export class ConversationItemComponent {

@@ -1,5 +1,5 @@
 import * as ngCore from '@angular/core';
-import * as components from '../participant-list'
+import * as components from './components'
 
 @ngCore.Component({
   imports:[

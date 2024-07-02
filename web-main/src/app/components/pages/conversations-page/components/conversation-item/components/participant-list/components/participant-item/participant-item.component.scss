@@ -1,9 +1,12 @@
+@use 'variables' as v;
+
+
 .participant-item{
     padding: 3px 0;
 
     &__selector{
       display: flex;
- 
+      background-color: v.$secondary;
       justify-content: center;
     }
 }

@@ -1,0 +1,5 @@
+@use 'variables' as v;
+.participant-list {
+  height: 100%;
+  background-color: v.$tertiary;
+}

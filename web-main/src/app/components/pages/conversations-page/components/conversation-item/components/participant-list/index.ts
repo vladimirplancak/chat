@@ -1,1 +1,1 @@
-export * as participantItem from './participant-item'
+export { ParticipantListComponent as Component } from './participant-list.component'

@@ -1,28 +1,29 @@
-.conversation-item{
-   
-    display: flex;
-    
-    flex-direction:row;
-    height: 90%;
-    background-color: yellow;
-    &__message-list{
+@use 'variables' as v;
 
-        flex:100;
-      
+.conversation-item{
+    // NOTE: - 60px to account for the header. 
+    height: calc(100vh - 60px);
+    display: flex;    
+    flex-direction:column;
+    background-color: v.$quaternary;
+
+    &__upper {
+      display: flex;
+      flex-direction: row;
+      flex: 1;
+    }
+
+    &__upper-message-list{
+        flex: 1;
     }
     
-    &__participant-list{
-        flex:15;
-      
+    &__upper-participant-list{
+      width: 150px;
     }
     
-    &__message-sender{
-        
-        height: 10%;
-       
-        overflow-y: auto;
+    &__lower-message-sender{
+      height: 50px;
     }
-    
 }
 
 

@@ -1,7 +1,13 @@
 <div class="conversation-item">
-    <app-message-list class="conversation-item__message-list baby-powder" /> 
-    <app-participant-list class="conversation-item__participant-list gray" />  
-</div>
-<div class="conversation-item__message-sender rich-black">
-    <app-message-sender/>
+    <div class="conversation-item__upper">
+      <div class="conversation-item__upper-message-list">
+        <app-message-list /> 
+      </div>
+      <div class="conversation-item__upper-participant-list">
+        <app-participant-list />        
+      </div>
+    </div>
+    <div class="conversation-item__lower-message-sender">
+      <app-message-sender/>
+    </div>
 </div>
