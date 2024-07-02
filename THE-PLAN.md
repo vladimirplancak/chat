@@ -50,3 +50,59 @@ Integrate Angular Material components (e.g., toolbar, sidenav, lists).
 Design a basic layout with a toolbar and a side navigation.
 Create a responsive layout for the main components (Channels, Users, Messages).
 
+3.1 (02.07.2024)
+- review
+- ngrx concepts (store, actions, reducers, effects)
+- command vs event
+- declarative vs imperative
+
+const rootStore = {
+  'users': {
+    selectedUser: null,
+    users: [],
+  }
+  'feature-2': {}
+  'feature-3': {}
+}
+
+
+STATE {firstName: limun, lastName: plancak} -> "selector" -> {fullName: "limun Plancak"}
+
+Users{
+
+  export namepsace Ui {
+    ForTable
+    ForSingleSelect
+  }
+}
+
+Good example for an action 
+
+[Source] Action
+[Source.SubSource1.SubSource2] clicked | changed | hovered | selected | unselected | opened 
+
+Bad example for an action
+[Source.SubSource1.SubSource2] open | do that | do this 
+
+"event driven application"
+
+{
+  selectedConversationId: string | undefined
+}
+
+SELECTED_CONVERSATION: Conversation | undefined = createSelector(STATE, SELECTED_CONVERSATION_ID (state, selectedConversationId) => {
+  return state.conversations[selectedConversationId]
+})
+
+
+SELECTED_CONVERSATION_LOADING -> !SELECTED_CONVERSATION && !CONVERSION_LOADING_ERROR[selectedConversionId]
+
+
+@if(conversation !== undefined) {
+  // show conversation
+} else if (conversationLoading) {
+  // show loader 
+} else {
+  // show error conversation failed to load
+}
+  
