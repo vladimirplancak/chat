@@ -1,0 +1,22 @@
+@use 'variables' as v;
+
+.message-sender {
+  display: flex;
+  flex-direction: row;
+  &__text {
+    flex: 1;
+    height: 50px;
+    background-color: v.$primary;
+  }
+
+  &__btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    height: 48px;
+    width: 148px;
+    border: 1px solid v.$quinary
+  }
+}

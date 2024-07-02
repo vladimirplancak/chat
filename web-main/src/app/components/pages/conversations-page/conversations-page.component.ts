@@ -6,6 +6,7 @@ import * as components from './components'
   imports: [
     components.conversationList.Component,
     components.conversationsHeader.Component,
+    components.conversationItem.Component,
     ngRouter.RouterOutlet,
   ],
   standalone: true,

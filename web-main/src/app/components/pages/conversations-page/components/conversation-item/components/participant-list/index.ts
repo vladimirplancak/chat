@@ -1,0 +1,1 @@
+export { ParticipantListComponent as Component } from './participant-list.component'

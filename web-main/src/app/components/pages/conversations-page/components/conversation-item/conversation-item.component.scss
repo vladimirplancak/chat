@@ -1,0 +1,29 @@
+@use 'variables' as v;
+
+.conversation-item{
+    // NOTE: - 60px to account for the header. 
+    height: calc(100vh - 60px);
+    display: flex;    
+    flex-direction:column;
+    background-color: v.$quaternary;
+
+    &__upper {
+      display: flex;
+      flex-direction: row;
+      flex: 1;
+    }
+
+    &__upper-message-list{
+        flex: 1;
+    }
+    
+    &__upper-participant-list{
+      width: 150px;
+    }
+    
+    &__lower-message-sender{
+      height: 50px;
+    }
+}
+
+
