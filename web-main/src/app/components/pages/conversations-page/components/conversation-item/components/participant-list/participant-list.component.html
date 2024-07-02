@@ -1,0 +1,6 @@
+<div class="participant-list">
+    @for (participant of participantsSg(); track $index) {
+        <app-participant-item [participant]="participant"/>
+     <!-- {{ participant }} -->
+    }
+  </div>

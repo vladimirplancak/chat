@@ -1,0 +1,28 @@
+.conversation-item{
+   
+    display: flex;
+    
+    flex-direction:row;
+    height: 90%;
+    background-color: yellow;
+    &__message-list{
+
+        flex:100;
+      
+    }
+    
+    &__participant-list{
+        flex:15;
+      
+    }
+    
+    &__message-sender{
+        
+        height: 10%;
+       
+        overflow-y: auto;
+    }
+    
+}
+
+

@@ -1,0 +1,1 @@
+export { ConversationItemComponent as Component } from './conversation-item.component'
