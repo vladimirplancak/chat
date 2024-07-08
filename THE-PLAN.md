@@ -105,4 +105,11 @@ SELECTED_CONVERSATION_LOADING -> !SELECTED_CONVERSATION && !CONVERSION_LOADING_E
 } else {
   // show error conversation failed to load
 }
-  
+
+
+3.1 (08.07.2024)
+
+
+import * as state from './state'
+
+state.common.Action.create()
