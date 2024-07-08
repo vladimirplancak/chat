@@ -1,0 +1,1 @@
+export { StateModule as Module } from './state.module'
