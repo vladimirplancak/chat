@@ -12,6 +12,7 @@ import * as state from '../../../state'
     ngRouter.RouterOutlet,
   ],
   standalone: true,
+  styleUrl: './conversations-page.component.scss',
   templateUrl: './conversations-page.component.html',
   selector: 'app-channels-page'
 })
