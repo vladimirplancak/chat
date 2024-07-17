@@ -17,7 +17,7 @@ export const ROUTES: ngRouter.Routes = [
   {
     path: 'conversations', component: components.pages.conversationsPage.Component,
     children: [
-      { path: ':conversationId', component: PageNotImplementedComponent }
+      { path: ':conversationId', component: components.pages.conversationsPage.components.conversationItem.Component }
     ],
   },
   { path: 'error', component: components.pages.errorPage.Component },

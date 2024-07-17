@@ -1,4 +1,5 @@
 import * as ngCore from '@angular/core';
+import * as models from '../../../../../../../../../models';
 
 @ngCore.Component({
   standalone: true,
@@ -8,7 +9,6 @@ import * as ngCore from '@angular/core';
 })
 export class ParticipantItemComponent {
   
-  public readonly participantSg = ngCore.input.required<string>({alias: 'participant'});
-  
+  public readonly participantSg = ngCore.input.required<models.User>({alias: 'participant'});
   
 }

@@ -7,8 +7,8 @@ import { ROUTES } from './app.routes';
 export const CONFIG: ngCore.ApplicationConfig = {
   providers: [
     // Registering ngrx in our application.
-    ngCore.importProvidersFrom(state.Module),
-    ngCore.provideZoneChangeDetection({ eventCoalescing: true }), 
-    ngRouter.provideRouter(ROUTES)
+     ngCore.importProvidersFrom(state.Module),
+    // ngCore.provideZoneChangeDetection({ eventCoalescing: true }), 
+     ngRouter.provideRouter(ROUTES)
   ]
 };

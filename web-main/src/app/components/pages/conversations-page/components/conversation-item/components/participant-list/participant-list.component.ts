@@ -1,5 +1,7 @@
 import * as ngCore from '@angular/core';
 import * as components from './components'
+import * as state from '../../../../../../../state'
+import * as ngrxStore from '@ngrx/store'
 
 @ngCore.Component({
   imports:[
@@ -11,13 +13,8 @@ import * as components from './components'
   selector: 'app-participant-list'
 })
 export class ParticipantListComponent {
-  
-  public readonly participantsSg: ngCore.Signal<string[]> = ngCore.signal<string[]>([
-    'participant-1',
-    'participant-2',
-    'participant-3',
-    'participant-4',
-    'participant-5',
-  ])
+  private readonly _store = ngCore.inject(ngrxStore.Store)
+
+  public readonly participantsSg = this._store.selectSignal(state.core.user.selectors.User.USERS)
  
 }

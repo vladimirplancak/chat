@@ -113,3 +113,5 @@ SELECTED_CONVERSATION_LOADING -> !SELECTED_CONVERSATION && !CONVERSION_LOADING_E
 import * as state from './state'
 
 state.common.Action.create()
+
+3.2 (16.07.2024)

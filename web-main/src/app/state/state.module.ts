@@ -5,22 +5,23 @@ import * as core from './core'
 import * as ngrxStoreDevtools from '@ngrx/store-devtools'
 import * as services from './services'
 
-ngCore.NgModule({
+@ngCore.NgModule({
   imports: [
+    /* ----------------------- General store registration ----------------------- */
+     ngrxStore.StoreModule.forRoot(),
+     ngrxEffects.EffectsModule.forRoot(),
+    
     /* ------------------------- User state registration ------------------------ */
     ngrxStore.StoreModule.forFeature(
       core.user.State.FEATURE_KEY,
       core.user.State.REDUCER
     ),
-    ngrxEffects.EffectsModule.forFeature([core.user.Effects]),
+     ngrxEffects.EffectsModule.forFeature([core.user.Effects]),
 
-    /* ----------------------- General store registration ----------------------- */
-    ngrxStore.StoreModule.forRoot(),
-    ngrxEffects.EffectsModule.forRoot(),
     
     /* -------------------------- Dev tool registration ------------------------- */
     // NOTE: this might need to be disabled on production
-    ngrxStoreDevtools.StoreDevtoolsModule.instrument()
+     ngrxStoreDevtools.StoreDevtoolsModule.instrument()
   ],
   providers: [
     services.UserApiService
