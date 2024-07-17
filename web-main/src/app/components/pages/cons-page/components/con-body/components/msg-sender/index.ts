@@ -1,0 +1,1 @@
+export { MsgSenderComponent as Component} from './msg-sender.component'

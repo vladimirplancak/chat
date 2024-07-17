@@ -1,0 +1,1 @@
+export { ConsHeaderComponent as Component } from './cons-header.component'

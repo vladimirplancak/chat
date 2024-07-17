@@ -1,1 +1,0 @@
-export { MessageListComponent as Component } from './message-list.component'

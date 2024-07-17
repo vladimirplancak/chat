@@ -6,17 +6,17 @@ import * as state from '../../../state'
 
 @ngCore.Component({
   imports: [
-    components.conversationList.Component,
-    components.conversationsHeader.Component,
-    components.conversationItem.Component,
+    components.conList.Component,
+    components.conHeader.Component,
+    components.conBody.Component,
     ngRouter.RouterOutlet,
   ],
   standalone: true,
-  styleUrl: './conversations-page.component.scss',
-  templateUrl: './conversations-page.component.html',
-  selector: 'app-channels-page'
+  styleUrl: './cons-page.component.scss',
+  templateUrl: './cons-page.component.html',
+  selector: 'app-cons-page'
 })
-export class ConversationsPageComponent implements ngCore.OnInit {
+export class ConsPageComponent implements ngCore.OnInit {
   private readonly _store = ngCore.inject(ngrxStore.Store)
 
 

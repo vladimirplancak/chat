@@ -1,0 +1,1 @@
+export { ConBodyComponent as Component } from './con-body.component'

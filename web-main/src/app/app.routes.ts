@@ -4,7 +4,7 @@ import * as ngCore from '@angular/core';
 
 
 @ngCore.Component({
-  template: 'TODO: implement page',
+  template: 'TODO: implement page, no con selected',
   standalone: true,
   selector: 'app-page-not-implemented'
 })
@@ -15,9 +15,12 @@ export const ROUTES: ngRouter.Routes = [
   { path: 'sign-up', component: components.pages.signUpPage.Component },
   { path: 'login', component: components.pages.loginPage.Component },
   {
-    path: 'conversations', component: components.pages.conversationsPage.Component,
+    path: 'conversations', component: components.pages.consPage.Component,
     children: [
-      { path: ':conversationId', component: components.pages.conversationsPage.components.conversationItem.Component }
+      // NOTE: order of registration below matters
+      { path: 'no-con-selected', component: PageNotImplementedComponent },
+      { path: ':conversationId', component: components.pages.consPage.components.conBody.Component },
+      { path: '', pathMatch: 'full', redirectTo: 'no-con-selected' },
     ],
   },
   { path: 'error', component: components.pages.errorPage.Component },

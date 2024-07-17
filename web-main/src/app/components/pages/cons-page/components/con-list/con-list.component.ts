@@ -6,11 +6,11 @@ import * as components from './components'
     components.conversationItem.Component,
   ],
   standalone: true,
-  styleUrl: './conversation-list.component.scss',
-  templateUrl: './conversation-list.component.html',
-  selector: 'app-conversation-list'
+  styleUrl: './con-list.component.scss',
+  templateUrl: './con-list.component.html',
+  selector: 'app-con-list'
 })
-export class ConversationListComponent {
+export class ConListComponent {
   public readonly conversationsSg: ngCore.Signal<string[]> = ngCore.signal<string[]>([
     'con-1',
     'con-2',

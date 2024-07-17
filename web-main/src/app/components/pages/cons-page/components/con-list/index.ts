@@ -1,0 +1,1 @@
+export { ConListComponent as Component } from './con-list.component'

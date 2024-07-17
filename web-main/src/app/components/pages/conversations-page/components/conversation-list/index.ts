@@ -1,1 +1,0 @@
-export { ConversationListComponent as Component } from './conversation-list.component'

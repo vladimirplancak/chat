@@ -58,6 +58,6 @@ export class UserApiService {
 function randomDelayOperator<T>(): rxjs.OperatorFunction<T, T> {
   return (source: rxjs.Observable<T>): rxjs.Observable<T> =>
     source.pipe(
-      rxjs.delay(10000),
+      rxjs.delay(Math.random() * 2500),
     );
 }

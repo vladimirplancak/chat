@@ -1,0 +1,1 @@
+export { MsgListComponent as Component } from './msg-list.component'
