@@ -7,7 +7,6 @@ export interface Conversation {
 }
 
 export namespace Conversation{
-
     export type Id = string
     export type Input = Omit<Conversation, 'id'>
     export type Update = Partial<Input>

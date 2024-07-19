@@ -1,3 +1,3 @@
-export * from './channel'
+export * from './conversation'
 export * from './message'
 export * from './user'
