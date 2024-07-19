@@ -1,22 +1,22 @@
 import * as ngrxStore from '@ngrx/store'
-import { ChannelState } from './conversation.reducer'
+import { ConState } from './conversation.reducer'
 import * as models from '../../../models'
 
 
-const STATE = ngrxStore.createFeatureSelector<ChannelState>(ChannelState.FEATURE_KEY)
+const STATE = ngrxStore.createFeatureSelector<ConState>(ConState.FEATURE_KEY)
 
-export namespace Channel {
-  export const CHANNELS = ngrxStore.createSelector(
+export namespace Conversation {
+  export const CONS = ngrxStore.createSelector(
     STATE,
     state => 
-        Object.entries(state.convoLookup)
-          .map(([id, convo]) => (convo ? convo : undefined))
-          .filter((convoOrUndefined): convoOrUndefined is models.Conversation => convoOrUndefined !== undefined)
+        Object.entries(state.conLookup)
+          .map(([id, con]) => (con ? con : undefined))
+          .filter((conOrUndefined): conOrUndefined is models.Conversation => conOrUndefined !== undefined)
   )
 
-  export const CONVO_LOOKUP = ngrxStore.createSelector(
+  export const CON_LOOKUP = ngrxStore.createSelector(
     STATE,
-    state => state.convoLookup
+    state => state.conLookup
   )
 
   export const PRESENT_LOADER = ngrxStore.createSelector(

@@ -16,7 +16,14 @@ import * as services from './services';
       core.user.State.FEATURE_KEY,
       core.user.State.REDUCER
     ),
-     ngrxEffects.EffectsModule.forFeature([core.user.Effects]),
+    ngrxEffects.EffectsModule.forFeature([core.user.Effects]),
+
+    /* --------------------- Conversation state registration -------------------- */
+    ngrxStore.StoreModule.forFeature(
+      core.conversation.State.FEATURE_KEY,
+      core.conversation.State.REDUCER
+    ),
+    ngrxEffects.EffectsModule.forFeature([core.conversation.Effects]),
 
     
     /* -------------------------- Dev tool registration ------------------------- */

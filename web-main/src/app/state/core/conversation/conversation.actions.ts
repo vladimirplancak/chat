@@ -2,11 +2,11 @@ import * as common from '../../common'
 import * as ngrxStore from '@ngrx/store'
 import * as models from '../../../models'
 
-export const CHANNEL_SOURCE = 'Channel'
+export const CON_SOURCE = 'Con'
 
 export namespace Conversation {
   export namespace Ui {
-    export const SOURCE = common.Action.Source.from(CHANNEL_SOURCE, 'Ui')
+    export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Ui')
     export namespace Root {
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'Root')
       export const actions = ngrxStore.createActionGroup({
@@ -20,7 +20,7 @@ export namespace Conversation {
 
 
 export namespace Api {
-    export const SOURCE = common.Action.Source.from(CHANNEL_SOURCE, 'Api')
+    export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Api')
     
     export namespace List {
         export const SOURCE = common.Action.Source.from(Api.SOURCE, 'List')

@@ -3,13 +3,12 @@ import * as ngrxEffects from '@ngrx/effects';
 import * as rxjs from 'rxjs';
 import { Conversation } from './conversation.actions'
 import * as services from '../../services';
-import { Action } from '@ngrx/store';
 
 @ngCore.Injectable()
-export class ChannelEffects {
+export class ConversationEffects {
 
     private readonly _actions = ngCore.inject(ngrxEffects.Actions)
-    private readonly _channelApiService = ngCore.inject(services.UserApiService)
+    private readonly _conApiService = ngCore.inject(services.ConApiService)
 
     $onRootInitialized = ngrxEffects.createEffect(() => this._actions.pipe(
         ngrxEffects.ofType(Conversation.Ui.Root.actions.initialized),
@@ -20,7 +19,7 @@ export class ChannelEffects {
 
     $onApiListStarted = ngrxEffects.createEffect(() => this._actions.pipe(
         ngrxEffects.ofType(Conversation.Api.List.actions.started),
-        rxjs.switchMap(() => this._channelApiService.list().pipe(
+        rxjs.switchMap(() => this._conApiService.list().pipe(
             rxjs.map(conversations => Conversation.Api.List.actions.succeeded({ conversations })),
             rxjs.catchError(error =>
                 rxjs.of(Conversation.Api.List.actions.failed({ errorMessage: error?.message }))
@@ -30,7 +29,7 @@ export class ChannelEffects {
 
     $onApiGetStarted = ngrxEffects.createEffect(() => this._actions.pipe(
         ngrxEffects.ofType(Conversation.Api.Get.actions.started),
-        rxjs.switchMap(({ conversationId }) => this._channelApiService.get(conversationId).pipe(
+        rxjs.switchMap(({ conversationId }) => this._conApiService.get(conversationId).pipe(
             rxjs.map(conversation => Conversation.Api.Get.actions.succeeded({ conversation })),
             rxjs.catchError(error =>
                 rxjs.of(Conversation.Api.Get.actions.failed({ errorMessage: error?.message }))
@@ -40,7 +39,7 @@ export class ChannelEffects {
 
     $onApiCreateStarted = ngrxEffects.createEffect(() => this._actions.pipe(
         ngrxEffects.ofType(Conversation.Api.Create.actions.started),
-        rxjs.switchMap(({ input }) => this._channelApiService.create(input).pipe(
+        rxjs.switchMap(({ input }) => this._conApiService.create(input).pipe(
             rxjs.map(createdConversation => Conversation.Api.Create.actions.succeeded({ conversation: createdConversation })),
             rxjs.catchError(error =>
                 rxjs.of(Conversation.Api.Create.actions.failed({ errorMessage: error?.message }))
@@ -50,7 +49,7 @@ export class ChannelEffects {
 
     $onApiUpdateStarted = ngrxEffects.createEffect(() => this._actions.pipe(
         ngrxEffects.ofType(Conversation.Api.Update.actions.started),
-        rxjs.switchMap(({ id, updates }) => this._channelApiService.update(id, updates).pipe(
+        rxjs.switchMap(({ id, updates }) => this._conApiService.update(id, updates).pipe(
           rxjs.map(updatedConversation => Conversation.Api.Update.actions.succeeded({ conversation: updatedConversation })),
           rxjs.catchError(error =>
             rxjs.of(Conversation.Api.Update.actions.failed({ errorMessage: error?.message }))
@@ -60,7 +59,7 @@ export class ChannelEffects {
 
       $onApiDeleteStarted = ngrxEffects.createEffect(() => this._actions.pipe(
         ngrxEffects.ofType(Conversation.Api.Delete.actions.started),
-        rxjs.switchMap(({ id }) => this._channelApiService.delete(id).pipe(
+        rxjs.switchMap(({ id }) => this._conApiService.delete(id).pipe(
           rxjs.map((deletedConversation) => Conversation.Api.Delete.actions.succeeded({ conversation: deletedConversation })),
           rxjs.catchError(error =>
             rxjs.of(Conversation.Api.Delete.actions.failed({ errorMessage: error?.message }))

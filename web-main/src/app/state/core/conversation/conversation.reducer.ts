@@ -3,16 +3,16 @@ import * as models from '../../../models'
 import * as actions from './conversation.actions'
 import type * as services from '../../services'
 
-export interface ChannelState {
+export interface ConState {
     /**
    * Loaded {@link models.Conversation} entities.
    */
-  convoLookup: Partial<Record<models.Conversation.Id, models.Conversation>>
+  conLookup: Partial<Record<models.Conversation.Id, models.Conversation>>
   /**
    * Loaded {@link models.Conversation.Id} ids.
    * 
    * NOTE: this is a list of ids, and should remain in sync with the
-   * {@link convoLookup} object.
+   * {@link conLookup} object.
    */
   ids: models.Conversation.Id[]
   /** 
@@ -36,27 +36,28 @@ export interface ChannelState {
    */
   pendingMutation: boolean
 }
-export namespace ChannelState {
-  export const FEATURE_KEY = 'Channel'
+export namespace ConState {
+  export const FEATURE_KEY = 'Con'
   /**
    * Represents the initial state of the conversation store.
    */
-  const INITIAL: ChannelState = {
-    convoLookup: {},
+  const INITIAL: ConState = {
+    conLookup: {},
     ids: [],
     pendingListRequest: false,
     pendingGetRequests: new Set(),
     pendingMutation: false,
   }
 
-  export const REDUCER = createReducer<ChannelState>(
+  export const REDUCER = createReducer<ConState>(
     INITIAL,
     /* -------------------------------------------------------------------------- */
     /*                                API Reducers                                */
     /* -------------------------------------------------------------------------- */
     /* --------------------------------- started -------------------------------- */
     on(actions.Conversation.Api.List.actions.started, (state) => ({ ...state, pendingListRequest: true })),
-    on(actions.Conversation.Api.Get.actions.started, (state, { conversationId }) => ({ ...state, pendingGetRequests: state.pendingGetRequests.add(conversationId) })),
+    on(actions.Conversation.Api.Get.actions.started, (state, { conversationId }) => 
+        ({ ...state, pendingGetRequests: state.pendingGetRequests.add(conversationId) })),
     on(actions.Conversation.Api.Create.actions.started, (state) => ({ ...state, pendingMutation: true })),
     on(actions.Conversation.Api.Update.actions.started, (state) => ({ ...state, pendingMutation: true })),
     on(actions.Conversation.Api.Delete.actions.started, (state) => ({ ...state, pendingMutation: true })),
@@ -66,7 +67,7 @@ export namespace ChannelState {
       ...state,
       pendingListRequest: false,
       ids: conversations.map(conversation => conversation.id),
-      convoLookup: conversations.reduce((lookup, convo) => ({ ...lookup, [convo.id]: convo }), {})
+      conLookup: conversations.reduce((lookup, con) => ({ ...lookup, [con.id]: con }), {})
     })),
 
     on(actions.Conversation.Api.Get.actions.succeeded, (state, { conversation }) => {
@@ -81,7 +82,7 @@ export namespace ChannelState {
       return ({
         ...state,
         pendingGetRequests: pendingGetRequestsCopy,
-        convoLookup: { ...state.convoLookup, [conversation.id]: conversation }
+        conLookup: { ...state.conLookup, [conversation.id]: conversation }
       })
     }),
 
@@ -89,24 +90,24 @@ export namespace ChannelState {
       ...state,
       pendingMutation: false,
       ids: [...state.ids, conversation.id],
-      convoLookup: { ...state.convoLookup, [conversation.id]: conversation }
+      conLookup: { ...state.conLookup, [conversation.id]: conversation }
     })),
 
     on(actions.Conversation.Api.Update.actions.succeeded, (state, { conversation }) => ({
       ...state,
       pendingMutation: false,
-      convoLookup: { ...state.convoLookup, [conversation.id]: conversation }
+      conLookup: { ...state.conLookup, [conversation.id]: conversation }
     })),
 
     on(actions.Conversation.Api.Delete.actions.succeeded, (state, { conversation }) =>  {
       const filteredIds = state.ids.filter(id => id !== conversation.id)
-      const convoLookupCopy = {...state.convoLookup}
-      delete convoLookupCopy[conversation.id]
+      const conLookupCopy = {...state.conLookup}
+      delete conLookupCopy[conversation.id]
 
       return ({
         ...state,
         ids: filteredIds,
-        convoLookup: convoLookupCopy,
+        conLookup: conLookupCopy,
       })
     }),
 
