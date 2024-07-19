@@ -3,7 +3,7 @@ import * as ngrxEffects from '@ngrx/effects'
 import * as ngrxStore from '@ngrx/store'  
 import * as core from './core'
 import * as ngrxStoreDevtools from '@ngrx/store-devtools'
-import * as services from './services'
+import * as services from './services';
 
 @ngCore.NgModule({
   imports: [
@@ -24,6 +24,7 @@ import * as services from './services'
      ngrxStoreDevtools.StoreDevtoolsModule.instrument()
   ],
   providers: [
+    services.UserApiService,
     services.UserApiService
   ],
 })

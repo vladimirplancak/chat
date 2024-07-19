@@ -6,6 +6,7 @@ export interface User {
   name: string
 }
 export namespace User {
+  
   export type Id = string
 
   export type Input = Omit<User, 'id'>

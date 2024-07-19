@@ -1,0 +1,120 @@
+import { createReducer, on, } from '@ngrx/store'
+import * as models from '../../../models'
+import * as actions from './channel.actions'
+import type * as services from '../../services'
+
+export interface ChannelState {
+    /**
+   * Loaded {@link models.Conversation} entities.
+   */
+  convoLookup: Partial<Record<models.Conversation.Id, models.Conversation>>
+  /**
+   * Loaded {@link models.Conversation.Id} ids.
+   * 
+   * NOTE: this is a list of ids, and should remain in sync with the
+   * {@link convoLookup} object.
+   */
+  ids: models.Conversation.Id[]
+  /** 
+   * Indicates whether a request has been made to the API to fetch the list of conversations.
+   * 
+   * @see {@link services.UserApiService.list}
+   */
+  pendingListRequest: boolean
+  /**
+   * Indicates which conversations are currently being loaded.
+   * 
+   * @see {@link services.UserApiService.get}
+   */
+  pendingGetRequests: Set<models.Conversation.Id>
+  /**
+   * Indicates whether a mutation is currently ongoing.
+   * 
+   * @see {@link services.UserApiService.create}
+   * @see {@link services.UserApiService.update}
+   * @see {@link services.UserApiService.delete}
+   */
+  pendingMutation: boolean
+}
+export namespace ChannelState {
+  export const FEATURE_KEY = 'Channel'
+  /**
+   * Represents the initial state of the conversation store.
+   */
+  const INITIAL: ChannelState = {
+    convoLookup: {},
+    ids: [],
+    pendingListRequest: false,
+    pendingGetRequests: new Set(),
+    pendingMutation: false,
+  }
+
+  export const REDUCER = createReducer<ChannelState>(
+    INITIAL,
+    /* -------------------------------------------------------------------------- */
+    /*                                API Reducers                                */
+    /* -------------------------------------------------------------------------- */
+    /* --------------------------------- started -------------------------------- */
+    on(actions.Conversation.Api.List.actions.started, (state) => ({ ...state, pendingListRequest: true })),
+    on(actions.Conversation.Api.Get.actions.started, (state, { conversationId }) => ({ ...state, pendingGetRequests: state.pendingGetRequests.add(conversationId) })),
+    on(actions.Conversation.Api.Create.actions.started, (state) => ({ ...state, pendingMutation: true })),
+    on(actions.Conversation.Api.Update.actions.started, (state) => ({ ...state, pendingMutation: true })),
+    on(actions.Conversation.Api.Delete.actions.started, (state) => ({ ...state, pendingMutation: true })),
+
+    /* -------------------------------- succeeded ------------------------------- */
+    on(actions.Conversation.Api.List.actions.succeeded, (state, {  conversations }) => ({
+      ...state,
+      pendingListRequest: false,
+      ids: conversations.map(conversation => conversation.id),
+      convoLookup: conversations.reduce((lookup, convo) => ({ ...lookup, [convo.id]: convo }), {})
+    })),
+
+    on(actions.Conversation.Api.Get.actions.succeeded, (state, { conversation }) => {
+      // NOTE: if we haven't found a conversation on the back-end 
+      // we will consider that we do not need to make an update 
+      // to our state.
+      if (!conversation) {
+        return { ...state }
+      }
+      const pendingGetRequestsCopy = new Set([...state.pendingGetRequests])
+      pendingGetRequestsCopy.delete(conversation.id)
+      return ({
+        ...state,
+        pendingGetRequests: pendingGetRequestsCopy,
+        convoLookup: { ...state.convoLookup, [conversation.id]: conversation }
+      })
+    }),
+
+    on(actions.Conversation.Api.Create.actions.succeeded, (state, { conversation }) => ({
+      ...state,
+      pendingMutation: false,
+      ids: [...state.ids, conversation.id],
+      convoLookup: { ...state.convoLookup, [conversation.id]: conversation }
+    })),
+
+    on(actions.Conversation.Api.Update.actions.succeeded, (state, { conversation }) => ({
+      ...state,
+      pendingMutation: false,
+      convoLookup: { ...state.convoLookup, [conversation.id]: conversation }
+    })),
+
+    on(actions.Conversation.Api.Delete.actions.succeeded, (state, { conversation }) =>  {
+      const filteredIds = state.ids.filter(id => id !== conversation.id)
+      const convoLookupCopy = {...state.convoLookup}
+      delete convoLookupCopy[conversation.id]
+
+      return ({
+        ...state,
+        ids: filteredIds,
+        convoLookup: convoLookupCopy,
+      })
+    }),
+
+    /* --------------------------------- failed -------------------------------- */
+    // TODO: implement failed reducers
+    on(actions.Conversation.Api.List.actions.failed, (state, action) => { return { ...state } }),
+    on(actions.Conversation.Api.Get.actions.failed, (state, action) => { return { ...state } }),
+    on(actions.Conversation.Api.Update.actions.failed, (state, action) => { return { ...state } }),
+    on(actions.Conversation.Api.Delete.actions.failed, (state, action) => { return { ...state } }),
+  )
+}
