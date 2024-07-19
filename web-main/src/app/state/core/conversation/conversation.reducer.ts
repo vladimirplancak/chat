@@ -1,6 +1,6 @@
 import { createReducer, on, } from '@ngrx/store'
 import * as models from '../../../models'
-import * as actions from './channel.actions'
+import * as actions from './conversation.actions'
 import type * as services from '../../services'
 
 export interface ChannelState {

@@ -1,7 +1,7 @@
 import * as ngCore from '@angular/core';
 import * as ngrxEffects from '@ngrx/effects';
 import * as rxjs from 'rxjs';
-import { Conversation } from './channel.actions'
+import { Conversation } from './conversation.actions'
 import * as services from '../../services';
 import { Action } from '@ngrx/store';
 

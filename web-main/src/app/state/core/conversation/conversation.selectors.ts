@@ -1,5 +1,5 @@
 import * as ngrxStore from '@ngrx/store'
-import { ChannelState } from './channel.reducer'
+import { ChannelState } from './conversation.reducer'
 import * as models from '../../../models'
 
 
