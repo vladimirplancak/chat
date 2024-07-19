@@ -20,10 +20,10 @@ import * as services from './services';
 
     /* --------------------- Conversation state registration -------------------- */
     ngrxStore.StoreModule.forFeature(
-      core.conversation.State.FEATURE_KEY,
-      core.conversation.State.REDUCER
+      core.con.State.FEATURE_KEY,
+      core.con.State.REDUCER
     ),
-    ngrxEffects.EffectsModule.forFeature([core.conversation.Effects]),
+    ngrxEffects.EffectsModule.forFeature([core.con.Effects]),
 
     
     /* -------------------------- Dev tool registration ------------------------- */
@@ -32,7 +32,7 @@ import * as services from './services';
   ],
   providers: [
     services.UserApiService,
-    services.UserApiService
+    services.ConApiService
   ],
 })
 export class StateModule {

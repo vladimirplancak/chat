@@ -35,6 +35,13 @@ export interface ConState {
    * @see {@link services.UserApiService.delete}
    */
   pendingMutation: boolean
+
+  /**
+   * The id of the conversation that is currently selected.
+   * 
+   * @see {@link models.Conversation.Id}
+   */
+  selectedId?: models.Conversation.Id
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -55,22 +62,22 @@ export namespace ConState {
     /*                                API Reducers                                */
     /* -------------------------------------------------------------------------- */
     /* --------------------------------- started -------------------------------- */
-    on(actions.Conversation.Api.List.actions.started, (state) => ({ ...state, pendingListRequest: true })),
-    on(actions.Conversation.Api.Get.actions.started, (state, { conversationId }) => 
+    on(actions.Con.Api.List.actions.started, (state) => ({ ...state, pendingListRequest: true })),
+    on(actions.Con.Api.Get.actions.started, (state, { conversationId }) => 
         ({ ...state, pendingGetRequests: state.pendingGetRequests.add(conversationId) })),
-    on(actions.Conversation.Api.Create.actions.started, (state) => ({ ...state, pendingMutation: true })),
-    on(actions.Conversation.Api.Update.actions.started, (state) => ({ ...state, pendingMutation: true })),
-    on(actions.Conversation.Api.Delete.actions.started, (state) => ({ ...state, pendingMutation: true })),
+    on(actions.Con.Api.Create.actions.started, (state) => ({ ...state, pendingMutation: true })),
+    on(actions.Con.Api.Update.actions.started, (state) => ({ ...state, pendingMutation: true })),
+    on(actions.Con.Api.Delete.actions.started, (state) => ({ ...state, pendingMutation: true })),
 
     /* -------------------------------- succeeded ------------------------------- */
-    on(actions.Conversation.Api.List.actions.succeeded, (state, {  conversations }) => ({
+    on(actions.Con.Api.List.actions.succeeded, (state, {  conversations }) => ({
       ...state,
       pendingListRequest: false,
       ids: conversations.map(conversation => conversation.id),
       conLookup: conversations.reduce((lookup, con) => ({ ...lookup, [con.id]: con }), {})
     })),
 
-    on(actions.Conversation.Api.Get.actions.succeeded, (state, { conversation }) => {
+    on(actions.Con.Api.Get.actions.succeeded, (state, { conversation }) => {
       // NOTE: if we haven't found a conversation on the back-end 
       // we will consider that we do not need to make an update 
       // to our state.
@@ -86,20 +93,20 @@ export namespace ConState {
       })
     }),
 
-    on(actions.Conversation.Api.Create.actions.succeeded, (state, { conversation }) => ({
+    on(actions.Con.Api.Create.actions.succeeded, (state, { conversation }) => ({
       ...state,
       pendingMutation: false,
       ids: [...state.ids, conversation.id],
       conLookup: { ...state.conLookup, [conversation.id]: conversation }
     })),
 
-    on(actions.Conversation.Api.Update.actions.succeeded, (state, { conversation }) => ({
+    on(actions.Con.Api.Update.actions.succeeded, (state, { conversation }) => ({
       ...state,
       pendingMutation: false,
       conLookup: { ...state.conLookup, [conversation.id]: conversation }
     })),
 
-    on(actions.Conversation.Api.Delete.actions.succeeded, (state, { conversation }) =>  {
+    on(actions.Con.Api.Delete.actions.succeeded, (state, { conversation }) =>  {
       const filteredIds = state.ids.filter(id => id !== conversation.id)
       const conLookupCopy = {...state.conLookup}
       delete conLookupCopy[conversation.id]
@@ -113,9 +120,17 @@ export namespace ConState {
 
     /* --------------------------------- failed -------------------------------- */
     // TODO: implement failed reducers
-    on(actions.Conversation.Api.List.actions.failed, (state, action) => { return { ...state } }),
-    on(actions.Conversation.Api.Get.actions.failed, (state, action) => { return { ...state } }),
-    on(actions.Conversation.Api.Update.actions.failed, (state, action) => { return { ...state } }),
-    on(actions.Conversation.Api.Delete.actions.failed, (state, action) => { return { ...state } }),
+    on(actions.Con.Api.List.actions.failed, (state, action) => { return { ...state } }),
+    on(actions.Con.Api.Get.actions.failed, (state, action) => { return { ...state } }),
+    on(actions.Con.Api.Update.actions.failed, (state, action) => { return { ...state } }),
+    on(actions.Con.Api.Delete.actions.failed, (state, action) => { return { ...state } }),
+
+    /* -------------------------------------------------------------------------- */
+    /*                                 UI Reducers                                */
+    /* -------------------------------------------------------------------------- */
+
+    /* ------------------------- conversation selection ------------------------- */
+    on(actions.Con.Ui.ConList.ConItem.actions.clicked, (state, {selectedId}) => ({ ...state, selectedId })),
+    on(actions.Con.Ui.ConBody.actions.initialized, (state, {params: {selectedId: conversationId}}) => ({ ...state, selectedId: conversationId })),
   )
 }

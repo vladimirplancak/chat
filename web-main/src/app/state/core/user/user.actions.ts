@@ -5,19 +5,6 @@ import * as models from '../../../models'
 export const USER_SOURCE = 'User'
 
 export namespace User {
-  export namespace Ui {
-    export const SOURCE = common.Action.Source.from(USER_SOURCE, 'Ui')
-    export namespace Root {
-      export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'Root')
-      export const actions = ngrxStore.createActionGroup({
-        source: SOURCE,
-        events: {
-          'initialized': ngrxStore.emptyProps(),
-        }
-      })
-    }
-  }
-
   export namespace Api {
     export const SOURCE = common.Action.Source.from(USER_SOURCE, 'Api')
     export namespace List {

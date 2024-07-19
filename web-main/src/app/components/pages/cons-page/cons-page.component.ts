@@ -19,8 +19,7 @@ import * as state from '../../../state'
 export class ConsPageComponent implements ngCore.OnInit {
   private readonly _store = ngCore.inject(ngrxStore.Store)
 
-
   ngOnInit(): void {
-    this._store.dispatch(state.core.user.actions.User.Ui.Root.actions.initialized())
+    this._store.dispatch(state.core.root.actions.Root.Ui.actions.initialized())
   }
 }

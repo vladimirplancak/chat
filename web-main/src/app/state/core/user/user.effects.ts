@@ -3,7 +3,7 @@ import * as ngrxEffects from '@ngrx/effects';
 import * as rxjs from 'rxjs';
 import { User } from './user.actions'
 import * as services from '../../services';
-import { Action } from '@ngrx/store';
+import * as rootState from '../root'
 
 @ngCore.Injectable()
 export class UserEffects {
@@ -12,7 +12,7 @@ export class UserEffects {
   private readonly _userApiService = ngCore.inject(services.UserApiService)
 
   $onRootInitialized = ngrxEffects.createEffect(() => this._actions.pipe(
-    ngrxEffects.ofType(User.Ui.Root.actions.initialized),
+    ngrxEffects.ofType(rootState.actions.Root.Ui.actions.initialized),
     rxjs.switchMap(() => 
       rxjs.of(User.Api.List.actions.started()),
     ),

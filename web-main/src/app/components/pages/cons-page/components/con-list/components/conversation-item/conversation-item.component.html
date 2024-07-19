@@ -1,5 +1,8 @@
 <div class="conversation-item">
-  <div class="conversation-item__avatar">
-  {{ conversationSg() }}
+  <div 
+    class="conversation-item__avatar"
+    [class.conversation-item__avatar--selected]="conversationSg().id  === selectedConversationIdSg()"
+  >
+  {{ conversationSg().name }}
   </div>  
 </div>

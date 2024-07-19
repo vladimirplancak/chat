@@ -1,5 +1,9 @@
 import * as ngCore from '@angular/core';
 import * as components from './components'
+import * as ngrxStore from '@ngrx/store'
+import * as state from '../../../../../state'
+import * as models from '../../../../../models'
+import * as ngRouter from '@angular/router'
 
 @ngCore.Component({
   imports: [
@@ -11,11 +15,12 @@ import * as components from './components'
   selector: 'app-con-list'
 })
 export class ConListComponent {
-  public readonly conversationsSg: ngCore.Signal<string[]> = ngCore.signal<string[]>([
-    'con-1',
-    'con-2',
-    'con-3',
-    'con-4',
-    'con-5',
-  ]);
+  private readonly _store = ngCore.inject(ngrxStore.Store)
+  private readonly _router = ngCore.inject(ngRouter.Router)
+  public readonly conListSg = this._store.selectSignal(state.core.con.selectors.Conversation.CONS)
+
+
+  public conItemClickHandler (selectedId: models.Conversation.Id): void {
+      this._router.navigate(['conversations', selectedId])
+  }
 }
