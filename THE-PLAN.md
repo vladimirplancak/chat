@@ -115,3 +115,44 @@ import * as state from './state'
 state.common.Action.create()
 
 3.2 (16.07.2024)
+
+4.1 (24.07.2024)
+- ngCore.effect -> ?
+  private readonly _signal1 = ngCore.signal(1)
+
+  setTimeout(() => {
+    this._signal1.update(2)
+  }, 2000)
+
+
+  effect(() => {
+    const lastValue1 = this.signal1() // 1 -> 2
+    const lastValue2 = this.signal2() // 1 
+    const lastValue3 = this.signal3() // 1 -> 3
+
+    if() ... {
+      doSomethingService()
+    }
+
+    // NOTE: This is strictly forbidden
+    // COMPLETELY ANTI-PATTERN
+
+    this._signal4.update(3)
+    
+  }, {allowSignalUpdates: true})
+
+- rxjs-interop -> toSignal toObservable
+-> signal === function doJob() { ..doing job } 
+-> doJob()
+-> signal()
+
+
+-> const subject$ = rxjs.Subject()
+-> const signal = toSignal(subject$) // will throw an run time error
+-> const signal = toSignal(subject$, {initialValue: undefined}) // this is fine
+
+- cleanup switching mechanism for conversations
+ -> this._router.navigate([])
+ -> this._router.dispatch(init({params: {selectionId}}))
+ -> after further investigation, I've realized that ngrx actually supports what we need, but it is really complicated how to implement it, and might cause more issues then benefit, so we wont implement it
+- user for con
