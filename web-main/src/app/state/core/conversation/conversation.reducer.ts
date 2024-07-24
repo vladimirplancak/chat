@@ -130,7 +130,7 @@ export namespace ConState {
     /* -------------------------------------------------------------------------- */
 
     /* ------------------------- conversation selection ------------------------- */
-    on(actions.Con.Ui.ConList.ConItem.actions.clicked, (state, {selectedId}) => ({ ...state, selectedId })),
-    on(actions.Con.Ui.ConBody.actions.initialized, (state, {params: {selectedId: conversationId}}) => ({ ...state, selectedId: conversationId })),
+    on(actions.Con.Ui.List.ConItem.actions.clicked, (state, {selectedId}) => ({ ...state, selectedId })),
+    on(actions.Con.Ui.Body.actions.initialized, (state, {params: {selectedId: conversationId}}) => ({ ...state, selectedId: conversationId })),
   )
 }

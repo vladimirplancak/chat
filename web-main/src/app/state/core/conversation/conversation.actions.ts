@@ -7,10 +7,10 @@ export const CON_SOURCE = 'Con'
 export namespace Con {
   export namespace Ui {
     export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Ui')
-    export namespace ConList {
+    export namespace List {
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ConList')
       export namespace ConItem {
-        export const SOURCE = common.Action.Source.from(ConList.SOURCE, 'ConItem')
+        export const SOURCE = common.Action.Source.from(List.SOURCE, 'ConItem')
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
@@ -19,7 +19,7 @@ export namespace Con {
         })
       }
     }
-    export namespace ConBody {
+    export namespace Body {
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ConBody')
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,

@@ -20,7 +20,7 @@ export class ConListComponent {
   public readonly conListSg = this._store.selectSignal(state.core.con.selectors.Conversation.CONS)
 
 
-  public conItemClickHandler (selectedId: models.Conversation.Id): void {
-      this._router.navigate(['conversations', selectedId])
+  public conItemClickHandler(selectedId: models.Conversation.Id): void {
+    this._router.navigate(['conversations', selectedId])
   }
 }

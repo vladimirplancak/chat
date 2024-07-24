@@ -32,7 +32,7 @@ export class ConBodyComponent {
     .pipe(rxjs.filter((selectedId): selectedId is string => selectedId !== undefined))
     .subscribe((selectedId) => {
       this._store.dispatch(
-        state.core.con.actions.Con.Ui.ConBody.actions.initialized({ params: { selectedId } })
+        state.core.con.actions.Con.Ui.Body.actions.initialized({ params: { selectedId } })
       )
     })
   }
