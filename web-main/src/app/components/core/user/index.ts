@@ -1,1 +1,0 @@
-export { TestComponent as Component } from './test'
