@@ -35,13 +35,6 @@ export interface ConState {
    * @see {@link services.UserApiService.delete}
    */
   pendingMutation: boolean
-
-  /**
-   * The id of the conversation that is currently selected.
-   * 
-   * @see {@link models.Conversation.Id}
-   */
-  selectedId?: models.Conversation.Id
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -131,6 +124,5 @@ export namespace ConState {
 
     /* ------------------------- conversation selection ------------------------- */
     on(actions.Con.Ui.List.ConItem.actions.clicked, (state, {selectedId}) => ({ ...state, selectedId })),
-    on(actions.Con.Ui.Body.actions.initialized, (state, {params: {selectedId: conversationId}}) => ({ ...state, selectedId: conversationId })),
   )
 }

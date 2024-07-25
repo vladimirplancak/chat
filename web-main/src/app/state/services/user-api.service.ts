@@ -3,11 +3,28 @@ import * as models from '../../models';
 import * as rxjs from 'rxjs'
 
 
-const IN_MEMORY_USERS_LIST: models.User[] = [
+export const IN_MEMORY_USERS_LIST: models.User[] = [
   { id: '0', name: 'Alice' },
   { id: '1', name: 'Bob' },
   { id: '2', name: 'Charlie' },
   { id: '3', name: 'David' },
+  { id: '4', name: 'Eve' },
+  { id: '5', name: 'Frank' },
+  { id: '6', name: 'Grace' },
+  { id: '7', name: 'Heidi' },
+  { id: '8', name: 'Ivan' },
+  { id: '9', name: 'Judy' },
+  { id: '10', name: 'Karl' },
+  { id: '11', name: 'Linda' },
+  { id: '12', name: 'Hitler' },
+  { id: '13', name: 'Mao' },
+  { id: '14', name: 'Stalin' },
+  { id: '15', name: 'Trump' },
+  { id: '16', name: 'Biden' },
+  { id: '17', name: 'Putin' },
+  { id: '18', name: 'Xi' },
+  { id: '19', name: 'Kim' },
+  { id: '20', name: 'Merkel' },
 ]
 
 @ngCore.Injectable()

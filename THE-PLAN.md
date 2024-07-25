@@ -156,3 +156,19 @@ state.common.Action.create()
  -> this._router.dispatch(init({params: {selectionId}}))
  -> after further investigation, I've realized that ngrx actually supports what we need, but it is really complicated how to implement it, and might cause more issues then benefit, so we wont implement it
 - user for con
+
+
+-- new topic "Static Typing"
+-> how can you validate that your code works?
+
+-> You can test it!  OR... 
+-> make it impossible to make a mistake
+
+-> Record<Message.Id, Message[]>
+
+{
+  id: string
+  userId: string
+  conversationId: string
+}
+

@@ -1,7 +1,11 @@
 import * as ngrxStore from '@ngrx/store'
 import { ConState } from './conversation.reducer'
 import * as models from '../../../models'
+import * as ngrxRouterStore from '@ngrx/router-store'
 
+const {
+  selectRouteParam, // factory function to select a route param
+} = ngrxRouterStore.getRouterSelectors();
 
 const STATE = ngrxStore.createFeatureSelector<ConState>(ConState.FEATURE_KEY)
 
@@ -20,8 +24,8 @@ export namespace Conversation {
   )
 
   export const SELECTED_CON_ID = ngrxStore.createSelector(
-    STATE,
-    state => state.selectedId
+    selectRouteParam('conversationId'),
+    conversationId => conversationId
   )
 
   export const SELECTED_CON = ngrxStore.createSelector(
@@ -34,6 +38,13 @@ export namespace Conversation {
     STATE,
     // TODO: finish implementation
     state => false
+  )
+
+  export const CONVERSATION_MESSAGES = ngrxStore.createSelector(
+    STATE,
+    state => {
+      return [] as models.Conversation.Message.InConversation[]
+    }
   )
 }
 

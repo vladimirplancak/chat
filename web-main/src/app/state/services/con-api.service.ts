@@ -1,12 +1,13 @@
 import * as ngCore from '@angular/core';
 import * as models from '../../models';
 import * as rxjs from 'rxjs'
+import { IN_MEMORY_USERS_LIST } from './user-api.service'
 
 const IN_MEMORY_CON_LIST: models.Conversation[] = [
-    { id: '0', name: 'con-one', participantIds: [] },
-    { id: '1', name: 'con-two', participantIds: [] },
-    { id: '2', name: 'con-three', participantIds: [] },
-    { id: '3', name: 'con-four', participantIds: [] },
+  { id: '0', name: 'con-one', participantIds: [...IN_MEMORY_USERS_LIST].splice(0, 5).map(it => it.id) },
+  { id: '1', name: 'con-two', participantIds: [...IN_MEMORY_USERS_LIST].splice(5, 5).map(it => it.id) },
+  { id: '2', name: 'con-three', participantIds: [...IN_MEMORY_USERS_LIST].splice(10, 5).map(it => it.id) },
+  { id: '3', name: 'con-four', participantIds: [...IN_MEMORY_USERS_LIST].splice(15, 5).map(it => it.id) },
 ]
 
 @ngCore.Injectable()

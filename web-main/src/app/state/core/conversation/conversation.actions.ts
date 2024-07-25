@@ -19,16 +19,6 @@ export namespace Con {
         })
       }
     }
-    export namespace Body {
-      export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ConBody')
-        export const actions = ngrxStore.createActionGroup({
-          source: SOURCE,
-          events: {
-            'Initialized': ngrxStore.props<{params: {selectedId: models.Conversation.Id}}>(),
-          }
-        })
-      
-    }
   }
   export namespace Api {
     export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Api')
