@@ -172,3 +172,14 @@ state.common.Action.create()
   conversationId: string
 }
 
+
+4.2 (26.07.2024)
+
+
+5.1 (x.07.2024)
+  -- TODO: initial loading of messages
+  -- styling of message(s) component
+  -- develop (generic) loader
+  -- TODO: show loaders, when conversation or messages in conversation are loading
+  -- TODO: do not query for new messages for the conversation that is already loaded
+  -- TODO: fix issue with `[Con.Con.List] Started`

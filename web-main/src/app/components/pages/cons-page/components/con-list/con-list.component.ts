@@ -22,5 +22,6 @@ export class ConListComponent {
 
   public conItemClickHandler(selectedId: models.Conversation.Id): void {
     this._router.navigate(['conversations', selectedId])
+    this._store.dispatch(state.core.con.actions.Con.Ui.List.ConItem.actions.clicked({ selectedId }))
   }
 }

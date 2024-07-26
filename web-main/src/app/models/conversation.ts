@@ -1,7 +1,7 @@
 import { User } from './user'
 
 /**
- * Basic building block of chanel
+ * Basic building block of Conversation
  */
 export interface Conversation {
  id: Conversation.Id
@@ -14,15 +14,22 @@ export namespace Conversation {
     export type Update = Partial<Input>
 
     export interface Message {
-      id: string
+      id: Message.Id
       userId: User.Id
       content: string
+      datetime: Date
+    }
+    export namespace Message {
+      export type Id = string
+      export type Input = Omit<Message, 'id'>
+      export type Update = Pick<Message, 'content'>
     }
 
-    // Liskov Substitution Principle
-    export namespace Message {
-      export interface InConversation extends Message {
-        conversationId: Conversation.Id 
-      }
+    /**
+     * An extended version of {@link Conversation} that includes the list of
+     * {@link Messages}.
+     */
+    export interface WithMessages extends Conversation { 
+      messages: readonly Message[]
     }
 }

@@ -15,7 +15,7 @@ export namespace Conversation {
     state => 
         Object.entries(state.conLookup)
           .map(([id, con]) => (con ? con : undefined))
-          .filter((conOrUndefined): conOrUndefined is models.Conversation => conOrUndefined !== undefined)
+          .filter((conOrUndefined): conOrUndefined is models.Conversation.WithMessages => conOrUndefined !== undefined)
   )
 
   export const CON_LOOKUP = ngrxStore.createSelector(
@@ -23,14 +23,14 @@ export namespace Conversation {
     state => state.conLookup
   )
 
-  export const SELECTED_CON_ID = ngrxStore.createSelector(
+  export const SELECTED_ID = ngrxStore.createSelector(
     selectRouteParam('conversationId'),
     conversationId => conversationId
   )
 
-  export const SELECTED_CON = ngrxStore.createSelector(
+  export const SELECTED = ngrxStore.createSelector(
     CON_LOOKUP,
-    SELECTED_CON_ID,
+    SELECTED_ID,
     (lookup, selectedId) => selectedId ? lookup[selectedId] : undefined
   )
 
@@ -40,10 +40,10 @@ export namespace Conversation {
     state => false
   )
 
-  export const CONVERSATION_MESSAGES = ngrxStore.createSelector(
-    STATE,
-    state => {
-      return [] as models.Conversation.Message.InConversation[]
+  export const MESSAGES = ngrxStore.createSelector(
+    SELECTED,
+    selectedCon => {
+      return selectedCon ? selectedCon.messages : []
     }
   )
 }

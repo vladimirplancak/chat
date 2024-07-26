@@ -14,7 +14,7 @@ import * as ngrxStore from '@ngrx/store'
 })
 export class ParticipantListComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store)
-  private readonly _selectedConSg = this._store.selectSignal(state.core.con.selectors.Conversation.SELECTED_CON)
+  private readonly _selectedConSg = this._store.selectSignal(state.core.con.selectors.Conversation.SELECTED)
 
   public readonly participantsSg = ngCore.computed(() => {
     const selectedCon = this._selectedConSg()
