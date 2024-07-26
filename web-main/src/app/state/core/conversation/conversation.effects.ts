@@ -3,6 +3,7 @@ import * as ngrxEffects from '@ngrx/effects';
 import * as rxjs from 'rxjs';
 import * as models from '../../../models'
 import { Con } from './conversation.actions'
+import * as conSelectors from './conversation.selectors'
 import * as services from '../../services';
 import * as rootState from '../root'
 
@@ -28,6 +29,18 @@ export class ConversationEffects {
       )
     )),
   ))
+
+  
+
+  // TODO: implement something like this soon
+  // $shouldLoadMessages = ngrxEffects.createEffect(() => this._actions.pipe(
+  //   // -- if there is selectedConversation at this point, and the started if for "this conversation"
+  //   // -- then load messages as well
+  //   rxjs.withLatestFrom(this._store.select(conSelectors.Conversation.SELECTED_ID)),
+  //   rxjs.filter(([action, selectedId])=> !selectedId && action.conversationId === selectedId),
+  //   // dispatch loadMessagesStarted(action.conversationId)
+  //  )
+  // ))
 
   $onApiConGetStarted = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(Con.Api.Con.Get.actions.started),
