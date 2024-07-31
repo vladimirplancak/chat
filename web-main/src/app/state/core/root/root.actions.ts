@@ -10,6 +10,8 @@ export namespace Root {
       source: SOURCE,
       events: {
         'initialized': ngrxStore.emptyProps(),
+        'extractCurrentURLParam': ngrxStore.props<{ conversationId: string}>(),
+        //'preserveCurrentURLParam': ngrxStore.props<{ conversationId: string }>(),
       }
     })
   }
