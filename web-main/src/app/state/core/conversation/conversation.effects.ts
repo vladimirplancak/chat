@@ -1,6 +1,7 @@
 import * as ngCore from '@angular/core';
 import * as ngrxEffects from '@ngrx/effects';
 import * as rxjs from 'rxjs';
+import * as ngrxStore from '@ngrx/store';
 import * as models from '../../../models'
 import { Con } from './conversation.actions'
 import * as conSelectors from './conversation.selectors'
@@ -12,6 +13,7 @@ export class ConversationEffects {
 
   private readonly _actions = ngCore.inject(ngrxEffects.Actions)
   private readonly _conApiService = ngCore.inject(services.ConApiService)
+  private readonly _store = ngCore.inject(ngrxStore.Store)
 
   $onRootInitialized = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(rootState.actions.Root.Ui.actions.initialized),
@@ -30,17 +32,18 @@ export class ConversationEffects {
     )),
   ))
 
-  
-
-  // TODO: implement something like this soon
-  // $shouldLoadMessages = ngrxEffects.createEffect(() => this._actions.pipe(
-  //   // -- if there is selectedConversation at this point, and the started if for "this conversation"
-  //   // -- then load messages as well
-  //   rxjs.withLatestFrom(this._store.select(conSelectors.Conversation.SELECTED_ID)),
-  //   rxjs.filter(([action, selectedId])=> !selectedId && action.conversationId === selectedId),
-  //   // dispatch loadMessagesStarted(action.conversationId)
-  //  )
-  // ))
+  // TODO: explain what this does.
+  $shouldLoadMessages = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(Con.Api.Con.List.actions.started),
+    rxjs.switchMap((action) =>
+      this._store.select(conSelectors.Conversation.SELECTED_ID)
+        .pipe(
+          rxjs.filter((selectedId: any): selectedId is string => !!selectedId),
+          rxjs.first(),
+          rxjs.map(conversationId => Con.Api.Message.List.actions.started({ conversationId }))
+        )
+    ),
+  ))
 
   $onApiConGetStarted = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(Con.Api.Con.Get.actions.started),

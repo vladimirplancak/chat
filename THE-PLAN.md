@@ -177,7 +177,7 @@ state.common.Action.create()
 
 
 5.1 (x.07.2024)
-  -- TODO: initial loading of messages
+  ~~-- TODO: initial loading of messages~~
   -- styling of message(s) component
   -- develop (generic) loader
   -- TODO: show loaders, when conversation or messages in conversation are loading
