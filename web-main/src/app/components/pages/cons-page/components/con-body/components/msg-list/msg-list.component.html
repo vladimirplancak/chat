@@ -1,5 +1,10 @@
 @for (msg of messagesSg(); track $index) {
-  <div>
-    {{ participantLookupSg()[msg.userId]?.name }}: {{ msg.content }}
+  <div class="message-list__item">
+    <div class="message-list__item-participant">
+      {{ participantLookupSg()[msg.userId]?.name }}:
+    </div>
+    <div class="message-list__item-content">
+      {{ msg.content }}
+    </div>
   </div>
 }

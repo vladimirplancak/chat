@@ -1,0 +1,23 @@
+@use 'variables' as v;
+
+.message-list { 
+  &__item {
+    display: flex;
+    flex-direction: column;
+    margin: 20px 0;
+  }
+
+  &__item-participant {
+    margin-left: 15px;
+    margin-bottom: 5px;
+    font-size: 12px;
+    font-style: italic;
+  }
+
+  &__item-content {
+    padding: 10px 5px;
+    width: 250px;
+    border-radius: 20px;
+    background-color: v.$primary;
+  }
+}
