@@ -143,12 +143,13 @@ export namespace ConState {
     on(actions.Con.Api.Message.List.actions.succeeded, (state, { conversationId, messages }) => {
       // FIXME: refactor below, we can do some 'early' returns here, and don't
       // need so many explicit checks.
+      console.log(`conversationId`, conversationId)
       const pendingConListMessagesRequestsCopy = new Set([...state.pendingConListMessagesRequests])
       pendingConListMessagesRequestsCopy.delete(conversationId)
 
       
       let conversationCopy = {...state.conLookup}[conversationId]
-
+      console.log('conversationCopy:', conversationCopy)
       if(!conversationCopy) {
         // TODO: do the better error handling, actually do the early return here
         throw new Error('Should never happen')

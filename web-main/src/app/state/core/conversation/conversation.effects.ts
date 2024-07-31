@@ -6,12 +6,22 @@ import { Con } from './conversation.actions'
 import * as conSelectors from './conversation.selectors'
 import * as services from '../../services';
 import * as rootState from '../root'
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 
 @ngCore.Injectable()
 export class ConversationEffects {
 
   private readonly _actions = ngCore.inject(ngrxEffects.Actions)
   private readonly _conApiService = ngCore.inject(services.ConApiService)
+ 
+
+  $loadMessagesOnClientRefresh = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(rootState.actions.Root.Ui.actions.extractCurrentURLParam),
+    rxjs.switchMap((param) => {
+      return rxjs.of(Con.Api.Message.List.actions.started(param))
+    })
+  )
+)
 
   $onRootInitialized = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(rootState.actions.Root.Ui.actions.initialized),
