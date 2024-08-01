@@ -11,7 +11,7 @@ import * as state from '../../../../../../../state'
 })
 export class ConversationItemComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store);
-  public readonly selectedConversationIdSg = this._store.selectSignal(state.core.con.selectors.Conversation.SELECTED_ID)
+  public readonly selectedConversationIdSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ID)
   public readonly conversationSg = ngCore.input.required<models.Conversation>({alias: 'conversation'});
 
 }

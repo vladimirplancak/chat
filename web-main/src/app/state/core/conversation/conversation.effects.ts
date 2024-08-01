@@ -36,7 +36,7 @@ export class ConversationEffects {
   $shouldLoadMessages = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(Con.Api.Con.List.actions.started),
     rxjs.switchMap((action) =>
-      this._store.select(conSelectors.Conversation.SELECTED_ID)
+      this._store.select(conSelectors.Conversation.Selected.ID)
         .pipe(
           rxjs.filter((selectedId: any): selectedId is string => !!selectedId),
           rxjs.first(),

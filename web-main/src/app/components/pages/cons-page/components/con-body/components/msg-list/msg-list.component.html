@@ -1,10 +1,23 @@
-@for (msg of messagesSg(); track $index) {
-  <div class="message-list__item">
-    <div class="message-list__item-participant">
-      {{ participantLookupSg()[msg.userId]?.name }}:
-    </div>
-    <div class="message-list__item-content">
-      {{ msg.content }}
-    </div>
+@if(messagesSg().length > 0) {
+  <div class="message-list">
+    @for (msg of messagesSg(); track $index) {
+      <div class="message-list__item">
+        <div class="message-list__item-participant">
+          {{ participantLookupSg()[msg.userId]?.name }}:
+        </div>
+        <div class="message-list__item-content">
+          {{ msg.content }}
+        </div>
+      </div>
+    }
   </div>
+  <!-- TODO: error handling -->
+} @else if (false) {
+  .. something when wrong... 
+} @else if (presentLoaderSg()) {
+  .. show loader...
+} @else {
+  ...empty state...
 }
+
+

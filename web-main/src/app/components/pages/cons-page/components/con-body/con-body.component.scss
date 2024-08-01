@@ -1,21 +1,25 @@
 @use 'variables' as v;
 
 .conversation-item{
-    // NOTE: - 60px to account for the header. 
-    height: calc(100vh - 60px);
-    display: flex;    
-    flex-direction:column;
-    background-color: v.$quaternary;
-
-    &__upper {
+  // NOTE: - 60px to account for the header. 
+  height: calc(100vh - 60px);
+  display: flex;    
+  flex-direction:column;
+  background-color: v.$quaternary;
+  
+  &__upper {
+      overflow: hidden;
       display: flex;
       flex-direction: row;
       flex: 1;
     }
 
     &__upper-message-list{
+      overflow-y: auto;
+      display: flex;
       flex: 1;
-      padding: 20px;
+      margin: 10px 0;
+      padding: 0px 20px;
     }
     
     &__upper-participant-list{

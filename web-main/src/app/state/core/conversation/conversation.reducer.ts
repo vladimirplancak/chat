@@ -170,9 +170,6 @@ export namespace ConState {
       let conversationCopy = { ...state.conLookup }[conversationId]
 
 
-      // TODO: add this temporary conversation id into IDs property.
-
-
       // NOTE: In cases where the conversation is already loaded and there is a
       // conversation record in the state, it is safe to assume that the
       // messages can be stored in the conversation object. However, if the
@@ -196,7 +193,6 @@ export namespace ConState {
         conversationCopy = {
           id: conversationId,
           messages,
-          name: conversationId,
           participantIds: distinctParticipantIds,
         }
       }

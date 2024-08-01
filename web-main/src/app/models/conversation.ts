@@ -5,7 +5,13 @@ import { User } from './user'
  */
 export interface Conversation {
  id: Conversation.Id
- name: string
+ /**
+  * Usually, in most of the cases, the name of the conversation will be defined,
+  * however in case that we load conversation messages before the conversation
+  * itself, we will not have the name of the conversation, however we will be
+  * able to selvage the conversation id, participant ids and messages.
+  */
+ name?: string
  participantIds: readonly User.Id[]
 }
 export namespace Conversation {

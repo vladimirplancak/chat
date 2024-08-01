@@ -18,6 +18,9 @@ export interface UserState {
   /** 
    * Indicates whether a request has been made to the API to fetch the list of users.
    * 
+   * Initially this starts with true, because we want to fetch the list of users
+   * as soon as possible
+   * 
    * @see {@link services.UserApiService.list}
    */
   pendingListRequest: boolean
@@ -44,7 +47,7 @@ export namespace UserState {
   const INITIAL: UserState = {
     userLookup: {},
     ids: [],
-    pendingListRequest: false,
+    pendingListRequest: true,
     pendingGetRequests: new Set(),
     pendingMutation: false,
   }

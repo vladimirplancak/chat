@@ -1,5 +1,13 @@
-<div class="conversation-list">
-  @for (conversation of conListSg(); track $index) {
-    <app-conversation-item [conversation]="conversation" (click)="conItemClickHandler(conversation.id)"/>
-  }
-</div>
+@if(conListSg().length > 0) {
+  <div class="conversation-list">
+    @for (conversation of conListSg(); track $index) {
+      <app-conversation-item [conversation]="conversation" (click)="conItemClickHandler(conversation.id)"/>
+    }
+  </div>
+} @else if (false) {
+  .. something when wrong... 
+} @else if (presentLoaderSg()) {
+  .. show loader...
+} @else {
+  ...empty state...
+}

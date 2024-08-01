@@ -14,16 +14,27 @@ import * as ngrxStore from '@ngrx/store'
 })
 export class ParticipantListComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store)
-  private readonly _selectedConSg = this._store.selectSignal(state.core.con.selectors.Conversation.SELECTED)
+  private readonly _selectedConSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)
 
+  public readonly presentListErrorSg = this._store.selectSignal(state.core.user.selectors.User.LIST_ERROR)
+  /**
+   * Users are loading if there is no selected conversation (and) or if there is
+   * ongoing request to fetch the list of users.
+   */
+  public readonly presentLoaderSg = ngCore.computed(() => {
+    const selectedCon = this._selectedConSg()
+    if(!selectedCon) {
+      return true
+    }
+    const presentLoader = this._store.selectSignal(state.core.user.selectors.User.PRESENT_LOADER)()
+    return presentLoader
+  })
   public readonly participantsSg = ngCore.computed(() => {
     const selectedCon = this._selectedConSg()
     if(!selectedCon) {
       return []
     }
-
     return this._store.selectSignal(state.core.user.selectors.User.USERS_FILTERED(selectedCon.participantIds))()
-  }) 
-
+  })
  
 }

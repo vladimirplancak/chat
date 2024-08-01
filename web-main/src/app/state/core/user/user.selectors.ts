@@ -42,7 +42,12 @@ export namespace User {
 
   export const PRESENT_LOADER = ngrxStore.createSelector(
     STATE,
-    // TODO: finish implementation
+    state => state.pendingListRequest
+  )
+
+  export const LIST_ERROR = ngrxStore.createSelector(
+    STATE,
+    // TODO: Implement
     state => false
   )
   

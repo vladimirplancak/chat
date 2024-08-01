@@ -18,6 +18,7 @@ export class ConListComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store)
   private readonly _router = ngCore.inject(ngRouter.Router)
   public readonly conListSg = this._store.selectSignal(state.core.con.selectors.Conversation.CONS)
+  public readonly presentLoaderSg = this._store.selectSignal(state.core.con.selectors.Conversation.PRESENT_LOADER)
 
 
   public conItemClickHandler(selectedId: models.Conversation.Id): void {
