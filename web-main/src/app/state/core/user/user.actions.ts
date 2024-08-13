@@ -62,5 +62,26 @@ export namespace User {
         }
       })
     }
+    export namespace ListOnlineIds {
+      export const SOURCE = common.Action.Source.from(Api.SOURCE, 'ListOnlineIds')
+      export const actions = ngrxStore.createActionGroup({
+        source: SOURCE,
+        events: {
+          'started': ngrxStore.emptyProps(),
+          'succeeded': ngrxStore.props<{ onlineUserIds: Set<models.User.Id> }>(),
+          'failed': ngrxStore.props<{errorMessage?: string}>(),
+        }
+      })
+    }
+    export namespace Subscriptions {
+      export const SOURCE = common.Action.Source.from(Api.SOURCE, 'Subscriptions')
+      export const actions = ngrxStore.createActionGroup({
+        source: SOURCE,
+        events: {
+          'hasComeOnline': ngrxStore.props<{ userId: models.User.Id }>(),
+          'hasWentOffline': ngrxStore.props<{ userId: models.User.Id }>(),
+        }
+      })
+    }
   }
 }
