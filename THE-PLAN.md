@@ -182,7 +182,7 @@ state.common.Action.create()
 
 5.2 (01.08.2024)  
   ~~-- TODO: show loaders, when conversation or messages in conversation are loading~~
-  -- TODO: do not query for new messages for the conversation that is already loaded
+  ~~-- TODO: do not query for new messages for the conversation that is already loaded~~
   -- TODO: fix issue with `[Con.Con.List] Started`
 
 
