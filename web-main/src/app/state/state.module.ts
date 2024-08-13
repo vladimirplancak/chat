@@ -35,7 +35,14 @@ import * as ngrxRouterStore from '@ngrx/router-store';
 
     /* -------------------------- Dev tool registration ------------------------- */
     // NOTE: this might need to be disabled on production
-     ngrxStoreDevtools.StoreDevtoolsModule.instrument()
+     ngrxStoreDevtools.StoreDevtoolsModule.instrument({
+      serialize: {
+        options: {
+          map: true,
+          set: true,
+        },
+      },
+     })
   ],
   providers: [
     services.UserApiService,

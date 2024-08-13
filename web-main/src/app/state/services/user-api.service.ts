@@ -29,6 +29,21 @@ export const IN_MEMORY_USERS_LIST: models.User[] = [
 
 @ngCore.Injectable()
 export class UserApiService {
+  public userCameOnline$ = new rxjs.Subject<models.User.Id>()
+  public userWentOffline$ = new rxjs.Subject<models.User.Id>()
+
+   constructor() {
+    // TODO: remove this hardcoded online / offline approach once implementing backend
+     rxjs.timer(0, 500).subscribe(() => {
+       const randomOnlineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
+       const randomOfflineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
+
+       this.userCameOnline$.next(randomOnlineUser.id)
+        this.userWentOffline$.next(randomOfflineUser.id)
+     })
+   }
+
+
   public list(): rxjs.Observable<readonly models.User[]> {
     return rxjs.of(IN_MEMORY_USERS_LIST).pipe(randomDelayOperator())
   }

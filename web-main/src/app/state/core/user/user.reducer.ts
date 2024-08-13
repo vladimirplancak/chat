@@ -54,7 +54,7 @@ export namespace UserState {
     pendingListRequest: true,
     pendingGetRequests: new Set(),
     pendingMutation: false,
-    onlineUserIds: new Set(['5'])
+    onlineUserIds: new Set()
   }
 
   export const REDUCER = createReducer<UserState>(
@@ -68,6 +68,9 @@ export namespace UserState {
     on(actions.User.Api.Create.actions.started, (state) => ({ ...state, pendingMutation: true })),
     on(actions.User.Api.Update.actions.started, (state) => ({ ...state, pendingMutation: true })),
     on(actions.User.Api.Delete.actions.started, (state) => ({ ...state, pendingMutation: true })),
+    // NOTE: it is not important to show a loader, while loading online users,
+    // since indictors will show that naturally
+    on(actions.User.Api.ListOnlineIds.actions.started, (state) => ({ ...state })),
 
     /* -------------------------------- succeeded ------------------------------- */
     on(actions.User.Api.List.actions.succeeded, (state, { users }) => ({
@@ -113,6 +116,12 @@ export namespace UserState {
         userLookup: userLookupCopy,
       })
     }),
+    on(actions.User.Api.ListOnlineIds.actions.succeeded, (state, {onlineUserIds}) =>  {
+      return ({
+        ...state,
+        onlineUserIds: new Set([...onlineUserIds])
+      })
+    }),
 
     /* --------------------------------- failed -------------------------------- */
     // TODO: implement failed reducers
@@ -120,5 +129,26 @@ export namespace UserState {
     on(actions.User.Api.Get.actions.failed, (state, action) => { return { ...state } }),
     on(actions.User.Api.Update.actions.failed, (state, action) => { return { ...state } }),
     on(actions.User.Api.Delete.actions.failed, (state, action) => { return { ...state } }),
+
+    /* -------------------------------------------------------------------------- */
+    /*                                Subscriptions                               */
+    /* -------------------------------------------------------------------------- */
+    on(actions.User.Api.Subscriptions.actions.hasComeOnline, (state, { userId }) => { 
+      
+      
+      return { 
+        ...state,
+        onlineUserIds: new Set([...state.onlineUserIds, userId])
+      } 
+    }),
+    on(actions.User.Api.Subscriptions.actions.hasWentOffline, (state, {userId}) => { 
+      const onlineUserIds = new Set([...state.onlineUserIds])
+      onlineUserIds.delete(userId)
+
+      return { 
+        ...state,
+        onlineUserIds: onlineUserIds
+      } 
+    }),
   )
 }
