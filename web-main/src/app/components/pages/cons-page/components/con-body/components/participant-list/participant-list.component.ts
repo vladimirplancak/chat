@@ -2,6 +2,7 @@ import * as ngCore from '@angular/core';
 import * as components from './components'
 import * as state from '../../../../../../../state'
 import * as ngrxStore from '@ngrx/store'
+import * as models from '../../../../../../../models'
 
 @ngCore.Component({
   imports:[
@@ -29,6 +30,8 @@ export class ParticipantListComponent {
     const presentLoader = this._store.selectSignal(state.core.user.selectors.User.PRESENT_LOADER)()
     return presentLoader
   })
+
+  /** All participants of the selected conversation. */
   public readonly participantsSg = ngCore.computed(() => {
     const selectedCon = this._selectedConSg()
     if(!selectedCon) {
@@ -36,5 +39,29 @@ export class ParticipantListComponent {
     }
     return this._store.selectSignal(state.core.user.selectors.User.USERS_FILTERED(selectedCon.participantIds))()
   })
+
+  /**
+   * Lookup of online status of participants.
+   * 
+   * @example
+   * ```ts 
+   * {
+   *  '0'       : true,
+   *  '1'       : false,
+   *  'user-id' : true,
+   * }
+   * ```
+   */
+  public participantOnlineLookupSg = ngCore.computed(() => {
+    const participants = this.participantsSg()
+    return participants.reduce<Partial<Record<models.User.Id, boolean>>>((lookup, participant) => {
+      const isOnline = this._store.selectSignal(state.core.user.selectors.User.IS_ONLINE(participant.id))()
+      lookup[participant.id] = isOnline
+      return lookup
+    }, {})
+  })
+
+
+
  
 }

@@ -9,6 +9,7 @@ import * as models from '../../../../../../../../../models';
 })
 export class ParticipantItemComponent {
   
-  public readonly participantSg = ngCore.input.required<models.User>({alias: 'participant'});
+  public readonly participantSg = ngCore.input.required<models.User>({alias: 'participant'})
+  public readonly isOnlineSg = ngCore.input.required<boolean>({alias: 'isOnline'})
   
 }

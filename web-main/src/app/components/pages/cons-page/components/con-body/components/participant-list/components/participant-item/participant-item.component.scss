@@ -6,7 +6,10 @@
 
     &__selector{
       display: flex;
-      background-color: v.$secondary;
       justify-content: center;
+
+      &--online {
+        background-color: v.$secondary;
+      }
     }
 }

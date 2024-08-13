@@ -1,7 +1,10 @@
 <div class="participant-list">
     @if(participantsSg().length > 0) {
       @for (participant of participantsSg(); track $index) {
-          <app-participant-item [participant]="participant"/>
+          <app-participant-item 
+            [participant]="participant"
+            [isOnline]="participantOnlineLookupSg()[participant.id] ?? false"
+          />
       }
     } @else if (presentListErrorSg()) {
       <!--  TODO: implement some meaningful design -->

@@ -1,6 +1,9 @@
 <div class="participant-item">
-    <div class="participant-item__selector">
-    {{ participantSg().name }}
+    <div 
+      class="participant-item__selector"
+      [class.participant-item__selector--online]="isOnlineSg()"
+    >
+      {{ participantSg().name }}
     </div>  
   </div>
   

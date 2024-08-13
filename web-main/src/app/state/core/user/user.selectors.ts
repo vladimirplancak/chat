@@ -50,6 +50,15 @@ export namespace User {
     // TODO: Implement
     state => false
   )
+
+  /**
+   * By providing a user id, this selector will return a boolean value,
+   * indicating if the user is currently online.
+   */
+  export const IS_ONLINE = (userId: models.User.Id) => ngrxStore.createSelector(
+    STATE,
+    state => state.onlineUserIds.has(userId)
+  )
   
 }
 

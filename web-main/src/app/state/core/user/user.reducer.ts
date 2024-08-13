@@ -38,6 +38,10 @@ export interface UserState {
    * @see {@link services.UserApiService.delete}
    */
   pendingMutation: boolean
+  /**
+   * List of user ids that are currently online.
+   */
+  onlineUserIds: Set<models.User.Id>
 }
 export namespace UserState {
   export const FEATURE_KEY = 'User'
@@ -50,6 +54,7 @@ export namespace UserState {
     pendingListRequest: true,
     pendingGetRequests: new Set(),
     pendingMutation: false,
+    onlineUserIds: new Set(['5'])
   }
 
   export const REDUCER = createReducer<UserState>(
