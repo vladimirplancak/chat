@@ -34,7 +34,7 @@ export class UserApiService {
 
    constructor() {
     // TODO: remove this hardcoded online / offline approach once implementing backend
-     rxjs.timer(0, 500).subscribe(() => {
+     rxjs.timer(0, 5000).subscribe(() => {
        const randomOnlineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
        const randomOfflineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
 
@@ -47,7 +47,9 @@ export class UserApiService {
   public list(): rxjs.Observable<readonly models.User[]> {
     return rxjs.of(IN_MEMORY_USERS_LIST).pipe(randomDelayOperator())
   }
-
+  public listOnlineIds(): rxjs.Observable<readonly models.User[]>{
+    return rxjs.of(IN_MEMORY_USERS_LIST.slice(0,5))
+  }
   public get(id: models.User.Id): rxjs.Observable<models.User | undefined> {
     const foundUser = IN_MEMORY_USERS_LIST.find(it => it.id === id)
     return rxjs.of(foundUser ? {...foundUser} : undefined).pipe(randomDelayOperator())

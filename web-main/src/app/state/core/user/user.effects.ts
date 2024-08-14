@@ -13,11 +13,14 @@ export class UserEffects {
 
   onRootInitialized$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(rootState.actions.Root.Ui.actions.initialized),
-    rxjs.switchMap(() => 
+    rxjs.mergeMap(() => 
       // TODO: Dispatch another action here, which will be something like:
       // User.Api.List.actions.started() &
       // "User.Api.ListOnlineIds.action.started()"
-      rxjs.of(User.Api.List.actions.started()),
+      rxjs.of(
+        User.Api.List.actions.started(),
+        User.Api.ListOnlineIds.actions.started()
+      ),
     ),
   ))
 
@@ -72,6 +75,17 @@ export class UserEffects {
   ))
 
   // TODO: Implement onApiListOnlineIdsStarted$ => similar to onApiListStarted$
+  
+  onApiListOnlineIdsStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(User.Api.ListOnlineIds.actions.started),
+    rxjs.switchMap(() => this._userApiService.listOnlineIds().pipe(
+      rxjs.map(users => new Set(users.map(user => user.id))),
+      rxjs.map(onlineUserIds => User.Api.ListOnlineIds.actions.succeeded({  onlineUserIds })),
+      rxjs.catchError(error =>
+        rxjs.of(User.Api.ListOnlineIds.actions.failed({ errorMessage: error?.message }))
+      )
+    )),
+  ))
 
   hasComeOnline$ = ngrxEffects.createEffect(() => this._userApiService.userCameOnline$.pipe(
     rxjs.map(userId => User.Api.Subscriptions.actions.hasComeOnline({ userId })),
