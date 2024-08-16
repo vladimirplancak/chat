@@ -53,4 +53,6 @@ export class MsgListComponent {
     return loaderForMessagesInCon || loaderForUsers
   })
 
+  public selfIdSg = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)
+
 }

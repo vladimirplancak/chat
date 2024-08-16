@@ -1,5 +1,4 @@
 import * as ngCore from '@angular/core'
-import * as ngRouter from '@angular/router'
 import * as ngrxEffects from '@ngrx/effects'
 import * as ngrxStore from '@ngrx/store'  
 import * as core from './core'
@@ -29,6 +28,13 @@ import * as ngrxRouterStore from '@ngrx/router-store';
     ),
     ngrxEffects.EffectsModule.forFeature([core.con.Effects]),
 
+    /* ------------------------- Auth state registration ------------------------ */
+    ngrxStore.StoreModule.forFeature(
+      core.auth.State.FEATURE_KEY,
+      core.auth.State.REDUCER
+    ),
+    ngrxEffects.EffectsModule.forFeature([core.auth.Effects]),
+
     
     // Connects RouterModule with StoreModule, uses MinimalRouterStateSerializer by default
     ngrxRouterStore.StoreRouterConnectingModule.forRoot(),
@@ -46,7 +52,8 @@ import * as ngrxRouterStore from '@ngrx/router-store';
   ],
   providers: [
     services.UserApiService,
-    services.ConApiService
+    services.ConApiService,
+    services.AuthApiService
   ],
 })
 export class StateModule {

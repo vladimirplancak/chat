@@ -1,10 +1,17 @@
 @use 'variables' as v;
 
 .message-list { 
+  display: flex;
+  flex-direction: column;
+  width: calc(100vw - 270px);
   &__item {
     display: flex;
     flex-direction: column;
     margin: 20px 0;
+
+    &--not-self{
+      align-self: flex-end;
+    }
   }
 
   &__item-participant {
@@ -12,12 +19,22 @@
     margin-bottom: 5px;
     font-size: 12px;
     font-style: italic;
+    &--not-self{
+      margin-left: 0;
+      margin-right: 15px;
+      text-align: end;
+    }
   }
 
   &__item-content {
     padding: 10px 5px;
-    width: 250px;
+    max-width: 500px;
+    min-width: 250px;
     border-radius: 20px;
     background-color: v.$primary;
+    &--not-self{
+      background-color: v.$tertiary;
+      color: v.$quaternary;
+    }
   }
 }

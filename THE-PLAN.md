@@ -189,5 +189,5 @@ state.common.Action.create()
 6.1 (13.08.2024)
  -- TODO: work on online & offline status for a users
 
-6.2 (x.08.2024)
+6.2 (16.08.2024)
  -- TODO: Create a concept of "us" / "me"

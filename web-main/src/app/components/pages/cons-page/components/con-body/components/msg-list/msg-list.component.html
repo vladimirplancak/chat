@@ -1,11 +1,20 @@
 @if(messagesSg().length > 0) {
   <div class="message-list">
     @for (msg of messagesSg(); track $index) {
-      <div class="message-list__item">
-        <div class="message-list__item-participant">
+      <div 
+        class="message-list__item"
+        [class.message-list__item--not-self]="selfIdSg() !== msg.userId"
+      >
+        <div 
+          class="message-list__item-participant"
+          [class.message-list__item-participant--not-self]="selfIdSg() !== msg.userId"
+        >
           {{ participantLookupSg()[msg.userId]?.name }}:
         </div>
-        <div class="message-list__item-content">
+        <div 
+          class="message-list__item-content"
+          [class.message-list__item-content--not-self]="selfIdSg() !== msg.userId"
+        >
           {{ msg.content }}
         </div>
       </div>
