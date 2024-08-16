@@ -9,7 +9,6 @@ export namespace Auth {
   
   export interface Self {
     id: string
-    userName: string
   }
   export namespace Self {
   
@@ -21,7 +20,6 @@ export namespace Auth {
       // TODO: decode jwt token
       return {
         id: '1',
-        userName: 'lemon',
       }
     }
   }

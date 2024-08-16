@@ -18,6 +18,13 @@ export class AuthEffects implements ngrxEffects.OnInitEffects{
     })
   ))
 
+
+  // TODO: when actions.Auth.Ui.LoginForm.actions.submitted 
+  //  - dispatch actions.Auth.Api.actions.started
+  //  - when actions.Auth.Api.actions.started
+  //  - dispatch actions.Auth.Api.actions.succeeded / actions.Auth.Api.actions.failed
+
+
   initialized$ = ngrxEffects.createEffect(() =>
     this._actions.pipe(
       ngrxEffects.ofType(actions.Auth.Misc.actions.initialized),
