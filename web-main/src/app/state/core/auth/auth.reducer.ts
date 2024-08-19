@@ -12,7 +12,7 @@ export namespace AuthState {
    * Represents the initial state of the root store.
    */
   const INITIAL: AuthState = {
-    jwtToken: undefined,
+    jwtToken: '1',
     isLoggingIn: false,
     errorMessage: undefined,
   }

@@ -24,6 +24,24 @@ export class AuthEffects implements ngrxEffects.OnInitEffects{
   //  - when actions.Auth.Api.actions.started
   //  - dispatch actions.Auth.Api.actions.succeeded / actions.Auth.Api.actions.failed
 
+  onFormSubmitted$ = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(actions.Auth.Ui.LoginForm.actions.submitted),
+    rxjs.map(() =>{
+      return actions.Auth.Api.actions.started()
+    })
+   
+  ))
+
+  onApiStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(actions.Auth.Api.actions.started),
+    rxjs.switchMap(() =>{
+      // TODO: this jwt token should be read from the localstorage
+      return rxjs.of({jwtToken: 'this should be jwt token'}).pipe(
+        rxjs.map(response => actions.Auth.Api.actions.succeeded({jwtToken: response.jwtToken})),
+        rxjs.catchError(error => rxjs.of(actions.Auth.Api.actions.failed({errorMessage: error})))
+      )
+    })
+  ))
 
   initialized$ = ngrxEffects.createEffect(() =>
     this._actions.pipe(

@@ -14,6 +14,7 @@ export namespace Auth {
         source: SOURCE,
         events: {
           'submitted': ngrxStore.props<models.Auth.Request>(),
+
         }
       })
     }
