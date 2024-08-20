@@ -7,7 +7,7 @@ import * as services from '../../services';
 
 
 @ngCore.Injectable()
-export class AuthEffects implements ngrxEffects.OnInitEffects{
+export class AuthEffects implements ngrxEffects.OnInitEffects {
   private readonly _actions = ngCore.inject(ngrxEffects.Actions)
   private readonly _authApiService = ngCore.inject(services.AuthApiService)
 
@@ -30,11 +30,11 @@ export class AuthEffects implements ngrxEffects.OnInitEffects{
   localAuthStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Auth.Misc.actions.localAuthStarted),
     rxjs.switchMap(() => this._authApiService.validateJwt()),
-    rxjs.map((possibleJwtToken) => 
+    rxjs.map((possibleJwtToken) =>
       // NOTE: If we have JWT token, after we "validate it", consider that
       // localAuthSucceeded, otherwise consider it failed.
-      possibleJwtToken 
-        ? actions.Auth.Misc.actions.localAuthSucceeded({jwtToken: possibleJwtToken}) 
+      possibleJwtToken
+        ? actions.Auth.Misc.actions.localAuthSucceeded({ jwtToken: possibleJwtToken })
         : actions.Auth.Misc.actions.localAuthFailed()
     )
   ))
@@ -63,13 +63,13 @@ export class AuthEffects implements ngrxEffects.OnInitEffects{
    */
   onRemoteApiStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Auth.Api.actions.started),
-    rxjs.switchMap((action) => 
+    rxjs.switchMap((action) =>
       this._authApiService.login(action.username, action.password).pipe(
-      rxjs.map(jwtToken => actions.Auth.Api.actions.succeeded({jwtToken})),
-      rxjs.catchError(error =>
-        rxjs.of(actions.Auth.Api.actions.failed({errorMessage: error?.message}))
-      )
-    ))
+        rxjs.map(jwtToken => actions.Auth.Api.actions.succeeded({ jwtToken })),
+        rxjs.catchError(error =>
+          rxjs.of(actions.Auth.Api.actions.failed({ errorMessage: error?.message }))
+        )
+      ))
   ))
 
 
