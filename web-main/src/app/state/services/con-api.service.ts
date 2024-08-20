@@ -44,6 +44,8 @@ const IN_MEMORY_MSG_LIST: Partial<Record<models.Conversation.Id, readonly models
 
 @ngCore.Injectable()
 export class ConApiService {
+  public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
+  
 
   public conList(): rxjs.Observable<readonly models.Conversation[]> {
     return rxjs.of(IN_MEMORY_CON_LIST).pipe(randomDelayOperator())
@@ -92,6 +94,16 @@ export class ConApiService {
     const foundMsgs = [...(IN_MEMORY_MSG_LIST[conId] ?? [])]
 
     return rxjs.of(foundMsgs).pipe(randomDelayOperator())
+  }
+
+  public sendConMessage(
+    conId: models.Conversation.Id,
+    input: models.Conversation.Message.Input
+  ): rxjs.Observable<models.Conversation.Message | undefined> {
+    // IN_MEMORY_MSG_LIST[conId] = {
+    // input...
+    //}
+    throw new Error('TODO: implement')
   }
 
 }

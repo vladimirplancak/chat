@@ -9,4 +9,8 @@ import * as ngCore from '@angular/core';
 export class MsgSenderComponent {
   
  
+  public onTextAreContentChanged(event: any) {
+    // TODO: dispatch send action
+    console.log(event)
+  }
 }

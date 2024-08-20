@@ -29,6 +29,13 @@ export namespace Conversation {
       export type Id = string
       export type Input = Omit<Message, 'id'>
       export type Update = Pick<Message, 'content'>
+
+      /**
+       * TODO: Explain concept
+       */
+      export interface InContext  extends Message{
+        conversationId: Conversation.Id
+      }
     }
 
     /**

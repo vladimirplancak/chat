@@ -106,4 +106,11 @@ export class ConversationEffects {
       )
     )),
   ))
+
+
+  messageReceived$ = ngrxEffects.createEffect(() => this._conApiService.msgReceived$.pipe(
+    // TODO: implement effect
+  ), {dispatch: false})
+  // NOTE: above ', {dispatch: false}' will probably need to be removed once we  have a full version of above effect.
+
 }
