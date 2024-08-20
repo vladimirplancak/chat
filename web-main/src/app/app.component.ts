@@ -1,6 +1,5 @@
 import * as ngCore from '@angular/core'
 import * as ngRouter from '@angular/router'
-import * as state from './state'
 import { MatButtonModule } from '@angular/material/button'
 
 @ngCore.Component({
@@ -14,5 +13,4 @@ import { MatButtonModule } from '@angular/material/button'
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
-}
+export class AppComponent { }
