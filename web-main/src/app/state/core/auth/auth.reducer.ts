@@ -12,7 +12,7 @@ export namespace AuthState {
    * Represents the initial state of the root store.
    */
   const INITIAL: AuthState = {
-    jwtToken: '1',
+    jwtToken: '0',
     isLoggingIn: false,
     errorMessage: undefined,
   }
@@ -20,7 +20,12 @@ export namespace AuthState {
   export const REDUCER = createReducer<AuthState>(
     INITIAL,
     on(actions.Auth.Api.actions.started, state => ({ ...state, isLoggingIn: true })),
-    on(actions.Auth.Api.actions.succeeded, (state, { jwtToken }) => ({ ...state, jwtToken, isLoggingIn: false })),
+    on(actions.Auth.Api.actions.succeeded, (state, { jwtToken }) => { 
+      console.log('Local auth succeeded with JWT token:', jwtToken);
+      return {...state, 
+      jwtToken, 
+      isLoggingIn: false }
+    }),
     on(actions.Auth.Api.actions.failed, (state, { errorMessage }) => ({ ...state, errorMessage, isLoggingIn: false, })),
 
     on(actions.Auth.Misc.actions.localAuthSucceeded, (state, { jwtToken }) => ({ ...state, jwtToken })),

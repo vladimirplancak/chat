@@ -3,18 +3,27 @@ import * as ngrxEffects from '@ngrx/effects';
 import { Action } from '@ngrx/store';
 import * as actions from './auth.actions'
 import * as rxjs from 'rxjs'
+import * as services from '../../services';
 
 // TODO: probably wont be even used, to reevaluate if this is needed?
 @ngCore.Injectable()
 export class AuthEffects implements ngrxEffects.OnInitEffects{
   private readonly _actions = ngCore.inject(ngrxEffects.Actions)
-
+  private readonly _authApiService = ngCore.inject(services.AuthApiService)
 
   localAuthStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Auth.Misc.actions.localAuthStarted),
     rxjs.map(() => {
       // TODO: check if token exist in local storage, if does, return it, if does not return authFailed
-      return actions.Auth.Misc.actions.localAuthSucceeded({jwtToken: 'TODO: TO BE JWT TOKEN'})
+      const jwtToken = localStorage.getItem('jwtToken')
+      if(jwtToken) {
+        return actions.Auth.Misc.actions.localAuthSucceeded({jwtToken})
+      }
+      else{
+        console.log(`we are here`)
+        return actions.Auth.Misc.actions.localAuthFailed()
+      }
+      
     })
   ))
 
@@ -35,8 +44,9 @@ export class AuthEffects implements ngrxEffects.OnInitEffects{
   onApiStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Auth.Api.actions.started),
     rxjs.switchMap(() =>{
+      console.log('onApiStarted$ effect triggered');
       // TODO: this jwt token should be read from the localstorage
-      return rxjs.of({jwtToken: 'this should be jwt token'}).pipe(
+      return this._authApiService.generateJWT().pipe(
         rxjs.map(response => actions.Auth.Api.actions.succeeded({jwtToken: response.jwtToken})),
         rxjs.catchError(error => rxjs.of(actions.Auth.Api.actions.failed({errorMessage: error})))
       )
@@ -46,7 +56,10 @@ export class AuthEffects implements ngrxEffects.OnInitEffects{
   initialized$ = ngrxEffects.createEffect(() =>
     this._actions.pipe(
       ngrxEffects.ofType(actions.Auth.Misc.actions.initialized),
-      rxjs.map(() => actions.Auth.Misc.actions.localAuthStarted())
+      rxjs.concatMap(() => [
+        actions.Auth.Misc.actions.localAuthStarted(),
+        actions.Auth.Ui.LoginForm.actions.submitted({ username: 'user', password: 'password123' })
+      ])
     )
   )
 
