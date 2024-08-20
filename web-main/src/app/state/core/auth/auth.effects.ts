@@ -6,11 +6,6 @@ import * as rxjs from 'rxjs'
 import * as services from '../../services';
 
 
-/**
- * - When the application loads we want to check few stuff: 
- *  1. if we are logged in (if our AuthApiService vouches for us that token is valid, we will save it in the state)
- */
-
 @ngCore.Injectable()
 export class AuthEffects implements ngrxEffects.OnInitEffects{
   private readonly _actions = ngCore.inject(ngrxEffects.Actions)
