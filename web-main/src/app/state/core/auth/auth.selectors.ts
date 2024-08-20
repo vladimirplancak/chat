@@ -9,25 +9,9 @@ const STATE = ngrxStore.createFeatureSelector<AuthState>(AuthState.FEATURE_KEY)
 
 export namespace Auth {
   export const SELF = ngrxStore.createSelector(STATE, (state) =>
-    state.jwtToken ? state.jwtToken : undefined
+    state.jwtToken ? models.Auth.Self.from(state.jwtToken): undefined
   )
 
-  export const SELF_ID = ngrxStore.createSelector(SELF, (self) => self)
-
-  export const CURRENTLY_LOGGED_CLIENT = ngrxStore.createSelector(
-    SELF_ID,
-    User.USERS_LOOKUP,
-    (selfId, userLookup) => {
-     
-      if (!selfId){ 
-        return undefined;
-      }else{
-        console.log(`userLookup[selfId]`,userLookup[selfId])
-        return userLookup[selfId];
-      }
-      
-      
-    }
-  );
+  export const SELF_ID = ngrxStore.createSelector(SELF, (self) => self?.userId)
 }
 

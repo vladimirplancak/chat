@@ -5,65 +5,53 @@ import * as actions from './auth.actions'
 import * as rxjs from 'rxjs'
 import * as services from '../../services';
 
-// TODO: probably wont be even used, to reevaluate if this is needed?
+
+/**
+ * - When the application loads we want to check few stuff: 
+ *  1. if we are logged in (if our AuthApiService vouches for us that token is valid, we will save it in the state)
+ */
+
 @ngCore.Injectable()
 export class AuthEffects implements ngrxEffects.OnInitEffects{
   private readonly _actions = ngCore.inject(ngrxEffects.Actions)
   private readonly _authApiService = ngCore.inject(services.AuthApiService)
 
+  initialized$ = ngrxEffects.createEffect(() =>
+    this._actions.pipe(
+      ngrxEffects.ofType(actions.Auth.Misc.actions.initialized),
+      rxjs.map(() => actions.Auth.Misc.actions.localAuthStarted())
+    )
+  )
+
   localAuthStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Auth.Misc.actions.localAuthStarted),
-    rxjs.map(() => {
-      // TODO: check if token exist in local storage, if does, return it, if does not return authFailed
-      const jwtToken = localStorage.getItem('jwtToken')
-      if(jwtToken) {
-        return actions.Auth.Misc.actions.localAuthSucceeded({jwtToken})
-      }
-      else{
-        console.log(`we are here`)
-        return actions.Auth.Misc.actions.localAuthFailed()
-      }
-      
-    })
+    rxjs.switchMap(() => this._authApiService.validateJwt()),
+    rxjs.map((possibleJwtToken) => 
+      // NOTE: If we have JWT token, after we "validate it", consider that
+      // localAuthSucceeded, otherwise consider it failed.
+      possibleJwtToken 
+        ? actions.Auth.Misc.actions.localAuthSucceeded({jwtToken: possibleJwtToken}) 
+        : actions.Auth.Misc.actions.localAuthFailed()
+    )
   ))
 
 
-  // TODO: when actions.Auth.Ui.LoginForm.actions.submitted 
-  //  - dispatch actions.Auth.Api.actions.started
-  //  - when actions.Auth.Api.actions.started
-  //  - dispatch actions.Auth.Api.actions.succeeded / actions.Auth.Api.actions.failed
-
   onFormSubmitted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Auth.Ui.LoginForm.actions.submitted),
-    rxjs.map(() =>{
-      return actions.Auth.Api.actions.started()
-    })
+    rxjs.map((action) => actions.Auth.Api.actions.started(action))
    
   ))
 
   onApiStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Auth.Api.actions.started),
-    rxjs.switchMap(() =>{
-      console.log('onApiStarted$ effect triggered');
-      // TODO: this jwt token should be read from the localstorage
-      return this._authApiService.generateJWT().pipe(
-        rxjs.map(response => actions.Auth.Api.actions.succeeded({jwtToken: response.jwtToken})),
-        rxjs.catchError(error => rxjs.of(actions.Auth.Api.actions.failed({errorMessage: error})))
-      )
-    })
+    rxjs.switchMap((action) => this._authApiService.login(action.username, action.password).pipe(
+      rxjs.map(jwtToken => actions.Auth.Api.actions.succeeded({jwtToken})),
+      rxjs.catchError(error =>
+        rxjs.of(actions.Auth.Api.actions.failed({errorMessage: error?.message}))
+      ) 
+    ))
   ))
 
-  initialized$ = ngrxEffects.createEffect(() =>
-    this._actions.pipe(
-      ngrxEffects.ofType(actions.Auth.Misc.actions.initialized),
-      rxjs.concatMap(() => [
-        actions.Auth.Misc.actions.localAuthStarted(),
-        actions.Auth.Ui.LoginForm.actions.submitted({ username: 'user', password: 'password123' })
-      ])
-    )
-  )
-
-  // TODO: implement effects
 
   /** @inheritdoc */
   ngrxOnInitEffects(): Action {

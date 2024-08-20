@@ -11,5 +11,13 @@ import * as models from '../../../../../models'
 })
 export class ConsHeaderComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store)
-  public readonly currentlyLoggedUserSg  = this._store.selectSignal(state.core.auth.selectors.Auth.CURRENTLY_LOGGED_CLIENT)
+  public readonly currentlyLoggedUserSg  = ngCore.computed(() => {
+    const lookup = this._store.selectSignal(state.core.user.selectors.User.USERS_LOOKUP)()
+    const selfId = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)()
+
+    return selfId 
+      ? lookup[selfId] 
+      : undefined
+  })
+  
 }

@@ -1,28 +1,47 @@
+
+import * as jwtDecoder from "jwt-decode"
+
 // TODO: maybe start namespace with Auth.Request, Auth.Self, Auth.Self.from
 
 
 export namespace Auth {
-    export interface Request {
-      username: string
-      password: string
-    }
-  
+  export interface Request {
+    username: string
+    password: string
+  }
+
   export interface Self {
-    id: string
+    userId: string
   }
   export namespace Self {
-  
     /**
        * NOTE: Consider that we will have a JWT token written in local storage
-       * from which we can get claims, such as id, userName, email, roles etc...
+       * from which we can get claims, such as userId, userName, email, roles etc...
        */
     export function from(jwt: string): Self | undefined {
-      // TODO: decode jwt token
-      return {
-        id: '1',
+      return jwtDecoder.jwtDecode<jwtDecoder.JwtPayload & Self>(jwt)
+    }
+  }
+
+  export namespace LocalStorage {
+    export namespace Token {
+      const KEY = 'Token'
+      export function set(value: string): void {
+        _localStorageSet(KEY, value)
+      }
+
+      export function get(): string | undefined {
+        return _localStorageGet(KEY)
       }
     }
   }
 }
 
 
+function _localStorageSet(key: string, value: string): void {
+  localStorage.setItem(key, value)
+}
+
+function _localStorageGet(key: string): string | undefined {
+  return localStorage.getItem(key) ?? undefined
+}

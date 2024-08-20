@@ -25,7 +25,7 @@ export namespace Auth {
     export const actions = ngrxStore.createActionGroup({
       source: SOURCE,
       events: {
-        'started': ngrxStore.emptyProps(),
+        'started': ngrxStore.props<models.Auth.Request>(),
         'succeeded': ngrxStore.props<{ jwtToken: string }>(),
         'failed': ngrxStore.props<{ errorMessage?: string }>(),
       }
