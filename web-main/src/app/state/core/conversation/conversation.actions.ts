@@ -103,6 +103,18 @@ export namespace Con {
         })
       }
     }
+    //TODO: this needs sendMessage: started, succeeded, failed actions
+    export namespace Subscriptions {
+      export const SOURCE = common.Action.Source.from(Api.SOURCE, 'Subscriptions')
+      export const actions = ngrxStore.createActionGroup({
+        source: SOURCE,
+        events: {
+          'sendMessageStarted': ngrxStore.props<{ message: models.Conversation.MessageWithConversation}>(),
+          'sendMessageSucceeded': ngrxStore.props<{ message: models.Conversation.MessageWithConversation}>(),
+          'sendMessageFailed': ngrxStore.props<{ errorMessage?: string}>(),
+        }
+      })
+    }
 
   }
 

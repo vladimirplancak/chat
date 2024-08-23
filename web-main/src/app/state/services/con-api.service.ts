@@ -29,7 +29,7 @@ const IN_MEMORY_MSG_LIST: Partial<Record<models.Conversation.Id, readonly models
     { content: 'con 1 - Hello message 3', datetime: _incrementDate(now, 1), id: '2', userId: IN_MEMORY_CON_LIST[0].participantIds[1] },
     { content: 'con 1 - Hello message 4', datetime: _incrementDate(now, 1), id: '3', userId: IN_MEMORY_CON_LIST[0].participantIds[1] },
     { content: 'con 1 - Hello message 5', datetime: _incrementDate(now, 1), id: '4', userId: IN_MEMORY_CON_LIST[0].participantIds[1] },
-    
+
   ],
   '1': [
     { content: 'con 2 - Hello message 1', datetime: _incrementDate(now, 1), id: '5', userId: IN_MEMORY_CON_LIST[1].participantIds[0] },
@@ -44,6 +44,21 @@ const IN_MEMORY_MSG_LIST: Partial<Record<models.Conversation.Id, readonly models
 
 @ngCore.Injectable()
 export class ConApiService {
+  public readonly msgReceived$ = new rxjs.Subject<models.Conversation.MessageWithConversation>()
+
+  public sendConMessage(payloadMessage: models.Conversation.MessageWithConversation) {
+    const conversationId = Number(payloadMessage.conversationId)
+    
+    const messageList = IN_MEMORY_MSG_LIST[conversationId] as models.Conversation.Message[];
+
+    const newMessage: models.Conversation.Message = {
+      ...payloadMessage.message,
+      id: messageList.length.toString(),
+    };
+    console.log(`newMessage`,newMessage)
+    this.msgReceived$.next({ ...payloadMessage, message: newMessage });
+    return messageList.push(newMessage)
+  }
 
   public conList(): rxjs.Observable<readonly models.Conversation[]> {
     return rxjs.of(IN_MEMORY_CON_LIST).pipe(randomDelayOperator())

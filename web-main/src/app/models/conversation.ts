@@ -18,6 +18,10 @@ export namespace Conversation {
     export type Id = string
     export type Input = Omit<Conversation, 'id'>
     export type Update = Partial<Input>
+    export type MessageWithConversation = {
+      conversationId: Id,
+      message: Message
+    }
 
     export interface Message {
       id: Message.Id
