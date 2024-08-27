@@ -107,14 +107,23 @@ export class ConversationEffects {
     )),
   ))
 
-  onMessageReceived$ = ngrxEffects.createEffect(() => this._actions.pipe(
-    ngrxEffects.ofType(Con.Api.Subscriptions.actions.sendMessageStarted),
-    rxjs.tap((result) => console.log(`effect fired`, result)),
-    rxjs.map((result) =>
-      Con.Api.Subscriptions.actions.sendMessageSucceeded({ message: result.message })
+  // onMessageReceived$ = ngrxEffects.createEffect(() => this._actions.pipe(
+  //   ngrxEffects.ofType(Con.Api.Subscriptions.actions.sendMessageStarted),
+  //   rxjs.tap((result) => console.log(`effect fired`, result)),
+  //   rxjs.map((result) =>
+  //     Con.Api.Subscriptions.actions.sendMessageSucceeded({ message: result.message })
+  //   ),
+  //   rxjs.catchError((error) =>
+  //     rxjs.of(Con.Api.Subscriptions.actions.sendMessageFailed({ errorMessage: error.message }))
+  //   )
+  // ));
+
+  onMessageReceived$ = ngrxEffects.createEffect(() => this._conApiService.msgReceived$.pipe(   
+    rxjs.map((message) =>
+      Con.Api.Subscriptions.actions.addMessage({ message: message })
     ),
     rxjs.catchError((error) =>
-      rxjs.of(Con.Api.Subscriptions.actions.sendMessageFailed({ errorMessage: error.message }))
+      rxjs.of(Con.Api.Subscriptions.actions.addMessageFailed({ errorMessage: error.message }))
     )
   ));
   

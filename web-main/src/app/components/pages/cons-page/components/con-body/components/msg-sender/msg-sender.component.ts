@@ -16,7 +16,7 @@ export class MsgSenderComponent {
   private readonly _conApiService = ngCore.inject(ConApiService)
   private readonly _selectedConIdSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ID)
   private readonly _currentlyLoggedUserIdSg = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)
-  message: string = ''
+  public message: string = ''
 
   public onTextAreaContentChanged($event: Event) {
     this.message = ($event?.target as HTMLTextAreaElement).value
@@ -26,20 +26,17 @@ export class MsgSenderComponent {
 
   public sendMessage() {
     //prepare the payload
-    const payloadMessage: Conversation.MessageWithConversation = {
+    const payloadMessage: Conversation.Message.InContext.Input = {
       conversationId: this._selectedConIdSg() || '',
-      message: {
-        id:'6',
-        userId: this._currentlyLoggedUserIdSg() || '',
-        content: this.message,
-        datetime: new Date()
-      }
+      userId: this._currentlyLoggedUserIdSg() || '',
+      content: this.message,
+      datetime: new Date()
     }
     console.log(`payloadMessage`, payloadMessage)
     //invoke the service method
     this._conApiService.sendConMessage(payloadMessage);
     //dispach the action
-    this._store.dispatch(conversation.Con.Api.Subscriptions.actions.sendMessageStarted({ message: payloadMessage })) 
+    this._store.dispatch(conversation.Con.Api.Subscriptions.actions.addMessage({ message: payloadMessage })) 
  
   }
 }

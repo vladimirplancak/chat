@@ -44,19 +44,27 @@ const IN_MEMORY_MSG_LIST: Partial<Record<models.Conversation.Id, readonly models
 
 @ngCore.Injectable()
 export class ConApiService {
-  public readonly msgReceived$ = new rxjs.Subject<models.Conversation.MessageWithConversation>()
+  public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
 
-  public sendConMessage(payloadMessage: models.Conversation.MessageWithConversation) {
+  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input) {
+
     const conversationId = Number(payloadMessage.conversationId)
     
     const messageList = IN_MEMORY_MSG_LIST[conversationId] as models.Conversation.Message[];
 
-    const newMessage: models.Conversation.Message = {
-      ...payloadMessage.message,
-      id: messageList.length.toString(),
+    const newId = messageList.length > 0 
+    ? String(Math.max(...messageList.map(msg => Number(msg.id))) + 1)
+    : '0';
+
+    const newMessage: models.Conversation.Message.InContext = {
+      ...payloadMessage,
+      id: newId
     };
     console.log(`newMessage`,newMessage)
-    this.msgReceived$.next({ ...payloadMessage, message: newMessage });
+
+ 
+
+    //this.msgReceived$.next({ ...payloadMessage, id:newId});
     return messageList.push(newMessage)
   }
 
