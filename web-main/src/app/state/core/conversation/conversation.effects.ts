@@ -5,6 +5,7 @@ import * as ngrxStore from '@ngrx/store';
 import * as models from '../../../models'
 import { Con } from './conversation.actions'
 import * as conSelectors from './conversation.selectors'
+import * as authSelectors from '../auth/auth.selectors'
 import * as services from '../../services';
 import * as rootState from '../root'
 
@@ -118,13 +119,41 @@ export class ConversationEffects {
   //   )
   // ));
 
-  onMessageReceived$ = ngrxEffects.createEffect(() => this._conApiService.msgReceived$.pipe(   
-    rxjs.map((message) =>
-      Con.Api.Subscriptions.actions.addMessage({ message: message })
-    ),
-    rxjs.catchError((error) =>
-      rxjs.of(Con.Api.Subscriptions.actions.addMessageFailed({ errorMessage: error.message }))
+  // onMessageReceived$ = ngrxEffects.createEffect(() => this._conApiService.msgReceived$.pipe(   
+  //   rxjs.map((message) =>
+  //     Con.Api.Subscriptions.actions.addMessage({ message: message })
+  //   ),
+  //   rxjs.catchError((error) =>
+  //     rxjs.of(Con.Api.Subscriptions.actions.addMessageFailed({ errorMessage: error.message }))
+  //   )
+  // ));
+  onMessageReceived$ = ngrxEffects.createEffect(() =>
+    this._actions.pipe(
+      ngrxEffects.ofType(Con.Api.Subscriptions.actions.messageReceivedStarted),
+      rxjs.withLatestFrom(
+        this._store.select(conSelectors.Conversation.Selected.ID),
+        this._store.select(authSelectors.Auth.SELF_ID).pipe(
+          rxjs.filter((id) => !!id),
+          rxjs.first()
+        )
+      ),
+      rxjs.switchMap(([{ message }, selectedConId, currentlyLoggedUserId]) => {
+        const payloadMessage: models.Conversation.Message.InContext.Input = {
+          content: message,
+          conversationId: selectedConId || '',
+          userId: currentlyLoggedUserId || '',
+          datetime: new Date(),
+        };
+  
+        return this._conApiService.sendConMessage(payloadMessage).pipe(
+          rxjs.map(() =>
+            Con.Api.Subscriptions.actions.messageReceivedSucceeded({ message: payloadMessage })
+          ),
+        );
+      })
     )
-  ));
+  );
+  
+  
   
 }

@@ -1,4 +1,4 @@
 <div class="message-sender">
-  <div class="message-sender__text"><textarea (input)="onTextAreaContentChanged($event)"></textarea></div>
+  <div class="message-sender__text"><textarea (input)="sendButtonClickedHandler($event)"></textarea></div>
   <div class="message-sender__btn" (click)="sendMessage()" >SEND</div>
 </div>

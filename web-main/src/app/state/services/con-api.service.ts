@@ -46,7 +46,7 @@ const IN_MEMORY_MSG_LIST: Partial<Record<models.Conversation.Id, readonly models
 export class ConApiService {
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
 
-  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input) {
+  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input) :rxjs.Observable<any>{
 
     const conversationId = Number(payloadMessage.conversationId)
     
@@ -65,7 +65,7 @@ export class ConApiService {
  
 
     //this.msgReceived$.next({ ...payloadMessage, id:newId});
-    return messageList.push(newMessage)
+    return rxjs.of(messageList.push(newMessage))
   }
 
   public conList(): rxjs.Observable<readonly models.Conversation[]> {

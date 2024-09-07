@@ -71,7 +71,7 @@ export namespace ConState {
     on(actions.Con.Api.Con.Delete.actions.started, (state) => ({ ...state, pendingConMutation: true })),
    
     /* -------------------------------- succeeded ------------------------------- */
-    on(actions.Con.Api.Subscriptions.actions.addMessage, (state, {message}) => {
+    on(actions.Con.Api.Subscriptions.actions.messageReceivedSucceeded, (state, {message}) => {
       console.log(`sendMessageSucceeded`, message)
       const conversation = state.conLookup[message.conversationId];
   
@@ -90,7 +90,7 @@ export namespace ConState {
         ...conversation,
         messages: [...conversation.messages, newMessage]
       };
-      
+      console.log(`reducer/updated conversation:`, updatedConversation)
       return {
         ...state,
         conLookup: {

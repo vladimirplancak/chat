@@ -111,8 +111,9 @@ export namespace Con {
       export const actions = ngrxStore.createActionGroup({
         source: SOURCE,
         events: {
-          'addMessage': ngrxStore.props<{ message: models.Conversation.Message.InContext.Input}>(),
-          'addMessageFailed': ngrxStore.props<{errorMessage?: string }>(),
+          'messageReceivedStarted': ngrxStore.props<{ message: string}>(),
+          'messageReceivedSucceeded': ngrxStore.props<{ message: models.Conversation.Message.InContext.Input}>(),
+         
         }
       })
     }

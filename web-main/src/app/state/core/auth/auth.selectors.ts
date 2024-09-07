@@ -1,8 +1,7 @@
 import * as ngrxStore from '@ngrx/store'
 import { AuthState } from './auth.reducer'
 import * as models from '../../../models'
-import { UserState } from '../user/user.reducer'
-import { User } from '../user/user.selectors'
+
 
 
 const STATE = ngrxStore.createFeatureSelector<AuthState>(AuthState.FEATURE_KEY)

@@ -19,8 +19,13 @@ export namespace Auth {
        * from which we can get claims, such as userId, userName, email, roles etc...
        */
     export function from(jwt: string): Self | undefined {
-      return jwtDecoder.jwtDecode<jwtDecoder.JwtPayload & Self>(jwt)
+      if (!jwt || jwt.split('.').length !== 3) {
+        console.error('Invalid JWT token:', jwt);
+        return undefined;
+      }
+      return jwtDecoder.jwtDecode<jwtDecoder.JwtPayload & Self>(jwt);
     }
+    
   }
 
   export namespace LocalStorage {
