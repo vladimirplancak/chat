@@ -46,26 +46,20 @@ const IN_MEMORY_MSG_LIST: Partial<Record<models.Conversation.Id, readonly models
 export class ConApiService {
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
 
-  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input) :rxjs.Observable<any>{
-
-    const conversationId = Number(payloadMessage.conversationId)
+  // TODO: this should be actually refactored, and should not have interaction
+  // with "msgReceived$" stream at all, that part should be done through "hub"
+  // methods. 
+  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input) {
     
-    const messageList = IN_MEMORY_MSG_LIST[conversationId] as models.Conversation.Message[];
+    const messageList = IN_MEMORY_MSG_LIST[payloadMessage.conId];
 
-    const newId = messageList.length > 0 
-    ? String(Math.max(...messageList.map(msg => Number(msg.id))) + 1)
-    : '0';
+    if(!messageList) {
+      throw new Error('Message doesn\'t exist in cache')
+    }
 
-    const newMessage: models.Conversation.Message.InContext = {
-      ...payloadMessage,
-      id: newId
-    };
-    console.log(`newMessage`,newMessage)
+    const newCachedId = (messageList.length + 1).toString()
 
- 
-
-    //this.msgReceived$.next({ ...payloadMessage, id:newId});
-    return rxjs.of(messageList.push(newMessage))
+    this.msgReceived$.next({ ...payloadMessage, id: newCachedId });
   }
 
   public conList(): rxjs.Observable<readonly models.Conversation[]> {

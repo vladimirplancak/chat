@@ -11,16 +11,18 @@ import * as state from '../../../../../../../state'
 export class MsgSenderComponent {
 
   private readonly _store = ngCore.inject(ngrxStore.Store)
-  public message: string = ''
 
+  public readonly inProgressMessageSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.IN_PROGRESS_MSG)
+
+  // FIXME: TODO: Both of this handlers, should be "improved" in a way, that they are "saving" "sending" messages for a given conversation.
   public textAreaInputChangeHandler($event: Event) {
-    // TODO: should be refactored, save temporary message, somewhere ins tate right?
-    this.message = ($event?.target as HTMLTextAreaElement).value
-    console.log(`typing event:`, this.message)
+    const value = ($event?.target as HTMLTextAreaElement).value
+   
+    // TODO: (future improvements) debounce the input
+    this._store.dispatch(state.core.con.actions.Con.Ui.MessageSender.TextArea.Input.actions.changed({ messageText: value }))
   }
 
   public sendButtonClickedHandler() {
-    throw new Error('refactor')
-    // TODO: this.store.dispatch(state.core.con.actions.Con.Ui.MessageSnder.Buttons.Send.Clicked({ message: this.message }))
+    this._store.dispatch(state.core.con.actions.Con.Ui.MessageSender.Buttons.Send.actions.clicked())
   }
 }

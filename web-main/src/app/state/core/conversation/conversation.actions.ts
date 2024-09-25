@@ -20,6 +20,34 @@ export namespace Con {
         })
       }
     }
+
+    export namespace MessageSender {
+      export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'MessageSender')
+      export namespace TextArea {
+        export const SOURCE = common.Action.Source.from(MessageSender.SOURCE, 'TextArea')
+        export namespace Input {
+          export const SOURCE = common.Action.Source.from(TextArea.SOURCE, 'Input')
+          export const actions = ngrxStore.createActionGroup({
+            source: SOURCE,
+            events: {
+              'changed': ngrxStore.props<{ messageText: string }>(),
+            }
+          })
+        }
+      }
+      export namespace Buttons {
+        export const SOURCE = common.Action.Source.from(MessageSender.SOURCE, 'Buttons')
+        export namespace Send { 
+          export const SOURCE = common.Action.Source.from(Buttons.SOURCE, 'Send')
+          export const actions = ngrxStore.createActionGroup({
+            source: SOURCE,
+            events: {
+              'clicked': ngrxStore.emptyProps(),
+            }
+          })
+        }
+      }
+    }
   }
   export namespace Api {
     export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Api')
@@ -104,28 +132,18 @@ export namespace Con {
         })
       }
 
-      /**
-       * TODO: Implement subscription something similar to {@link user.actions.User.Api.Subscriptions}
-       */
       export namespace Subscriptions {
-        
+        export const SOURCE = common.Action.Source.from(Api.SOURCE, 'Subscriptions')
+        /**
+         * TODO: Should be one action actually, only, when we receive a message.
+         */
+        export const actions = ngrxStore.createActionGroup({
+          source: SOURCE,
+          events: {
+            'messageReceived': ngrxStore.props<{ message: models.Conversation.Message.InContext}>(),
+          }
+        })
       }
     }
-    //TODO: this needs sendMessage: started, succeeded, failed actions
-
-    //one action
-    export namespace Subscriptions {
-      export const SOURCE = common.Action.Source.from(Api.SOURCE, 'Subscriptions')
-      export const actions = ngrxStore.createActionGroup({
-        source: SOURCE,
-        events: {
-          'messageReceivedStarted': ngrxStore.props<{ message: string}>(),
-          'messageReceivedSucceeded': ngrxStore.props<{ message: models.Conversation.Message.InContext.Input}>(),
-         
-        }
-      })
-    }
-
   }
-
 }

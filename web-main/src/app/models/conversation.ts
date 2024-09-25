@@ -36,7 +36,7 @@ export namespace Conversation {
       export type Update = Pick<Message, 'content'>
 
       export interface InContext extends Message{
-        conversationId: Conversation.Id
+        conId: Conversation.Id
       }
       export namespace InContext {
         export type Input = Omit<InContext, 'id'>

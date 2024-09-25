@@ -41,7 +41,10 @@ export namespace Conversation {
       (lookup, selectedId) => selectedId ? lookup[selectedId] : undefined
     )
 
-    
+    export const IN_PROGRESS_MSG = ngrxStore.createSelector(
+      STATE,
+      state => state.inProgressMessage
+    )
   }
 
 }

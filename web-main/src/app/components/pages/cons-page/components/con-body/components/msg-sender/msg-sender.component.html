@@ -1,6 +1,6 @@
 <div class="message-sender">
   <div class="message-sender__text">
-    <textarea (input)="textAreaInputChangeHandler($event)"></textarea>
+    <textarea [value]="inProgressMessageSg()" (input)="textAreaInputChangeHandler($event)"></textarea>
   </div>
   <div class="message-sender__btn" (click)="sendButtonClickedHandler()">SEND</div>
 </div>
