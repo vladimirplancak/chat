@@ -29,8 +29,8 @@ export const IN_MEMORY_USERS_LIST: models.User[] = [
 
 @ngCore.Injectable()
 export class UserApiService {
-  public userCameOnline$ = new rxjs.Subject<models.User.Id>()
-  public userWentOffline$ = new rxjs.Subject<models.User.Id>()
+  public readonly userCameOnline$ = new rxjs.Subject<models.User.Id>()
+  public readonly userWentOffline$ = new rxjs.Subject<models.User.Id>()
 
    constructor() {
     // TODO: remove this hardcoded online / offline approach once implementing backend

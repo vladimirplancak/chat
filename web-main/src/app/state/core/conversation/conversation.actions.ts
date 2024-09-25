@@ -1,4 +1,5 @@
 import * as common from '../../common'
+import type * as user from '../user'
 import * as ngrxStore from '@ngrx/store'
 import * as models from '../../../models'
 
@@ -101,6 +102,13 @@ export namespace Con {
             'failed': ngrxStore.props<{ conversationId: models.Conversation.Id, errorMessage?: string }>(),
           }
         })
+      }
+
+      /**
+       * TODO: Implement subscription something similar to {@link user.actions.User.Api.Subscriptions}
+       */
+      export namespace Subscriptions {
+        
       }
     }
     //TODO: this needs sendMessage: started, succeeded, failed actions
