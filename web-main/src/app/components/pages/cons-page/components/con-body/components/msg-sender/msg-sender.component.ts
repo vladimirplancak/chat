@@ -17,14 +17,12 @@ export class MsgSenderComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store)
   public message: string = ''
 
-  public sendButtonClickedHandler($event: Event) {
+  public textAreaInputChangeHandler($event: Event) {
     this.message = ($event?.target as HTMLTextAreaElement).value
     console.log(`typing event:`, this.message)
   }
 
-  public sendMessage() {
-
-    this._store.dispatch(conversation.Con.Api.Subscriptions.actions.messageReceivedStarted({ message: this.message })) 
- 
+  public sendButtonClickedHandler() {
+    this._store.dispatch(conversation.Con.Api.Subscriptions.actions.messageReceivedStarted({ message: this.message }))  
   }
 }
