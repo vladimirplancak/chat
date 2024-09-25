@@ -1,10 +1,6 @@
 import * as ngCore from '@angular/core';
 import * as ngrxStore from '@ngrx/store';
-import * as conversation from '../../../../../../../state/core/conversation/conversation.actions'
 import * as state from '../../../../../../../state'
-import { Conversation } from '../../../../../../../models/conversation';
-import { ConApiService } from '../../../../../../../state/services';
-import * as models from '../../../../../../../models/'
 
 @ngCore.Component({
   standalone: true,
@@ -18,11 +14,13 @@ export class MsgSenderComponent {
   public message: string = ''
 
   public textAreaInputChangeHandler($event: Event) {
+    // TODO: should be refactored, save temporary message, somewhere ins tate right?
     this.message = ($event?.target as HTMLTextAreaElement).value
     console.log(`typing event:`, this.message)
   }
 
   public sendButtonClickedHandler() {
-    this._store.dispatch(conversation.Con.Api.Subscriptions.actions.messageReceivedStarted({ message: this.message }))  
+    throw new Error('refactor')
+    // TODO: this.store.dispatch(state.core.con.actions.Con.Ui.MessageSnder.Buttons.Send.Clicked({ message: this.message }))
   }
 }
