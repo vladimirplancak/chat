@@ -42,6 +42,10 @@ export interface ConState {
    * @see {@link services.ConApiService.deleteCon}
    */
   pendingConMutation: boolean
+  /**
+   *  TODO: Add documentation
+   */
+  inProgressMessage?: string
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -69,8 +73,8 @@ export namespace ConState {
     on(actions.Con.Api.Con.Create.actions.started, (state) => ({ ...state, pendingConMutation: true })),
     on(actions.Con.Api.Con.Update.actions.started, (state) => ({ ...state, pendingConMutation: true })),
     on(actions.Con.Api.Con.Delete.actions.started, (state) => ({ ...state, pendingConMutation: true })),
+    
 
-    /* -------------------------------- succeeded ------------------------------- */
     on(actions.Con.Api.Con.List.actions.succeeded, (state, { conversations }) => ({
       ...state,
       pendingConListRequest: false,
@@ -206,6 +210,29 @@ export namespace ConState {
         }
       })
     }),
+    /* ------------------------------ subscriptions ----------------------------- */
+    on(actions.Con.Api.Message.Subscriptions.actions.messageReceived, (state, {message}) => {
+      const conversation = state.conLookup[message.conId];
+  
+      if (!conversation) {       
+        return state;
+      }
+      
+      const updatedCon: models.Conversation.WithMessages = {
+        ...conversation,
+        messages: [...conversation.messages, message]
+      };
+      
+
+      return {
+        ...state,
+        conLookup: {
+          ...state.conLookup,
+          [message.conId]: updatedCon
+        }
+      };
+
+    }),
 
     /* -------------------------------------------------------------------------- */
     /*                                 UI Reducers                                */
@@ -213,5 +240,17 @@ export namespace ConState {
 
     /* ------------------------- conversation selection ------------------------- */
     on(actions.Con.Ui.List.ConItem.actions.clicked, (state, { selectedId }) => ({ ...state, selectedId })),
+
+    on(actions.Con.Ui.MessageSender.TextArea.Input.actions.changed, (state, { messageText  }) => {
+      throw new Error('TODO: implement me')
+      // should populate inProgressMessage.
+    }),
+
+    // TODO: Should a reducer, that will clear inProgressMessage, ever time message is sent.
+    // on(actions.Con.Ui.MessageSender......, (state, { messageText:  }) => {
+    //   throw new Error('TODO: implement me')
+    //   // should populate inProgressMessage.
+    // }),
+
   )
 }

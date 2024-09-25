@@ -29,7 +29,7 @@ const IN_MEMORY_MSG_LIST: Partial<Record<models.Conversation.Id, readonly models
     { content: 'con 1 - Hello message 3', datetime: _incrementDate(now, 1), id: '2', userId: IN_MEMORY_CON_LIST[0].participantIds[1] },
     { content: 'con 1 - Hello message 4', datetime: _incrementDate(now, 1), id: '3', userId: IN_MEMORY_CON_LIST[0].participantIds[1] },
     { content: 'con 1 - Hello message 5', datetime: _incrementDate(now, 1), id: '4', userId: IN_MEMORY_CON_LIST[0].participantIds[1] },
-    
+
   ],
   '1': [
     { content: 'con 2 - Hello message 1', datetime: _incrementDate(now, 1), id: '5', userId: IN_MEMORY_CON_LIST[1].participantIds[0] },
@@ -45,7 +45,22 @@ const IN_MEMORY_MSG_LIST: Partial<Record<models.Conversation.Id, readonly models
 @ngCore.Injectable()
 export class ConApiService {
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
-  
+
+  // TODO: this should be actually refactored, and should not have interaction
+  // with "msgReceived$" stream at all, that part should be done through "hub"
+  // methods. 
+  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input) {
+    
+    const messageList = IN_MEMORY_MSG_LIST[payloadMessage.conId];
+
+    if(!messageList) {
+      throw new Error('Message doesn\'t exist in cache')
+    }
+
+    const newCachedId = (messageList.length + 1).toString()
+
+    this.msgReceived$.next({ ...payloadMessage, id: newCachedId });
+  }
 
   public conList(): rxjs.Observable<readonly models.Conversation[]> {
     return rxjs.of(IN_MEMORY_CON_LIST).pipe(randomDelayOperator())
@@ -94,16 +109,6 @@ export class ConApiService {
     const foundMsgs = [...(IN_MEMORY_MSG_LIST[conId] ?? [])]
 
     return rxjs.of(foundMsgs).pipe(randomDelayOperator())
-  }
-
-  public sendConMessage(
-    conId: models.Conversation.Id,
-    input: models.Conversation.Message.Input
-  ): rxjs.Observable<models.Conversation.Message | undefined> {
-    // IN_MEMORY_MSG_LIST[conId] = {
-    // input...
-    //}
-    throw new Error('TODO: implement')
   }
 
 }
