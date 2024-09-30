@@ -113,29 +113,38 @@ export class ConversationEffects {
     rxjs.withLatestFrom(
       this._store.select(selectors.Conversation.Selected.ID),
       this._store.select(authState.selectors.Auth.SELF_ID),
-      this._store.select(selectors.Conversation.Selected.IN_PROGRESS_MSG)
+      this._store.select(selectors.Conversation.Selected.IN_PROGRESS_MSG).pipe(
+        rxjs.tap(content => console.log(`Content from the selector:`, content)),
+        rxjs.filter(content => content !== 'xxx')
+      )
     ),
     rxjs.map(([action, conId, userId, content]) => {
       if(conId === undefined) {
-        throw new Error('No conversation selected')
+        throw new Error('No conversation selected');
       }
-
+  
       if(content === undefined) { 
-        throw new Error('No message to send')
+        throw new Error('No message to send');
       }
-
+  
       if (userId === undefined) {
-        throw new Error('No user logged in')
+        throw new Error('No user logged in');
       }
+  
+      const newMessage = { 
+        id:'66',
+        conId, 
+        content, 
+        datetime: new Date(), 
+        userId 
+      };
+      console.log(`content from the effects:`, content)
+      this._conApiService.sendConMessage(newMessage);
+  
 
-      this._conApiService.sendConMessage({ 
-          conId, 
-          content, 
-          datetime: new Date(), 
-          userId 
-        })
     })
-  ), { dispatch: false })
+  ), {dispatch:false});
+  
 
   // NOTE: Purpose of this effect is: 
   // back-end sends you new message, you receive it, through 'this_conApiSErvice.msgReceived$' stream, and then you dispatch an action,

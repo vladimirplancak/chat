@@ -52,7 +52,7 @@ export class ConApiService {
   public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input) {
     
     const messageList = IN_MEMORY_MSG_LIST[payloadMessage.conId];
-
+    console.log('Payload Message:', payloadMessage);
     if(!messageList) {
       throw new Error('Message doesn\'t exist in cache')
     }

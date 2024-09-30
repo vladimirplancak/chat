@@ -17,8 +17,9 @@ export class MsgSenderComponent {
   // FIXME: TODO: Both of this handlers, should be "improved" in a way, that they are "saving" "sending" messages for a given conversation.
   public textAreaInputChangeHandler($event: Event) {
     const value = ($event?.target as HTMLTextAreaElement).value
-   
-    // TODO: (future improvements) debounce the input
+    
+    // TODO: (future improvements) debounce the input 
+    console.log(`component/value`, value)
     this._store.dispatch(state.core.con.actions.Con.Ui.MessageSender.TextArea.Input.actions.changed({ messageText: value }))
   }
 
