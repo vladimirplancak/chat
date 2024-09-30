@@ -3,7 +3,7 @@ import * as actions from './auth.actions'
 
 export interface AuthState {
   jwtToken?: string
-  isLoggingIn : boolean
+  isLoggingIn: boolean
   errorMessage?: string
 }
 export namespace AuthState {
@@ -12,7 +12,6 @@ export namespace AuthState {
    * Represents the initial state of the root store.
    */
   const INITIAL: AuthState = {
-    jwtToken: '0',
     isLoggingIn: false,
     errorMessage: undefined,
   }
@@ -20,11 +19,12 @@ export namespace AuthState {
   export const REDUCER = createReducer<AuthState>(
     INITIAL,
     on(actions.Auth.Api.actions.started, state => ({ ...state, isLoggingIn: true })),
-    on(actions.Auth.Api.actions.succeeded, (state, { jwtToken }) => { 
-      console.log('Local auth succeeded with JWT token:', jwtToken);
-      return {...state, 
-      jwtToken, 
-      isLoggingIn: false }
+    on(actions.Auth.Api.actions.succeeded, (state, { jwtToken }) => {
+      return {
+        ...state,
+        jwtToken,
+        isLoggingIn: false
+      }
     }),
     on(actions.Auth.Api.actions.failed, (state, { errorMessage }) => ({ ...state, errorMessage, isLoggingIn: false, })),
 

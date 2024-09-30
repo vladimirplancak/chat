@@ -8,7 +8,9 @@ const STATE = ngrxStore.createFeatureSelector<AuthState>(AuthState.FEATURE_KEY)
 
 export namespace Auth {
   export const SELF = ngrxStore.createSelector(STATE, (state) =>
-    state.jwtToken ? models.Auth.Self.from(state.jwtToken): undefined
+    {
+      return state.jwtToken ? models.Auth.Self.from(state.jwtToken) : undefined
+    }
   )
 
   export const SELF_ID = ngrxStore.createSelector(SELF, (self) => self?.userId)
