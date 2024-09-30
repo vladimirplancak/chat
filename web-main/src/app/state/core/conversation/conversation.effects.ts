@@ -86,7 +86,7 @@ export class ConversationEffects {
     )),
   ))
 
-  onConversationSElected$ = ngrxEffects.createEffect(() => this._actions.pipe(
+  onConversationSelected$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Ui.List.ConItem.actions.clicked),
     rxjs.switchMap(({ selectedId }) =>
       rxjs.of(actions.Con.Api.Message.List.actions.started({ conversationId: selectedId })),
@@ -108,43 +108,55 @@ export class ConversationEffects {
     )),
   ))
 
-  onMessageSend$ = ngrxEffects.createEffect(() => this._actions.pipe(
+  /**
+   * Purpose of the effect, is to compute the payload for the {@link actions.Con.Api.Message.Send.actions.started}
+   * action, and dispatch it.
+   */
+  uiOnMessageSend$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Ui.MessageSender.Buttons.Send.actions.clicked),
     rxjs.withLatestFrom(
       this._store.select(selectors.Conversation.Selected.ID),
       this._store.select(authState.selectors.Auth.SELF_ID),
-      this._store.select(selectors.Conversation.Selected.IN_PROGRESS_MSG).pipe(
-        rxjs.tap(content => console.log(`Content from the selector:`, content)),
-        rxjs.filter(content => content !== 'xxx')
-      )
+      this._store.select(selectors.Conversation.Selected.IN_PROGRESS_MSG)
     ),
     rxjs.map(([action, conId, userId, content]) => {
-      if(conId === undefined) {
-        throw new Error('No conversation selected');
+      if (!conId) {
+        throw new Error('No conversation')
       }
-  
-      if(content === undefined) { 
-        throw new Error('No message to send');
+      if (!userId) {
+        throw new Error('No user')
       }
-  
-      if (userId === undefined) {
-        throw new Error('No user logged in');
+      if (!content) {
+        throw new Error('No content')
       }
-  
-      const newMessage = { 
-        id:'66',
-        conId, 
-        content, 
-        datetime: new Date(), 
-        userId 
-      };
-      console.log(`content from the effects:`, content)
-      this._conApiService.sendConMessage(newMessage);
-  
 
+      return actions.Con.Api.Message.Send.actions.started({
+        payloadMessage: {
+          conId,
+          content,
+          datetime: new Date(),
+          userId,
+        }
+      })
     })
-  ), {dispatch:false});
-  
+  ));
+
+  onMessageSendStart$ = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(actions.Con.Api.Message.Send.actions.started),
+
+    rxjs.switchMap((action) => {
+      return this._conApiService.sendConMessage(action.payloadMessage).pipe(
+        rxjs.map(() => {
+          debugger
+          return actions.Con.Api.Message.Send.actions.succeeded();
+        }),
+        rxjs.catchError(error => {
+          return rxjs.of(actions.Con.Api.Message.Send.actions.failed({ errorMessage: error?.message }))
+        })
+      )
+    })
+  ));
+
 
   // NOTE: Purpose of this effect is: 
   // back-end sends you new message, you receive it, through 'this_conApiSErvice.msgReceived$' stream, and then you dispatch an action,
@@ -156,5 +168,5 @@ export class ConversationEffects {
       ),
     )
   )
-  
+
 }

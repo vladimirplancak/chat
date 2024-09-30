@@ -213,7 +213,6 @@ export namespace ConState {
     /* ------------------------------ subscriptions ----------------------------- */
     on(actions.Con.Api.Message.Subscriptions.actions.messageReceived, (state, {message}) => {
       const conversation = state.conLookup[message.conId];
-      console.log(`reducer/messageReceived:`, message)
       if (!conversation) {       
         return state;
       }
@@ -242,7 +241,6 @@ export namespace ConState {
     on(actions.Con.Ui.List.ConItem.actions.clicked, (state, { selectedId }) => ({ ...state, selectedId })),
 
     on(actions.Con.Ui.MessageSender.TextArea.Input.actions.changed, (state, { messageText }) => {
-      console.log('Message Text:', messageText)
     
       return {
         ...state,
@@ -250,10 +248,10 @@ export namespace ConState {
       };
     }),
     
-   // TODO: Should a reducer, that will clear inProgressMessage, ever time message is sent.
-    on(actions.Con.Ui.MessageSender.Buttons.Send.actions.clicked, (state, { }) => ({
+   
+    on(actions.Con.Api.Message.Send.actions.succeeded, (state, { }) => ({
       ...state,
-      inProgressMessage: ''
+      inProgressMessage: undefined
     })),
 
   )

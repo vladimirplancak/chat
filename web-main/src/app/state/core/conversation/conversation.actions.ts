@@ -144,6 +144,18 @@ export namespace Con {
           }
         })
       }
+
+      export namespace Send {
+        export const SOURCE = common.Action.Source.from(Message.SOURCE, 'Send')
+        export const actions = ngrxStore.createActionGroup({
+          source: SOURCE,
+          events: {
+            'started': ngrxStore.props<{ payloadMessage: models.Conversation.Message.InContext.Input }>(),
+            'succeeded': ngrxStore.emptyProps(),
+            'failed': ngrxStore.props<{ errorMessage?: string }>(),
+          }
+        })
+      }
     }
   }
 }

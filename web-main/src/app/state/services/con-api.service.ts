@@ -49,17 +49,20 @@ export class ConApiService {
   // TODO: this should be actually refactored, and should not have interaction
   // with "msgReceived$" stream at all, that part should be done through "hub"
   // methods. 
-  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input) {
+  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input): rxjs.Observable<void> {
     
     const messageList = IN_MEMORY_MSG_LIST[payloadMessage.conId];
-    console.log('Payload Message:', payloadMessage);
+    
     if(!messageList) {
       throw new Error('Message doesn\'t exist in cache')
     }
 
     const newCachedId = (messageList.length + 1).toString()
 
-    this.msgReceived$.next({ ...payloadMessage, id: newCachedId });
+    // Simulate, that we send message to the server, and then we receive it back 
+    return rxjs.timer(1000).pipe(rxjs.map(() => { 
+      this.msgReceived$.next({ ...payloadMessage, id: newCachedId })  
+    }))
   }
 
   public conList(): rxjs.Observable<readonly models.Conversation[]> {
