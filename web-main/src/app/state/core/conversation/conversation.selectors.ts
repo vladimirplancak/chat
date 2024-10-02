@@ -40,32 +40,10 @@ export namespace Conversation {
       ID,
       (lookup, selectedId) => selectedId ? lookup[selectedId] : undefined
     )
-
-    export const IN_PROGRESS_MSGS = ngrxStore.createSelector(
-      STATE,
-      state => state.inProgressMessages
-    )
-
-    export const SPECIFIC_IN_PROGRESS_MSG = ngrxStore.createSelector(
-      ID,
-      IN_PROGRESS_MSGS,
-      (selectedConversationId, inProgressMessages) => {
-        if (!selectedConversationId) {
-          return undefined;
-        }
-        return inProgressMessages ? inProgressMessages[selectedConversationId] : undefined;
-      }
-    );
-    
-    
-    
   }
-
-
-
 }
 
-export namespace Messages {
+export namespace Message {
   export namespace InCon {
     /** 
      * Present a loader for passed conversation id if there is an ongoing
@@ -81,7 +59,38 @@ export namespace Messages {
       state => undefined ?? 'something went wrong'
     )
   }
-  
+
+  export namespace InSelectedCon {
+    /**
+     * There's a an edge case, saying, if the selected conversation ID doesn't
+     * exist we will show loader
+     */
+    export const PRESENT_LOADER = ngrxStore.createSelector(
+      STATE,
+      Conversation.Selected.ID,
+      (state, selectedConId) => selectedConId ? state.pendingConListMessagesRequests.has(selectedConId) : false
+    )
+
+    export const ERROR = ngrxStore.createSelector(
+      STATE,
+      Conversation.Selected.ID,
+      state => undefined ?? 'something went wrong'
+    )
+
+    /**
+     * Basically, this selector is used to retrieve the in-progress message For
+     * the selected conversation, for more information, take a look at
+     * {@link Conversation.Selected.ID}
+     */
+    export const IN_PROGRESS = ngrxStore.createSelector(
+      STATE,
+      Conversation.Selected.ID,
+      (
+        state,
+        selectedConId
+      ) => selectedConId
+          ? state.inProgressMessageByConId?.[selectedConId]
+          : undefined
+    )
+  }
 }
-
-

@@ -118,23 +118,23 @@ export class ConversationEffects {
     rxjs.withLatestFrom(
       this._store.select(selectors.Conversation.Selected.ID),
       this._store.select(authState.selectors.Auth.SELF_ID),
-      this._store.select(selectors.Conversation.Selected.SPECIFIC_IN_PROGRESS_MSG)
+      this._store.select(selectors.Message.InSelectedCon.IN_PROGRESS)
     ),
-    rxjs.map(([action, conId, userId, content]) => {
+    rxjs.map(([action, conId, userId, inProgressContent]) => {
       if (!conId) {
         throw new Error('No conversation')
       }
       if (!userId) {
         throw new Error('No user')
       }
-      if (!content) {
+      if (!inProgressContent) {
         throw new Error('No content')
       }
 
       return actions.Con.Api.Message.Send.actions.started({
         payloadMessage: {
           conId,
-          content,
+          content: inProgressContent,
           datetime: new Date(),
           userId,
         }

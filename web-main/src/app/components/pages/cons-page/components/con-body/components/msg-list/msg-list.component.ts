@@ -4,23 +4,23 @@ import * as state from '../../../../../../../state'
 
 
 @ngCore.Component({
-    standalone: true,
-    styleUrl: './msg-list.component.scss',
-    templateUrl: './msg-list.component.html',
-    selector: 'app-msg-list',
+  standalone: true,
+  styleUrl: './msg-list.component.scss',
+  templateUrl: './msg-list.component.html',
+  selector: 'app-msg-list',
 })
 export class MsgListComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store)
   private readonly _selectedConIdSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ID)
   private readonly _presentUserLoaderSg = this._store.selectSignal(state.core.user.selectors.User.PRESENT_LOADER)
-  
+
   public readonly messagesSg = ngCore.computed(() => {
     const selectedConversation = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)()
 
     // If the selected conversation is not present, we are not able to display
     // any messages from that conversation, thus we return the empty array (no
     // messages).
-    if(!selectedConversation) {
+    if (!selectedConversation) {
       return []
     }
 
@@ -30,7 +30,7 @@ export class MsgListComponent {
     // where the participants that actually sent th messages are not yet loaded.
     const participantIds = selectedConversation.participantIds
     const filteredUsers = this._store.selectSignal(state.core.user.selectors.User.USERS_FILTERED(participantIds))()
-    if(filteredUsers.length !== participantIds.length) {
+    if (filteredUsers.length !== participantIds.length) {
       return []
     }
 
@@ -40,18 +40,12 @@ export class MsgListComponent {
 
   public readonly participantLookupSg = this._store.selectSignal(state.core.user.selectors.User.USERS_LOOKUP)
 
-  public readonly presentLoaderSg = ngCore.computed(() => {
-    const selectedConId = this._selectedConIdSg()
-    const loaderForUsers = this._presentUserLoaderSg()
-
-    if(!selectedConId) {
-      return true
-    }
-
-    const loaderForMessagesInCon  = this._store.selectSignal(state.core.con.selectors.Messages.InCon.PRESENT_LOADER(selectedConId))()
-
-    return loaderForMessagesInCon || loaderForUsers
-  })
+  public readonly presentLoaderSg = ngCore.computed((
+    loaderForUsers = this._presentUserLoaderSg(),
+    loaderForMessagesInCon = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.PRESENT_LOADER)()
+  ) =>
+    loaderForMessagesInCon || loaderForUsers
+  )
 
   public selfIdSg = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)
 

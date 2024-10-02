@@ -30,7 +30,7 @@ export namespace Con {
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE,
             events: {
-              'changed': ngrxStore.props<{ conversationId: string, messageText: string }>(),
+              'changed': ngrxStore.props<{ conversationId: models.Conversation.Id, messageText: string }>(),
             }
           })
         }

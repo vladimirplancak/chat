@@ -12,30 +12,25 @@ export class MsgSenderComponent {
 
   private readonly _store = ngCore.inject(ngrxStore.Store)
 
-  public readonly inProgressMessageSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.IN_PROGRESS_MSGS)
-  public readonly selectedConversationIdSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ID);
+  
+  
 
 
   // FIXME: TODO: Both of this handlers, should be "improved" in a way, that they are "saving" "sending" messages for a given conversation.
   public textAreaInputChangeHandler($event: Event) {
     const value = ($event?.target as HTMLTextAreaElement).value
-    const conversationId = this.selectedConversationIdSg()
+    const conversationId = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ID)()
 
-    if(conversationId)
+    if(!conversationId) {
+      throw new Error('It is not possible to send message, if we dont have selected conversation.')
+    }
+
     // TODO: (future improvements) debounce the input 
     this._store.dispatch(state.core.con.actions.Con.Ui.MessageSender.TextArea.Input.actions.changed({ conversationId, messageText: value }))
   }
 
-  public readonly selectedInProgressMessageSg = ngCore.computed(() => {
-    const inProgressMessages = this.inProgressMessageSg();
-    const conversationId = this.selectedConversationIdSg();
-
-    if (!conversationId || !inProgressMessages) {
-      return '';
-    }
-    return inProgressMessages[conversationId] || '';
-  });
-
+  public readonly inProgressMessageByConIdSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.IN_PROGRESS)
+  
   public sendButtonClickedHandler() {
     this._store.dispatch(state.core.con.actions.Con.Ui.MessageSender.Buttons.Send.actions.clicked())
   }

@@ -43,9 +43,17 @@ export interface ConState {
    */
   pendingConMutation: boolean
   /**
-   *  TODO: Add documentation
+   * Stores the messages currently being composed for different conversations.
+   * This allows us to keep track of in-progress messages across multiple conversations.
+   * 
+   * @example 
+   * ```ts
+   * {
+   *  'con-id-1': 'Hello, how are you?',
+   *  'con-id-2': 'I am doing well, thank you for asking.'
+   * }
    */
-  inProgressMessages?: Partial<Record<models.Conversation.Id, string>>
+  inProgressMessageByConId?: Partial<Record<models.Conversation.Id, string>>
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -73,7 +81,7 @@ export namespace ConState {
     on(actions.Con.Api.Con.Create.actions.started, (state) => ({ ...state, pendingConMutation: true })),
     on(actions.Con.Api.Con.Update.actions.started, (state) => ({ ...state, pendingConMutation: true })),
     on(actions.Con.Api.Con.Delete.actions.started, (state) => ({ ...state, pendingConMutation: true })),
-    
+
 
     on(actions.Con.Api.Con.List.actions.succeeded, (state, { conversations }) => ({
       ...state,
@@ -211,17 +219,17 @@ export namespace ConState {
       })
     }),
     /* ------------------------------ subscriptions ----------------------------- */
-    on(actions.Con.Api.Message.Subscriptions.actions.messageReceived, (state, {message}) => {
+    on(actions.Con.Api.Message.Subscriptions.actions.messageReceived, (state, { message }) => {
       const conversation = state.conLookup[message.conId];
-      if (!conversation) {       
+      if (!conversation) {
         return state;
       }
-      
+
       const updatedCon: models.Conversation.WithMessages = {
         ...conversation,
         messages: [...conversation.messages, message]
       };
-      
+
 
       return {
         ...state,
@@ -241,21 +249,21 @@ export namespace ConState {
     on(actions.Con.Ui.List.ConItem.actions.clicked, (state, { selectedId }) => ({ ...state, selectedId })),
 
     on(actions.Con.Ui.MessageSender.TextArea.Input.actions.changed, (state, { conversationId, messageText }) => {
-    
+
       return {
         ...state,
-        inProgressMessages: {
-          ...state.inProgressMessages,
-          [conversationId]:messageText
+        inProgressMessageByConId: {
+          ...state.inProgressMessageByConId,
+          [conversationId]: messageText
         }
       };
     }),
-    
+
     on(actions.Con.Api.Message.Send.actions.succeeded, (state, { conversationId }) => ({
       ...state,
-      inProgressMessages: { ...state.inProgressMessages, [conversationId]: undefined }
+      inProgressMessageByConId: { ...state.inProgressMessageByConId, [conversationId]: undefined }
     }))
-    
+
 
   )
 }
