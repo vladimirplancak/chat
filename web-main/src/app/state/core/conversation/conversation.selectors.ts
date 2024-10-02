@@ -41,11 +41,27 @@ export namespace Conversation {
       (lookup, selectedId) => selectedId ? lookup[selectedId] : undefined
     )
 
-    export const IN_PROGRESS_MSG = ngrxStore.createSelector(
+    export const IN_PROGRESS_MSGS = ngrxStore.createSelector(
       STATE,
-      state => state.inProgressMessage
+      state => state.inProgressMessages
     )
+
+    export const SPECIFIC_IN_PROGRESS_MSG = ngrxStore.createSelector(
+      ID,
+      IN_PROGRESS_MSGS,
+      (selectedConversationId, inProgressMessages) => {
+        if (!selectedConversationId) {
+          return undefined;
+        }
+        return inProgressMessages ? inProgressMessages[selectedConversationId] : undefined;
+      }
+    );
+    
+    
+    
   }
+
+
 
 }
 

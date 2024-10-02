@@ -9,6 +9,7 @@ import * as authState from '../auth'
 import * as services from '../../services';
 import * as rootState from '../root'
 
+
 @ngCore.Injectable()
 export class ConversationEffects {
 
@@ -117,7 +118,7 @@ export class ConversationEffects {
     rxjs.withLatestFrom(
       this._store.select(selectors.Conversation.Selected.ID),
       this._store.select(authState.selectors.Auth.SELF_ID),
-      this._store.select(selectors.Conversation.Selected.IN_PROGRESS_MSG)
+      this._store.select(selectors.Conversation.Selected.SPECIFIC_IN_PROGRESS_MSG)
     ),
     rxjs.map(([action, conId, userId, content]) => {
       if (!conId) {
@@ -148,7 +149,7 @@ export class ConversationEffects {
       return this._conApiService.sendConMessage(action.payloadMessage).pipe(
         rxjs.map(() => {
           debugger
-          return actions.Con.Api.Message.Send.actions.succeeded();
+          return actions.Con.Api.Message.Send.actions.succeeded(  { conversationId: action.payloadMessage.conId });
         }),
         rxjs.catchError(error => {
           return rxjs.of(actions.Con.Api.Message.Send.actions.failed({ errorMessage: error?.message }))

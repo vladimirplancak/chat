@@ -2,7 +2,7 @@
   <div class="message-sender__text">
     <!-- NOTE: due to how html handles undefined, we want to pass null, in case
     it is null / undefined. -->
-    <textarea [value]="inProgressMessageSg() ?? null" (input)="textAreaInputChangeHandler($event)"></textarea>
+    <textarea [value]="selectedInProgressMessageSg()" (input)="textAreaInputChangeHandler($event)"></textarea>
   </div>
   <div class="message-sender__btn" (click)="sendButtonClickedHandler()">SEND</div>
 </div>

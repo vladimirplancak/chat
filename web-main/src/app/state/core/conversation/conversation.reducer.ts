@@ -45,7 +45,7 @@ export interface ConState {
   /**
    *  TODO: Add documentation
    */
-  inProgressMessage?: string
+  inProgressMessages?: Partial<Record<models.Conversation.Id, string>>
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -240,19 +240,22 @@ export namespace ConState {
     /* ------------------------- conversation selection ------------------------- */
     on(actions.Con.Ui.List.ConItem.actions.clicked, (state, { selectedId }) => ({ ...state, selectedId })),
 
-    on(actions.Con.Ui.MessageSender.TextArea.Input.actions.changed, (state, { messageText }) => {
+    on(actions.Con.Ui.MessageSender.TextArea.Input.actions.changed, (state, { conversationId, messageText }) => {
     
       return {
         ...state,
-        inProgressMessage: messageText
+        inProgressMessages: {
+          ...state.inProgressMessages,
+          [conversationId]:messageText
+        }
       };
     }),
     
-   
-    on(actions.Con.Api.Message.Send.actions.succeeded, (state, { }) => ({
+    on(actions.Con.Api.Message.Send.actions.succeeded, (state, { conversationId }) => ({
       ...state,
-      inProgressMessage: undefined
-    })),
+      inProgressMessages: { ...state.inProgressMessages, [conversationId]: undefined }
+    }))
+    
 
   )
 }

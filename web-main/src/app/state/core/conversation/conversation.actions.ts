@@ -30,7 +30,7 @@ export namespace Con {
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE,
             events: {
-              'changed': ngrxStore.props<{ messageText: string }>(),
+              'changed': ngrxStore.props<{ conversationId: string, messageText: string }>(),
             }
           })
         }
@@ -151,7 +151,7 @@ export namespace Con {
           source: SOURCE,
           events: {
             'started': ngrxStore.props<{ payloadMessage: models.Conversation.Message.InContext.Input }>(),
-            'succeeded': ngrxStore.emptyProps(),
+            'succeeded':ngrxStore.props<{ conversationId: models.Conversation.Id}>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })
