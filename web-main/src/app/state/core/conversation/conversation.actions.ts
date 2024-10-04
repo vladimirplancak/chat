@@ -8,6 +8,10 @@ export const CON_SOURCE = 'Con'
 export namespace Con {
   export namespace Ui {
     export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Ui')
+
+
+    //TODO:  We should have something here regarding what actions to dispatch when selection in the user-what-ever happens.
+
     export namespace List {
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ConList')
       export namespace ConItem {

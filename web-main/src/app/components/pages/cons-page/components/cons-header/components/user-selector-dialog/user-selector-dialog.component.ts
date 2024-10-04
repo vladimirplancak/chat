@@ -3,15 +3,10 @@ import * as ngCore from '@angular/core'
 import * as ngrxStore from '@ngrx/store'
 import * as state from '../../../../../../../state'
 import * as models from '../../../../../../../models'
-import { KeyValuePipe } from '@angular/common'
-
 
 @ngCore.Component({
   selector: 'app-user-selector-dialog',
   standalone: true,
-  imports: [
-    KeyValuePipe
-  ],
   templateUrl: './user-selector-dialog.component.html',
   styleUrl: './user-selector-dialog.component.scss'
 })
@@ -27,10 +22,12 @@ export class UserSelectorDialogComponent {
   public onUserItemClickedHandler(user: models.User) {
     const selfId = this._selfIdSg()
     if (selfId) {
+      // HINT! you don't need self id to be dispatched here at all. EXACTLY!
       const payload = {
         name: user.id,
         participantIds: [user.id, selfId]
       }
+
 
       this._store.dispatch(state.core.con.actions.Con.Api.Con.Create.actions.started({ input: payload }))
     }
