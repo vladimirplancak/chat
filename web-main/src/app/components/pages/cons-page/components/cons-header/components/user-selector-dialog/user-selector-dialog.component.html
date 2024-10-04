@@ -1,0 +1,7 @@
+<div class="user-selector-dialog">
+  @for(user of userListSg(); track $index) {
+  <div class="user-selector-dialog__user-item" (click)="onUserItemClickedHandler(user)">
+    {{ user.name }}
+  </div>
+  }
+</div>

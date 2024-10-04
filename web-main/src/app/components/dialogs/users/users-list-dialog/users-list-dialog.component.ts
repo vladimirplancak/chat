@@ -15,7 +15,7 @@ import { Con } from '../../../../state/core/conversation/conversation.actions';
 })
 export class UsersListDialogComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store)
-  public readonly usersListSg = this._store.selectSignal(state.core.user.selectors.User.USERS_LOOKUP)()
+  public readonly usersListSg = this._store.selectSignal(state.core.user.selectors.User.USER_LOOKUP)()
   private readonly currentlyLoggedUser = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)()
 
   getObjectKeys(obj: any): string[] {

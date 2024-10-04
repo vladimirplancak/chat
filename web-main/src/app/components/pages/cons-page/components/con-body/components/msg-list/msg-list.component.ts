@@ -38,7 +38,7 @@ export class MsgListComponent {
   })
 
 
-  public readonly participantLookupSg = this._store.selectSignal(state.core.user.selectors.User.USERS_LOOKUP)
+  public readonly participantLookupSg = this._store.selectSignal(state.core.user.selectors.User.USER_LOOKUP)
 
   public readonly presentLoaderSg = ngCore.computed((
     loaderForUsers = this._presentUserLoaderSg(),

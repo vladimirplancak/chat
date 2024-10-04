@@ -8,13 +8,16 @@ import * as models from '../../../models'
 const STATE = ngrxStore.createFeatureSelector<UserState>(UserState.FEATURE_KEY)
 
 export namespace User {
-  export const USERS_LOOKUP = ngrxStore.createSelector(
+  export const USER_LOOKUP = ngrxStore.createSelector(
     STATE,
     state => state.userLookup
   )
 
+  /**
+   * TODO: filter works only with ids, so we should convey that with the name of the selector.
+   */
   export const USER_LOOKUP_FILTERED = (userIdOrIds: models.User.Id | readonly models.User.Id[]) => ngrxStore.createSelector(
-    USERS_LOOKUP,
+    USER_LOOKUP,
     (userLookup) => {
       const userIds = _isReadonlyArray(userIdOrIds) ? userIdOrIds : [userIdOrIds]
 
@@ -26,7 +29,7 @@ export namespace User {
   )
 
   export const USERS = ngrxStore.createSelector(
-    USERS_LOOKUP,
+    USER_LOOKUP,
     lookup => 
         Object.entries(lookup)
           .map(([, user]) => (user ? user : undefined))

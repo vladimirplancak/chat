@@ -1,0 +1,1 @@
+export { AttachedOverlayComponent as Component } from './attached.component'

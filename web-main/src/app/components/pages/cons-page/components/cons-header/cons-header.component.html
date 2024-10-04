@@ -1,5 +1,11 @@
 <div class="conversations-header">
   <div class="conversations-header__logo">logo</div>
-  <div class="conversations-header__selector"> <button mat-button (click)="openDialog()">users</button></div>
+  <div class="conversations-header__selector" #overlayOrigin (click)="presetUserSelectorDialogSg.set(true)">users</div>
   <div class="conversations-header__info">{{selfSg()?.name}}</div>
 </div>
+
+@if(presetUserSelectorDialogSg()) {
+  <attached-overlay [origin]="overlayOrigin" (backdropClick)="presetUserSelectorDialogSg.set(false)">
+    <app-user-selector-dialog />
+  </attached-overlay>
+}

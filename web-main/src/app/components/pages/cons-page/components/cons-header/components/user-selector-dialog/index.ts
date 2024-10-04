@@ -1,0 +1,1 @@
+export { UserSelectorDialogComponent as Component } from './user-selector-dialog.component'
