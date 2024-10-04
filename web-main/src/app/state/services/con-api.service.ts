@@ -15,7 +15,7 @@ _incrementDate(now, 1)
 
 
 
-const IN_MEMORY_CON_LIST: models.Conversation[] = [
+let IN_MEMORY_CON_LIST: models.Conversation[] = [
   { id: '0', name: 'con-one', participantIds: [...IN_MEMORY_USERS_LIST].splice(0, 5).map(it => it.id) },
   { id: '1', name: 'con-two', participantIds: [...IN_MEMORY_USERS_LIST].splice(5, 5).map(it => it.id) },
   { id: '2', name: 'con-three', participantIds: [...IN_MEMORY_USERS_LIST].splice(10, 5).map(it => it.id) },
@@ -76,8 +76,9 @@ export class ConApiService {
 
   public createCon(input: models.Conversation.Input): rxjs.Observable<models.Conversation> {
     const newCon = { id: IN_MEMORY_CON_LIST.length.toString(), ...input }
-
-    IN_MEMORY_CON_LIST.push(newCon)
+    
+    IN_MEMORY_CON_LIST = [...IN_MEMORY_CON_LIST, newCon];
+    //IN_MEMORY_CON_LIST.push(newCon)
 
     return rxjs.of({ ...newCon }).pipe(randomDelayOperator())
   }

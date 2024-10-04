@@ -5,9 +5,11 @@ import * as core from './core'
 import * as ngrxStoreDevtools from '@ngrx/store-devtools'
 import * as services from './services';
 import * as ngrxRouterStore from '@ngrx/router-store';
-
+import { MatDialogModule } from '@angular/material/dialog';
 @ngCore.NgModule({
   imports: [
+    /* ----------------------- MatDialog ----------------------- */
+    MatDialogModule,
     /* ----------------------- General store registration ----------------------- */
      ngrxStore.StoreModule.forRoot({
       router: ngrxRouterStore.routerReducer
