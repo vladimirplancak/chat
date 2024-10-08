@@ -4,7 +4,6 @@ import * as rxjs from 'rxjs';
 import * as ngrxStore from '@ngrx/store';
 import * as actions from './conversation.actions'
 import * as selectors from './conversation.selectors'
-import * as conSelectors from './conversation.selectors'
 import * as authState from '../auth'
 import * as services from '../../services';
 import * as rootState from '../root'
@@ -39,7 +38,7 @@ export class ConversationEffects {
   shouldLoadMessages$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.List.actions.started),
     rxjs.switchMap((action) =>
-      this._store.select(conSelectors.Conversation.Selected.ID)
+      this._store.select(selectors.Conversation.Selected.ID)
         .pipe(
           rxjs.filter((selectedId: any): selectedId is string => !!selectedId),
           rxjs.first(),
@@ -57,43 +56,47 @@ export class ConversationEffects {
       )
     )),
   ))
-  
-  onUserSelected$ = ngrxEffects.createEffect(() => this._actions.pipe(
-    ngrxEffects.ofType(actions.Con.Ui.ConversationCreator.UserSelect.actions.selected),
-    rxjs.withLatestFrom(
-      this._store.select(authState.selectors.Auth.SELF_ID),
-      this._store.select(conSelectors.Conversation.LOOKUP).pipe(rxjs.tap((res) => console.log(`res`, res)))
-    ),
-    rxjs.switchMap(([{ convoId, selectedUser }, selfId, conversationLookup]) => {
-      if (!selfId) {
-        throw new Error('User not authenticated')
-      }
 
-      const payload = {
-        name: selectedUser,
-        participantIds: [selectedUser, selfId]
-      }
-      const existingConversation = conversationLookup[convoId]
-      console.log(`conversation lookup:`, conversationLookup[convoId])
-   
-      if(existingConversation === undefined) {
-        this._router.navigate(['conversations', convoId])
-        return rxjs.of(actions.Con.Api.Con.Create.actions.started({ input: payload }))
-      }
-      
-      if(conversationLookup[convoId]){
-        
-        this._router.navigate(['conversations', convoId])
-        return rxjs.of(actions.Con.Ui.List.ConItem.actions.clicked({ selectedId: convoId }))
-        
-        
-      }
-      return rxjs.of()
-      
-      
+ 
+  createConversationOrSelectExisting$ = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(actions.Con.Ui.UserSelectorDialog.actions.selected),
+    rxjs.switchMap((action) => {
+      return rxjs.of(action).pipe(
+        rxjs.withLatestFrom(
+          this._store.select(authState.selectors.Auth.SELF_ID),
+          this._store.select(selectors.Conversation.DIRECT(action.userId)),
+        ),
+        rxjs.map(([, selfId, directCon]) => {
+          if (!selfId) {
+            throw new Error('User not authenticated')
+          }
+
+          if (directCon) {
+            //TODO: Convert this into action
+            this._router.navigate(['conversations', directCon.id])
+            // return rxjs.of(actions.Con.Misc.Selection.Requested)
+          }
+          else {
+            //TODO return action after above todo is addressed
+            return this._store.dispatch(actions.Con.Api.Con.Create.actions.started({ input: { participantIds: [selfId, action.userId] } }));
+          }
+
+        })
+      )
+    }),
+    // TODO: remove dispatch: false after above todos are addressed
+  ), { dispatch: false })
+
+  onApiConCreateSucceeded$ = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(actions.Con.Api.Con.Create.actions.succeeded),
+    rxjs.map(({conversation: {id}}) => {
+      //TODO: Convert this into action
+      // return rxjs.of(actions.Con.Misc.Selection.Requested)
+      this._router.navigate(['conversations', id])
     })
-  ));
-  
+    // TODO: remove { dispatch: false } after above todos are addressed
+  ), { dispatch: false })
+
   onApiConCreateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Create.actions.started),
     rxjs.switchMap(({ input }) => this._conApiService.createCon(input).pipe(
@@ -125,9 +128,15 @@ export class ConversationEffects {
   ))
 
   onConversationSelected$ = ngrxEffects.createEffect(() => this._actions.pipe(
-    ngrxEffects.ofType(actions.Con.Ui.List.ConItem.actions.clicked),
-    rxjs.switchMap(({ selectedId }) =>
-      rxjs.of(actions.Con.Api.Message.List.actions.started({ conversationId: selectedId })),
+    ngrxEffects.ofType(
+      actions.Con.Ui.List.ConItem.actions.clicked,
+      actions.Con.Api.Con.Create.actions.succeeded,
+    ),
+
+    rxjs.switchMap((action) =>
+      action.type === actions.Con.Ui.List.ConItem.actions.clicked.type
+        ? rxjs.of(actions.Con.Api.Message.List.actions.started({ conversationId: action.selectedId }))
+        : rxjs.of(actions.Con.Api.Message.List.actions.started({ conversationId: action.conversation.id })),
     ),
   ))
 
@@ -186,7 +195,7 @@ export class ConversationEffects {
       return this._conApiService.sendConMessage(action.payloadMessage).pipe(
         rxjs.map(() => {
           debugger
-          return actions.Con.Api.Message.Send.actions.succeeded(  { conversationId: action.payloadMessage.conId });
+          return actions.Con.Api.Message.Send.actions.succeeded({ conversationId: action.payloadMessage.conId });
         }),
         rxjs.catchError(error => {
           return rxjs.of(actions.Con.Api.Message.Send.actions.failed({ errorMessage: error?.message }))

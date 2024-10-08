@@ -17,13 +17,8 @@ export class UserSelectorDialogComponent {
     allUSers = this._store.selectSignal(state.core.user.selectors.User.USERS)(),
     _selfId = this._selfIdSg()
   ) => allUSers.filter((user) => user.id !== _selfId))
-  private readonly _conversationLookup = this._store.selectSignal(state.core.con.selectors.Conversation.LOOKUP)
   
   public onUserItemClickedHandler(user: models.User) {
-      const conversationLookup = this._conversationLookup();
-      const conversationId = String(Object.keys(conversationLookup).length )
-      console.log(`new convo Id is:`, conversationId)
-      this._store.dispatch(state.core.con.actions.Con.Ui.ConversationCreator.UserSelect.actions.selected({convoId: conversationId, selectedUser:user.id}))
-   
+    this._store.dispatch(state.core.con.actions.Con.Ui.UserSelectorDialog.actions.selected({ userId: user.id }))
   }
 }

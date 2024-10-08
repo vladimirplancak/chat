@@ -28,6 +28,23 @@ export namespace Conversation {
     state => state.pendingConListRequest
   )
 
+  /**
+   * Selector that returns the conversations where participant is present
+   */
+  export const BY_PARTICIPANT = (participantId: models.User.Id) => ngrxStore.createSelector(CONS, cons => {
+    return cons.filter(con => con.participantIds.includes(participantId))
+  })
+
+  /**
+   * Selector that returns the conversations where participant is present and
+   * the conversation is a direct conversation to "self".
+   */
+  export const DIRECT = (participantId: models.User.Id) => ngrxStore.createSelector(
+    BY_PARTICIPANT(participantId),
+    // TODO: Explore what will happen if more conversation are found here, because it might happen?
+    cons => cons.find(con => con.participantIds.length === 2)
+  )
+
 
   export namespace Selected {
     export const ID = ngrxStore.createSelector(

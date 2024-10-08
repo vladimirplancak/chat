@@ -75,6 +75,14 @@ export class ConApiService {
   }
 
   public createCon(input: models.Conversation.Input): rxjs.Observable<models.Conversation> {
+    input = {
+      ...input
+    }
+    // consider this as direct message
+    if(!input.name && input.participantIds.length === 2) {
+      // TODO: should get actual user names, rather then ids
+      input.name = `${input.participantIds[0]}-${input.participantIds[1]}`
+    }
     const newCon = { id: IN_MEMORY_CON_LIST.length.toString(), ...input }
     
     IN_MEMORY_CON_LIST = [...IN_MEMORY_CON_LIST, newCon];
