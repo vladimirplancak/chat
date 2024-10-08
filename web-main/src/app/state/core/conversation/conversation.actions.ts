@@ -11,6 +11,18 @@ export namespace Con {
 
 
     //TODO:  We should have something here regarding what actions to dispatch when selection in the user-what-ever happens.
+    export namespace ConversationCreator {
+      export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ConCreator')
+      export namespace UserSelect {
+        export const SOURCE = common.Action.Source.from(ConversationCreator.SOURCE, 'UserSelect')
+        export const actions = ngrxStore.createActionGroup({
+          source: SOURCE,
+          events:{
+            'selected': ngrxStore.props<{convoId: string, selectedUser:string}>()
+          }
+        })
+      }
+    }
 
     export namespace List {
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ConList')

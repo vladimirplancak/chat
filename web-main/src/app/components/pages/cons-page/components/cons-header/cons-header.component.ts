@@ -2,7 +2,6 @@ import * as ngCore from '@angular/core';
 import * as ngrxStore from '@ngrx/store'
 import * as state from '../../../../../state'
 import * as common from '../../../../common'
-
 import * as components from './components'
 
 @ngCore.Component({
@@ -30,4 +29,5 @@ export class ConsHeaderComponent {
 
   public readonly presetUserSelectorDialogSg = ngCore.signal(false)
 
+  
 }

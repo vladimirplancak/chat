@@ -8,7 +8,7 @@ import * as conSelectors from './conversation.selectors'
 import * as authState from '../auth'
 import * as services from '../../services';
 import * as rootState from '../root'
-
+import * as ngRouter from '@angular/router'
 
 @ngCore.Injectable()
 export class ConversationEffects {
@@ -16,6 +16,7 @@ export class ConversationEffects {
   private readonly _actions = ngCore.inject(ngrxEffects.Actions)
   private readonly _conApiService = ngCore.inject(services.ConApiService)
   private readonly _store = ngCore.inject(ngrxStore.Store)
+  private readonly _router = ngCore.inject(ngRouter.Router)
 
   onRootInitialized$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(rootState.actions.Root.Ui.actions.initialized),
@@ -56,7 +57,43 @@ export class ConversationEffects {
       )
     )),
   ))
+  
+  onUserSelected$ = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(actions.Con.Ui.ConversationCreator.UserSelect.actions.selected),
+    rxjs.withLatestFrom(
+      this._store.select(authState.selectors.Auth.SELF_ID),
+      this._store.select(conSelectors.Conversation.LOOKUP).pipe(rxjs.tap((res) => console.log(`res`, res)))
+    ),
+    rxjs.switchMap(([{ convoId, selectedUser }, selfId, conversationLookup]) => {
+      if (!selfId) {
+        throw new Error('User not authenticated')
+      }
 
+      const payload = {
+        name: selectedUser,
+        participantIds: [selectedUser, selfId]
+      }
+      const existingConversation = conversationLookup[convoId]
+      console.log(`conversation lookup:`, conversationLookup[convoId])
+   
+      if(existingConversation === undefined) {
+        this._router.navigate(['conversations', convoId])
+        return rxjs.of(actions.Con.Api.Con.Create.actions.started({ input: payload }))
+      }
+      
+      if(conversationLookup[convoId]){
+        
+        this._router.navigate(['conversations', convoId])
+        return rxjs.of(actions.Con.Ui.List.ConItem.actions.clicked({ selectedId: convoId }))
+        
+        
+      }
+      return rxjs.of()
+      
+      
+    })
+  ));
+  
   onApiConCreateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Create.actions.started),
     rxjs.switchMap(({ input }) => this._conApiService.createCon(input).pipe(

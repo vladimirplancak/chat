@@ -30,7 +30,7 @@ export class UsersListDialogComponent {
         name: userId,
         participantIds: [userId, this.currentlyLoggedUser]
       }
-      this._store.dispatch(Con.Api.Con.Create.actions.started({ input: payload }))
+     
     }
 
   }
