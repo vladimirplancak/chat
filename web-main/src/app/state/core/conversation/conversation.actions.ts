@@ -169,4 +169,18 @@ export namespace Con {
       }
     }
   }
+
+  export namespace Misc {
+    export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Misc');
+  
+    export namespace Selection {
+      export const SOURCE = common.Action.Source.from(Misc.SOURCE, 'Selection');
+      export const actions = ngrxStore.createActionGroup({
+        source: SOURCE,
+        events: {
+          'requested': ngrxStore.props<{directConId: models.Conversation.Id}>(),
+        }
+      });
+    }
+  }
 }

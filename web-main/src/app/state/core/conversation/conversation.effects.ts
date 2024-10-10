@@ -66,36 +66,36 @@ export class ConversationEffects {
           this._store.select(authState.selectors.Auth.SELF_ID),
           this._store.select(selectors.Conversation.DIRECT(action.userId)),
         ),
-        rxjs.map(([, selfId, directCon]) => {
+        rxjs.switchMap(([, selfId, directCon]) => {
           if (!selfId) {
-            throw new Error('User not authenticated')
+            throw new Error('User not authenticated');
           }
-
+  
           if (directCon) {
-            //TODO: Convert this into action
-            this._router.navigate(['conversations', directCon.id])
-            // return rxjs.of(actions.Con.Misc.Selection.Requested)
+            return rxjs.of(actions.Con.Misc.Selection.actions.requested({ directConId: directCon.id }));
+          } else {
+            return rxjs.of(actions.Con.Api.Con.Create.actions.started({ input: { participantIds: [selfId, action.userId] } }));
           }
-          else {
-            //TODO return action after above todo is addressed
-            return this._store.dispatch(actions.Con.Api.Con.Create.actions.started({ input: { participantIds: [selfId, action.userId] } }));
-          }
-
         })
-      )
-    }),
-    // TODO: remove dispatch: false after above todos are addressed
-  ), { dispatch: false })
+      );
+    })
+  ));  
+  
 
   onApiConCreateSucceeded$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Create.actions.succeeded),
     rxjs.map(({conversation: {id}}) => {
-      //TODO: Convert this into action
-      // return rxjs.of(actions.Con.Misc.Selection.Requested)
-      this._router.navigate(['conversations', id])
-    })
-    // TODO: remove { dispatch: false } after above todos are addressed
-  ), { dispatch: false })
+      return actions.Con.Misc.Selection.actions.requested({directConId: id})
+    })  
+  ))
+
+  navigateToSelectedConversation$ = ngrxEffects.createEffect(() => this._actions.pipe(
+  ngrxEffects.ofType(actions.Con.Misc.Selection.actions.requested),
+  rxjs.map(({ directConId }) => {
+    this._router.navigate(['conversations', directConId]);
+  })
+), { dispatch: false });
+
 
   onApiConCreateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Create.actions.started),
