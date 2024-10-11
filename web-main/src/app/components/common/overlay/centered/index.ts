@@ -1,0 +1,1 @@
+export { CenteredOverlayComponent as Component } from './centered.component'

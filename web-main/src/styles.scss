@@ -4,6 +4,5 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .overlay-backdrop-class {
-  opacity: 0.3;
-  background: black;
+  background: rgba(0, 0, 0, 0.2);
 }
