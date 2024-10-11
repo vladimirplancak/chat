@@ -4,10 +4,13 @@ import * as ngrxStore from '@ngrx/store'
 import * as state from '../../../../../state'
 import * as models from '../../../../../models'
 import * as ngRouter from '@angular/router'
+import * as common from '../../../../common'
 
 @ngCore.Component({
   imports: [
     components.conversationItem.Component,
+    common.overlay.centered.Component,
+    
   ],
   standalone: true,
   styleUrl: './con-list.component.scss',
