@@ -38,8 +38,8 @@ export class UserApiService {
        const randomOnlineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
        const randomOfflineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
 
-       this.userCameOnline$.next(randomOnlineUser.id)
-        this.userWentOffline$.next(randomOfflineUser.id)
+      //  this.userCameOnline$.next(randomOnlineUser.id)
+      //  this.userWentOffline$.next(randomOfflineUser.id)
      })
    }
 
