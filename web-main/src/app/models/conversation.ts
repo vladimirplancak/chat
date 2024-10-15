@@ -12,7 +12,7 @@ export interface Conversation {
   * able to selvage the conversation id, participant ids and messages.
   */
  name?: string
- participantIds: readonly User.Id[]
+ participantIds: User.Id[]
 }
 export namespace Conversation {
     export type Id = string
