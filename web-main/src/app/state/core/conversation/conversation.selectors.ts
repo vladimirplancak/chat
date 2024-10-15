@@ -58,6 +58,13 @@ export namespace Conversation {
       (lookup, selectedId) => selectedId ? lookup[selectedId] : undefined
     )
   }
+
+  export namespace participantsDialog{
+    export const participantsDialogStatus = ngrxStore.createSelector(
+      STATE,
+      (state) => state.isParticipantsSelectorDialogOpen
+    )
+  }
 }
 
 export namespace Message {

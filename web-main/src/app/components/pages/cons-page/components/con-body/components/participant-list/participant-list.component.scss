@@ -1,5 +1,16 @@
 @use 'variables' as v;
+
+
 .participant-list {
   height: 100%;
   background-color: v.$tertiary;
+
+
+  &__add-button{
+    background-color: v.$secondary;
+   
+  }
 }
+
+
+

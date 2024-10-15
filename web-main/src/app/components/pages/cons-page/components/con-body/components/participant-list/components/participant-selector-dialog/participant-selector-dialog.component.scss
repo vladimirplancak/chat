@@ -1,0 +1,23 @@
+@use 'variables' as v;
+
+
+.participant-selector-dialog {
+  width: 200px;
+  background-color: v.$quaternary;
+  border-radius: 5px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+
+  &__participant-item {
+    height: 20px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: 0.2s;
+
+    &:hover {
+      background-color: v.$primary;
+      color: v.$quaternary;
+      cursor: pointer;
+    }
+  }
+
+}

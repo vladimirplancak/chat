@@ -15,4 +15,16 @@
     } @else {
       ... empty state...
     }
+    <div >
+      <button  class="participant-list__add-button" (click)=" 
+         openParticipantsDialogue();">
+        add users
+      </button>
+    </div>
   </div>
+
+@if(presetParticipantSelectorDialogSg()){
+  <centered-overlay (backdropClick)="closeParticipantsDialogue()" [hasBackdrop]="true"  >
+    <app-participant-selector-dialog/>
+  </centered-overlay>
+}

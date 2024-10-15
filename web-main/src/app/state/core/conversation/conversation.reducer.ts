@@ -54,6 +54,10 @@ export interface ConState {
    * }
    */
   inProgressMessageByConId?: Partial<Record<models.Conversation.Id, string>>
+ /**
+  * A flag property which is used to open and close the participants dialog
+  */
+  isParticipantsSelectorDialogOpen:boolean
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -67,6 +71,7 @@ export namespace ConState {
     pendingGetConRequests: new Set(),
     pendingConMutation: false,
     pendingConListMessagesRequests: new Set(),
+    isParticipantsSelectorDialogOpen: false
   }
 
   export const REDUCER = createReducer<ConState>(
@@ -262,8 +267,45 @@ export namespace ConState {
     on(actions.Con.Api.Message.Send.actions.succeeded, (state, { conversationId }) => ({
       ...state,
       inProgressMessageByConId: { ...state.inProgressMessageByConId, [conversationId]: undefined }
-    }))
+    })),
 
+    on(actions.Con.Ui.ParticipantSelectorDialog.actions.open, (state,{ }) =>({
+      ...state,
+      isParticipantsSelectorDialogOpen:true
+    })),
+
+    on(actions.Con.Ui.ParticipantSelectorDialog.actions.close, (state,{ }) =>({
+      ...state,
+      isParticipantsSelectorDialogOpen:false
+    })),
+
+    on(
+      actions.Con.Ui.UpdateParticipantList.actions.started,
+      (state, { newlySelectedParticipantIds, conversationId }) => {
+        const conversation = state.conLookup[conversationId];
+    
+        if (!conversation) {
+          return state;
+        }
+  
+        const updatedParticipantIds = Array.from(
+          new Set([...conversation.participantIds, ...newlySelectedParticipantIds])
+        );
+    
+        const updatedConversation: models.Conversation.WithMessages = {
+          ...conversation,
+          participantIds: updatedParticipantIds,
+        };
+    
+        return {
+          ...state,
+          conLookup: {
+            ...state.conLookup,
+            [conversationId]: updatedConversation,
+          },
+        };
+      }
+    ),
 
   )
 }

@@ -19,6 +19,27 @@ export namespace Con {
       })
     }
 
+    export namespace ParticipantSelectorDialog{
+      export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ParticipantSelectorDialog')
+      export const actions = ngrxStore.createActionGroup({
+        source: SOURCE,
+        events:{
+          'open' : ngrxStore.emptyProps(),
+          'close' : ngrxStore.emptyProps(),
+        }
+      })
+    }
+
+    export namespace UpdateParticipantList {
+      export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'UpdateParticipantList')
+      export const actions = ngrxStore.createActionGroup({
+        source: SOURCE, 
+        events:{
+          'started':  ngrxStore.props<{conversationId:models.Conversation.Id, newlySelectedParticipantIds: models.User.Id[]}>(),
+          //'succeeded': ngrxStore.emptyProps(),
+        }
+      })
+    }
     export namespace List {
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ConList')
       export namespace ConItem {

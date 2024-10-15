@@ -1,0 +1,1 @@
+export { ParticipantSelectorDialogComponent as Component } from './participant-selector-dialog.component'

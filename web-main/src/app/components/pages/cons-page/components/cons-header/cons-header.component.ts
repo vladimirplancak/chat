@@ -9,6 +9,7 @@ import * as components from './components'
   imports: [
     common.overlay.attached.Component,
     components.userSelectorDialog.Component,
+    
   ],
   styleUrl: './cons-header.component.scss',
   templateUrl: './cons-header.component.html',

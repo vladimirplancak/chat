@@ -35,7 +35,7 @@ export class CenteredOverlayComponent {
     .centerVertically() as unknown as FlexibleConnectedPositionStrategy, {
        alias: 'position' 
   })
-
+ 
   public readonly hasBackdropSg = ngCore.input<boolean>(false, { alias: 'hasBackdrop' })
   public readonly backdropClassSg = ngCore.input<string>('overlay-backdrop-class', { alias: 'backdropClass' })
   public readonly backdropClick = ngCore.output<MouseEvent>()
