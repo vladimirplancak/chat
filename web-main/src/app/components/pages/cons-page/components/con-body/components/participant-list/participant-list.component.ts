@@ -4,10 +4,9 @@ import * as state from '../../../../../../../state'
 import * as ngrxStore from '@ngrx/store'
 import * as models from '../../../../../../../models'
 import * as common from '../../../../../../common'
-import * as con from '../../../../../../../state/core/conversation/conversation.actions'
 
 @ngCore.Component({
-  imports:[
+  imports: [
     components.participantItem.Component,
     components.participantSelectorDialog.Component,
     common.overlay.centered.Component,
@@ -23,14 +22,14 @@ export class ParticipantListComponent {
   private readonly _selectedConSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)
   private readonly _userLookUpSg = this._store.selectSignal(state.core.user.selectors.User.USER_LOOKUP)
   public readonly presentListErrorSg = this._store.selectSignal(state.core.user.selectors.User.LIST_ERROR)
-  public readonly presetParticipantSelectorDialogSg = this._store.selectSignal(state.core.con.selectors.Conversation.participantsDialog.participantsDialogStatus)
+  public readonly presetParticipantSelectorDialogSg = this._store.selectSignal(state.core.con.selectors.Conversation.ParticipantsDialog.SHOULD_PRESENT)
   /**
    * Users are loading if there is no selected conversation (and) or if there is
    * ongoing request to fetch the list of users.
    */
   public readonly presentLoaderSg = ngCore.computed(() => {
     const selectedCon = this._selectedConSg()
-    if(!selectedCon) {
+    if (!selectedCon) {
       return true
     }
     const presentLoader = this._store.selectSignal(state.core.user.selectors.User.PRESENT_LOADER)()
@@ -40,7 +39,7 @@ export class ParticipantListComponent {
   /** All participants of the selected conversation. */
   public readonly participantsSg = ngCore.computed(() => {
     const selectedCon = this._selectedConSg()
-    if(!selectedCon) {
+    if (!selectedCon) {
       return []
     }
     return this._store.selectSignal(state.core.user.selectors.User.USERS_FILTERED(selectedCon.participantIds))()
@@ -67,17 +66,13 @@ export class ParticipantListComponent {
     }, {})
   })
 
- 
 
-  openParticipantsDialogue() {
-   this._store.dispatch( con.Con.Ui.ParticipantSelectorDialog.actions.open())
-     console.log(`open dialog`)
-    console.log(this.presetParticipantSelectorDialogSg())
+
+  public participantListAddBtnClickHandler() {
+    this._store.dispatch(state.core.con.actions.Con.Ui.List.Buttons.Add.actions.clicked())
   }
 
-  closeParticipantsDialogue() {
-    this._store.dispatch( con.Con.Ui.ParticipantSelectorDialog.actions.close())
-      console.log(`close dialog`)
-     console.log(this.presetParticipantSelectorDialogSg())
-   }
+  public participantDialogBackdropClickHandler() {
+    this._store.dispatch(state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked())
+  }
 }

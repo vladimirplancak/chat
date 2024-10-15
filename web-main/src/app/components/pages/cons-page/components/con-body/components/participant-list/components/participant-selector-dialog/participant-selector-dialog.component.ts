@@ -14,62 +14,78 @@ import * as con from '../../../../../../../../../state/core/conversation/convers
 })
 export class ParticipantSelectorDialogComponent {
 
-  
-  selectedParticipants = ngCore.signal<string[]>([]);
-
 
   private readonly _store = ngCore.inject(ngrxStore.Store)
   private readonly _selfIdSg = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)
-  private readonly _currentConversation = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ID)
-
-  public readonly _participantIds = ngCore.computed((
-    currentParticipantIds = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)()
-  ) => currentParticipantIds?.participantIds)
-
-  public readonly _participantsObj = ngCore.computed(() => {
-    const participantIds = this._participantIds() ?? [];
-    return this._store.selectSignal(
-      state.core.user.selectors.User.USER_LOOKUP_FILTERED(participantIds)
-    );
-  });
+  private readonly _selectedConversation = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)
 
 
-
-  public readonly allUsersListSg = ngCore.computed((
+  /**
+   * All users except the current user.
+   */
+  public readonly usersSg = ngCore.computed((
     allUSers = this._store.selectSignal(state.core.user.selectors.User.USERS)(),
     _selfId = this._selfIdSg()
   ) => allUSers.filter((user) => user.id !== _selfId))
 
-  public isAlreadyParticipant(userId: string): boolean {
-    const participants = this._participantsObj()();
-    return participants.hasOwnProperty(userId);
+  /**
+   * All participants of the current conversation.
+   * 
+   * @example 
+   * ['user-id-1', 'user-id-3']
+   * // ->
+   * {
+   *  'user-id-1': true,
+   *  'user-id-3': true,
+   * }
+   */
+  public readonly disabledUserIdsLookupSg = ngCore.computed((
+    selectedConversation = this._selectedConversation()
+  ) => {
+    if (selectedConversation) {
+      return selectedConversation.participantIds.reduce<Record<models.User.Id, boolean>>((lookup, userId) => {
+        lookup[userId] = true
+
+        return lookup
+      }, {})
+    } else {
+      return {}
+    }
+  })
+
+  /**
+   * New selected user ids lookup
+   * 
+   * @example
+   * ['user-id-1', 'user-id-3']
+   * // ->
+   * {
+   * 'user-id-1': true,
+   * 'user-id-3': true,
+   * }
+   */
+  public readonly checkedUserIdsLookupSg = ngCore.computed((
+    newSelectedUserIds = this._store.selectSignal(state.core.con.selectors.Conversation.ParticipantsDialog.NEW_SELECTED_IDS)() 
+  ) => {
+    if(!newSelectedUserIds) {
+      return {}
+    } else {
+      return newSelectedUserIds.reduce<Record<models.User.Id, boolean>>((lookup, userId) => {
+        lookup[userId] = true
+  
+        return lookup
+      }, {})
+    }
+  })
+
+
+
+
+  public saveBtnClickHandler(): void {
+    this._store.dispatch(con.Con.Ui.ParticipantSelectorDialog.Buttons.Save.actions.clicked());
   }
 
-  onParticipantAdded(event: Event, userId: string): void {
-
-    const checkbox = event.target as HTMLInputElement;
-    const updatedSelection = [...this.selectedParticipants()];
-
-    if (checkbox.checked) {
-      if (!updatedSelection.includes(userId)) {
-        updatedSelection.push(userId);
-      }
-    }
-    this.selectedParticipants.set(updatedSelection);
-  }
-
-  dispatchSelectedParticipants() {
-    const combinedParticipantIds = [
-      ...(this._participantIds() ?? []),            
-      ...this.selectedParticipants(),     
-    ];
-
-    console.log(`Combined participantIds are:`, combinedParticipantIds);
-
-    const selectedConversationId = this._currentConversation()
-    if(!selectedConversationId){
-      throw new Error('No conversation selected.')
-    }
-    this._store.dispatch(con.Con.Ui.UpdateParticipantList.actions.started({ conversationId:selectedConversationId, newlySelectedParticipantIds: combinedParticipantIds }));
+  public participantCheckboxChangeHandler(userId: models.User.Id): void {
+    this._store.dispatch(con.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked({ userId }));
   }
 }

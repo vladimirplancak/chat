@@ -54,10 +54,15 @@ export interface ConState {
    * }
    */
   inProgressMessageByConId?: Partial<Record<models.Conversation.Id, string>>
- /**
-  * A flag property which is used to open and close the participants dialog
-  */
-  isParticipantsSelectorDialogOpen:boolean
+
+  
+  /**
+   * Participant dialog state, usually, used in 'ParticipantSelectorDialogComponent'
+   */
+  participantSelectorDialog: {
+    open?: boolean
+    newSelectedIds?: models.User.Id[]
+  }
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -71,7 +76,10 @@ export namespace ConState {
     pendingGetConRequests: new Set(),
     pendingConMutation: false,
     pendingConListMessagesRequests: new Set(),
-    isParticipantsSelectorDialogOpen: false
+    participantSelectorDialog: {
+      open: false,
+      newSelectedIds: []
+    }
   }
 
   export const REDUCER = createReducer<ConState>(
@@ -269,34 +277,56 @@ export namespace ConState {
       inProgressMessageByConId: { ...state.inProgressMessageByConId, [conversationId]: undefined }
     })),
 
-    on(actions.Con.Ui.ParticipantSelectorDialog.actions.open, (state,{ }) =>({
+    /* ----------------------- participant selector dialog ---------------------- */
+    on(actions.Con.Ui.List.Buttons.Add.actions.clicked, (state, { }) => ({
       ...state,
-      isParticipantsSelectorDialogOpen:true
+      participantSelectorDialog: {
+        open: true,
+      }
     })),
 
-    on(actions.Con.Ui.ParticipantSelectorDialog.actions.close, (state,{ }) =>({
+    on(actions.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked, (state, { }) => ({
       ...state,
-      isParticipantsSelectorDialogOpen:false
+      participantSelectorDialog: {
+        open: false,
+      }
     })),
 
-    on(
-      actions.Con.Ui.UpdateParticipantList.actions.started,
+    on(actions.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked, (state, { userId }) => {
+      let newSelectedIds = state.participantSelectorDialog.newSelectedIds ?? []
+
+      if(newSelectedIds.includes(userId)){
+        newSelectedIds = newSelectedIds.filter(id => id !== userId)
+      } else {
+      newSelectedIds = [...newSelectedIds, userId]
+      }
+      
+      return ({
+        ...state,
+        participantSelectorDialog: {
+          ...state.participantSelectorDialog,
+      
+        }
+      })
+    }),
+
+    on(actions.Con.Ui.UpdateParticipantList.actions.started,
       (state, { newlySelectedParticipantIds, conversationId }) => {
         const conversation = state.conLookup[conversationId];
-    
+
         if (!conversation) {
           return state;
         }
-  
+
         const updatedParticipantIds = Array.from(
           new Set([...conversation.participantIds, ...newlySelectedParticipantIds])
         );
-    
+
         const updatedConversation: models.Conversation.WithMessages = {
           ...conversation,
           participantIds: updatedParticipantIds,
         };
-    
+
         return {
           ...state,
           conLookup: {

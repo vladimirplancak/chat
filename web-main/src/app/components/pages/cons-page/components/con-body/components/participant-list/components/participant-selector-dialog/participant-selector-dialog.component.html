@@ -1,13 +1,15 @@
 <div class="participant-selector-dialog">
-    @for(user of allUsersListSg(); track $index) {
+    @for(user of usersSg(); track $index) {
+      <!-- [disabled]="isAlreadyParticipant(user.id)"   TODO: explain why is this bad! -->
     <div class="participant-selector-dialog__participant-item" >
         <input 
-        type="checkbox" 
-        [disabled]="isAlreadyParticipant(user.id)"  
-        (change)="onParticipantAdded($event, user.id)"
+          type="checkbox" 
+          [disabled]="disabledUserIdsLookupSg()[user.id]"
+          [checked]="checkedUserIdsLookupSg()[user.id]"
+          (change)="participantCheckboxChangeHandler(user.id)"
       />
       {{ user.name }}
     </div>
     }
-    <button (click)="dispatchSelectedParticipants()">Submit Selected Participants</button>
+    <button (click)="saveBtnClickHandler()">Save</button>
   </div>

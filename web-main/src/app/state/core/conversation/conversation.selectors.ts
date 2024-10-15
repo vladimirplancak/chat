@@ -59,10 +59,15 @@ export namespace Conversation {
     )
   }
 
-  export namespace participantsDialog{
-    export const participantsDialogStatus = ngrxStore.createSelector(
+  export namespace ParticipantsDialog {
+    export const SHOULD_PRESENT = ngrxStore.createSelector(
       STATE,
-      (state) => state.isParticipantsSelectorDialogOpen
+      (state) => state.participantSelectorDialog.open
+    )
+
+    export const NEW_SELECTED_IDS = ngrxStore.createSelector(
+      STATE,
+      state => state.participantSelectorDialog.newSelectedIds
     )
   }
 }

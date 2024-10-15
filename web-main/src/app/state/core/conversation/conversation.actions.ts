@@ -21,13 +21,41 @@ export namespace Con {
 
     export namespace ParticipantSelectorDialog{
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ParticipantSelectorDialog')
-      export const actions = ngrxStore.createActionGroup({
-        source: SOURCE,
-        events:{
-          'open' : ngrxStore.emptyProps(),
-          'close' : ngrxStore.emptyProps(),
-        }
-      })
+
+      export namespace Backdrop {
+        export const SOURCE = common.Action.Source.from(ParticipantSelectorDialog.SOURCE, 'Backdrop')
+        export const actions = ngrxStore.createActionGroup({
+          source: SOURCE,
+          events: {
+            'clicked': ngrxStore.emptyProps(),
+          }
+        })
+      }
+
+      export namespace Item {
+        export const SOURCE = common.Action.Source.from(ParticipantSelectorDialog.SOURCE, 'Item')
+        export const actions = ngrxStore.createActionGroup({
+          source: SOURCE,
+          events: {
+            'clicked': ngrxStore.props<{ userId: models.User.Id }>(),
+          }
+        })
+      }
+
+      export namespace Buttons { 
+        export const SOURCE = common.Action.Source.from(ParticipantSelectorDialog.SOURCE, 'Buttons')
+        export namespace Save {
+          export const SOURCE = common.Action.Source.from(Buttons.SOURCE, 'Save')
+          export const actions = ngrxStore.createActionGroup({
+            source: SOURCE,
+            events: {
+              'clicked': ngrxStore.emptyProps(),
+            }
+          })
+        } 
+      }
+
+      
     }
 
     export namespace UpdateParticipantList {
@@ -50,6 +78,20 @@ export namespace Con {
             'clicked': ngrxStore.props<{ selectedId: models.Conversation.Id }>(),
           }
         })
+      }
+
+      export namespace Buttons {
+        export const SOURCE = common.Action.Source.from(List.SOURCE, 'Buttons')
+
+        export namespace Add {
+          export const SOURCE = common.Action.Source.from(Buttons.SOURCE, 'Add')
+          export const actions = ngrxStore.createActionGroup({
+            source: SOURCE,
+            events: {
+              'clicked': ngrxStore.emptyProps(),
+            }
+          })
+        }
       }
     }
 

@@ -17,14 +17,14 @@
     }
     <div >
       <button  class="participant-list__add-button" (click)=" 
-         openParticipantsDialogue();">
-        add users
+         participantListAddBtnClickHandler();">
+        add
       </button>
     </div>
   </div>
 
 @if(presetParticipantSelectorDialogSg()){
-  <centered-overlay (backdropClick)="closeParticipantsDialogue()" [hasBackdrop]="true"  >
+  <centered-overlay (backdropClick)="participantDialogBackdropClickHandler()" [hasBackdrop]="true"  >
     <app-participant-selector-dialog/>
   </centered-overlay>
 }
