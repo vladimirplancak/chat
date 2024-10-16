@@ -85,7 +85,7 @@ export namespace Message {
 
     export const ERROR = (conId: models.Conversation.Id) => ngrxStore.createSelector(
       STATE,
-      state => undefined ?? 'something went wrong'
+      state => undefined 
     )
   }
 
@@ -103,7 +103,7 @@ export namespace Message {
     export const ERROR = ngrxStore.createSelector(
       STATE,
       Conversation.Selected.ID,
-      state => undefined ?? 'something went wrong'
+      state => undefined 
     )
 
     /**

@@ -3,6 +3,7 @@ import * as models from '../../../models'
 import * as actions from './conversation.actions'
 import type * as services from '../../services'
 
+
 export interface ConState {
   /**
  * Loaded {@link models.Conversation} entities.
@@ -146,11 +147,18 @@ export namespace ConState {
       conLookup: { ...state.conLookup, [conversation.id]: { ...conversation, messages: [] } }
     })),
 
-    on(actions.Con.Api.Con.Update.actions.succeeded, (state, { conversation }) => ({
-      ...state,
-      pendingConMutation: false,
-      conLookup: { ...state.conLookup, [conversation.id]: { ...conversation, messages: [] } }
-    })),
+    on(actions.Con.Api.Con.Update.actions.succeeded, (state, { conversation }) => {
+      console.log(`reducer:`, conversation)
+      const updatedConversation: models.Conversation.WithMessages ={
+        ...conversation,
+        messages: conversation.messages || []
+      }
+      return {
+        ...state,
+        pendingConMutation: false,
+        conLookup: { ...state.conLookup, [updatedConversation.id]: updatedConversation }
+     };
+    }),
 
     on(actions.Con.Api.Con.Delete.actions.succeeded, (state, { conversation }) => {
       const filteredIds = state.ids.filter(id => id !== conversation.id)
@@ -294,48 +302,22 @@ export namespace ConState {
 
     on(actions.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked, (state, { userId }) => {
       let newSelectedIds = state.participantSelectorDialog.newSelectedIds ?? []
-
+      
       if(newSelectedIds.includes(userId)){
         newSelectedIds = newSelectedIds.filter(id => id !== userId)
       } else {
       newSelectedIds = [...newSelectedIds, userId]
       }
-      
+
       return ({
         ...state,
         participantSelectorDialog: {
           ...state.participantSelectorDialog,
-      
+          newSelectedIds 
         }
       })
     }),
 
-    on(actions.Con.Ui.UpdateParticipantList.actions.started,
-      (state, { newlySelectedParticipantIds, conversationId }) => {
-        const conversation = state.conLookup[conversationId];
-
-        if (!conversation) {
-          return state;
-        }
-
-        const updatedParticipantIds = Array.from(
-          new Set([...conversation.participantIds, ...newlySelectedParticipantIds])
-        );
-
-        const updatedConversation: models.Conversation.WithMessages = {
-          ...conversation,
-          participantIds: updatedParticipantIds,
-        };
-
-        return {
-          ...state,
-          conLookup: {
-            ...state.conLookup,
-            [conversationId]: updatedConversation,
-          },
-        };
-      }
-    ),
 
   )
 }

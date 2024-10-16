@@ -92,18 +92,38 @@ export class ConApiService {
   }
 
 
-  public updateCon(id: models.Conversation.Id, updates: models.Conversation.Update): rxjs.Observable<models.Conversation> {
-    const foundCon = IN_MEMORY_CON_LIST.find(it => it.id === id)
-
+  public updateCon(id: models.Conversation.Id, updates: models.Conversation.Update): rxjs.Observable<models.Conversation.WithMessages> {
+    const foundCon = IN_MEMORY_CON_LIST.find(it => it.id === id);
+  
     if (!foundCon) {
-      throw new Error('Conversation not found')
+      throw new Error('Conversation not found');
     }
+    console.log(`updates param`, updates)
+   
+    const updatedParticipantIds = Array.from(
+      new Set([...(foundCon.participantIds || []), ...(updates.participantIds || [])])
+    );
+    
+ 
+    const existingMessages = IN_MEMORY_MSG_LIST[id] || [];
+    console.log(`existingMessages`, existingMessages)
+   
+    const updatedCon: models.Conversation.WithMessages = {
+      ...foundCon,
+      ...updates,
+      participantIds: updatedParticipantIds, 
+      messages: existingMessages,
+    };
 
-    Object.assign(foundCon, updates)
-
-    return rxjs.of({ ...foundCon }).pipe(randomDelayOperator())
+    console.log(`updatedCon`, updatedCon)
+  
+    IN_MEMORY_CON_LIST = IN_MEMORY_CON_LIST.map(con =>
+      con.id === id ? updatedCon : con
+    );
+  
+    return rxjs.of({ ...updatedCon }).pipe(randomDelayOperator())
   }
-
+  
 
   public deleteCon(id: models.Conversation.Id): rxjs.Observable<models.Conversation> {
     const index = IN_MEMORY_CON_LIST.findIndex(it => it.id === id)

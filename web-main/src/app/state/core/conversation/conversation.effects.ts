@@ -109,7 +109,9 @@ export class ConversationEffects {
 
   onApiConUpdateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Update.actions.started),
+    //rxjs.filter(({ updates }) => !updates.participantIds),
     rxjs.switchMap(({ id, updates }) => this._conApiService.updateCon(id, updates).pipe(
+      rxjs.tap((updatedConversation)=>console.log(`I RUN`,updatedConversation.messages)),
       rxjs.map(updatedConversation => actions.Con.Api.Con.Update.actions.succeeded({ conversation: updatedConversation })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.Update.actions.failed({ errorMessage: error?.message }))
@@ -216,4 +218,29 @@ export class ConversationEffects {
     )
   )
 
+  onParticipantsSelected$ = ngrxEffects.createEffect(() =>
+    this._actions.pipe(
+      ngrxEffects.ofType(actions.Con.Ui.ParticipantSelectorDialog.Buttons.Save.actions.clicked),
+      rxjs.withLatestFrom(
+        this._store.select(selectors.Conversation.Selected.ID),
+      ),
+      rxjs.switchMap(([{ selectedParticipantIds }, conversationId]) => {
+        console.log(`Effect: Conversation ID -`, conversationId);
+        console.log(`Effect: Selected Participant IDs -`, selectedParticipantIds);
+  
+        if (conversationId) {
+          return rxjs.of(
+            actions.Con.Api.Con.Update.actions.started({
+              id: conversationId,
+              updates: { participantIds: selectedParticipantIds },
+            })
+          );
+        }
+  
+       
+        return rxjs.EMPTY;
+      })
+    )
+  );
+  
 }

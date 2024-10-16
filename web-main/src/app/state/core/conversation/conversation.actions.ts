@@ -49,7 +49,7 @@ export namespace Con {
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE,
             events: {
-              'clicked': ngrxStore.emptyProps(),
+              'clicked': ngrxStore.props<{ selectedParticipantIds: models.User.Id[] }>(),
             }
           })
         } 
@@ -58,16 +58,7 @@ export namespace Con {
       
     }
 
-    export namespace UpdateParticipantList {
-      export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'UpdateParticipantList')
-      export const actions = ngrxStore.createActionGroup({
-        source: SOURCE, 
-        events:{
-          'started':  ngrxStore.props<{conversationId:models.Conversation.Id, newlySelectedParticipantIds: models.User.Id[]}>(),
-          //'succeeded': ngrxStore.emptyProps(),
-        }
-      })
-    }
+
     export namespace List {
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ConList')
       export namespace ConItem {
@@ -172,7 +163,7 @@ export namespace Con {
           source: SOURCE,
           events: {
             'started': ngrxStore.props<{ id: models.Conversation.Id; updates: models.Conversation.Update }>(),
-            'succeeded': ngrxStore.props<{ conversation: models.Conversation }>(),
+            'succeeded': ngrxStore.props<{ conversation: models.Conversation.WithMessages }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })

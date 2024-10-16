@@ -65,14 +65,14 @@ export class ParticipantSelectorDialogComponent {
    * }
    */
   public readonly checkedUserIdsLookupSg = ngCore.computed((
-    newSelectedUserIds = this._store.selectSignal(state.core.con.selectors.Conversation.ParticipantsDialog.NEW_SELECTED_IDS)() 
+    newSelectedUserIds = this._store.selectSignal(state.core.con.selectors.Conversation.ParticipantsDialog.NEW_SELECTED_IDS)()
   ) => {
-    if(!newSelectedUserIds) {
+    if (!newSelectedUserIds) {
       return {}
     } else {
       return newSelectedUserIds.reduce<Record<models.User.Id, boolean>>((lookup, userId) => {
         lookup[userId] = true
-  
+
         return lookup
       }, {})
     }
@@ -82,8 +82,26 @@ export class ParticipantSelectorDialogComponent {
 
 
   public saveBtnClickHandler(): void {
-    this._store.dispatch(con.Con.Ui.ParticipantSelectorDialog.Buttons.Save.actions.clicked());
+    const newSelectedUserIds = this._store.selectSignal(
+      state.core.con.selectors.Conversation.ParticipantsDialog.NEW_SELECTED_IDS
+    )();
+  
+   // console.log(`saveBtnClickHandler()`, newSelectedUserIds);
+  
+    
+    if (!newSelectedUserIds || newSelectedUserIds.length === 0) {
+      
+      throw new Error('There are no participant ids selected.') 
+    }
+  
+   
+    this._store.dispatch(
+      con.Con.Ui.ParticipantSelectorDialog.Buttons.Save.actions.clicked({
+        selectedParticipantIds: newSelectedUserIds,
+      })
+    );
   }
+  
 
   public participantCheckboxChangeHandler(userId: models.User.Id): void {
     this._store.dispatch(con.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked({ userId }));
