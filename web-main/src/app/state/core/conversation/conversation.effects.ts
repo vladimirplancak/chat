@@ -111,7 +111,7 @@ export class ConversationEffects {
     ngrxEffects.ofType(actions.Con.Api.Con.Update.actions.started),
     //rxjs.filter(({ updates }) => !updates.participantIds),
     rxjs.switchMap(({ id, updates }) => this._conApiService.updateCon(id, updates).pipe(
-      rxjs.tap((updatedConversation)=>console.log(`I RUN`,updatedConversation.messages)),
+      rxjs.tap((updatedConversation)=>console.log(`I RUN`,updates)),
       rxjs.map(updatedConversation => actions.Con.Api.Con.Update.actions.succeeded({ conversation: updatedConversation })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.Update.actions.failed({ errorMessage: error?.message }))

@@ -91,7 +91,7 @@ export class ParticipantSelectorDialogComponent {
     
     if (!newSelectedUserIds || newSelectedUserIds.length === 0) {
       
-      throw new Error('There are no participant ids selected.') 
+      throw new Error('There are no participant ids selected') 
     }
   
    

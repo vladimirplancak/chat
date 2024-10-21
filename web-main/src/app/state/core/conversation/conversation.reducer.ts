@@ -148,16 +148,16 @@ export namespace ConState {
     })),
 
     on(actions.Con.Api.Con.Update.actions.succeeded, (state, { conversation }) => {
-      console.log(`reducer:`, conversation)
-      const updatedConversation: models.Conversation.WithMessages ={
-        ...conversation,
-        messages: conversation.messages || []
+      console.log(`reducer/state.conLookup`,state.conLookup[conversation.id]?.messages)
+    
+      const existingMessages = state.conLookup[conversation.id]?.messages
+      if(!existingMessages){
+        throw new Error ("Messages do not exist")
       }
-      return {
-        ...state,
-        pendingConMutation: false,
-        conLookup: { ...state.conLookup, [updatedConversation.id]: updatedConversation }
-     };
+      return ({...state,
+      pendingConMutation: false,
+      conLookup: { ...state.conLookup, [conversation.id]: { ...conversation, messages: existingMessages } }})
+
     }),
 
     on(actions.Con.Api.Con.Delete.actions.succeeded, (state, { conversation }) => {

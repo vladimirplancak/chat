@@ -163,7 +163,7 @@ export namespace Con {
           source: SOURCE,
           events: {
             'started': ngrxStore.props<{ id: models.Conversation.Id; updates: models.Conversation.Update }>(),
-            'succeeded': ngrxStore.props<{ conversation: models.Conversation.WithMessages }>(),
+            'succeeded': ngrxStore.props<{ conversation: models.Conversation }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })
