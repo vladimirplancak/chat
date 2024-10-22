@@ -57,7 +57,7 @@ export class ConversationEffects {
     )),
   ))
 
- 
+
   createConversationOrSelectExisting$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Ui.UserSelectorDialog.actions.selected),
     rxjs.switchMap((action) => {
@@ -70,7 +70,7 @@ export class ConversationEffects {
           if (!selfId) {
             throw new Error('User not authenticated');
           }
-  
+
           if (directCon) {
             return rxjs.of(actions.Con.Misc.Selection.actions.requested({ directConId: directCon.id }));
           } else {
@@ -79,22 +79,22 @@ export class ConversationEffects {
         })
       );
     })
-  ));  
-  
+  ));
+
 
   onApiConCreateSucceeded$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Create.actions.succeeded),
-    rxjs.map(({conversation: {id}}) => {
-      return actions.Con.Misc.Selection.actions.requested({directConId: id})
-    })  
+    rxjs.map(({ conversation: { id } }) => {
+      return actions.Con.Misc.Selection.actions.requested({ directConId: id })
+    })
   ))
 
   navigateToSelectedConversation$ = ngrxEffects.createEffect(() => this._actions.pipe(
-  ngrxEffects.ofType(actions.Con.Misc.Selection.actions.requested),
-  rxjs.map(({ directConId }) => {
-    this._router.navigate(['conversations', directConId]);
-  })
-), { dispatch: false });
+    ngrxEffects.ofType(actions.Con.Misc.Selection.actions.requested),
+    rxjs.map(({ directConId }) => {
+      this._router.navigate(['conversations', directConId]);
+    })
+  ), { dispatch: false });
 
 
   onApiConCreateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
@@ -111,7 +111,7 @@ export class ConversationEffects {
     ngrxEffects.ofType(actions.Con.Api.Con.Update.actions.started),
     //rxjs.filter(({ updates }) => !updates.participantIds),
     rxjs.switchMap(({ id, updates }) => this._conApiService.updateCon(id, updates).pipe(
-      rxjs.tap((updatedConversation)=>console.log(`I RUN`,updates)),
+      rxjs.tap((updatedConversation) => console.log(`I RUN`, updates)),
       rxjs.map(updatedConversation => actions.Con.Api.Con.Update.actions.succeeded({ conversation: updatedConversation })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.Update.actions.failed({ errorMessage: error?.message }))
@@ -224,23 +224,17 @@ export class ConversationEffects {
       rxjs.withLatestFrom(
         this._store.select(selectors.Conversation.Selected.ID),
       ),
-      rxjs.switchMap(([{ selectedParticipantIds }, conversationId]) => {
-        console.log(`Effect: Conversation ID -`, conversationId);
-        console.log(`Effect: Selected Participant IDs -`, selectedParticipantIds);
-  
-        if (conversationId) {
-          return rxjs.of(
-            actions.Con.Api.Con.Update.actions.started({
-              id: conversationId,
-              updates: { participantIds: selectedParticipantIds },
-            })
-          );
+      rxjs.map(([{ selectedParticipantIds }, conversationId]) => {
+        if (!conversationId) {
+          throw new Error('Cannot proceed without conversation id')
         }
-  
-       
-        return rxjs.EMPTY;
+
+        return actions.Con.Api.Con.Update.actions.started({
+          id: conversationId,
+          updates: { participantIds: selectedParticipantIds },
+        })
       })
     )
   );
-  
+
 }

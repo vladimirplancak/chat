@@ -85,12 +85,9 @@ export class ParticipantSelectorDialogComponent {
     const newSelectedUserIds = this._store.selectSignal(
       state.core.con.selectors.Conversation.ParticipantsDialog.NEW_SELECTED_IDS
     )();
-  
-   // console.log(`saveBtnClickHandler()`, newSelectedUserIds);
-  
+   
     
     if (!newSelectedUserIds || newSelectedUserIds.length === 0) {
-      
       throw new Error('There are no participant ids selected') 
     }
   
