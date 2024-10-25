@@ -70,6 +70,15 @@ export namespace Con {
         } 
       }
 
+      export namespace Search {
+        export const SOURCE = common.Action.Source.from(ParticipantSelectorDialog.SOURCE, 'Search')
+        export const actions = ngrxStore.createActionGroup({
+          source:SOURCE,
+          events:{
+            'changed': ngrxStore.props<{ searchTerm: string | undefined}>()
+          }
+        })
+      }
 
     }
 

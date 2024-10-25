@@ -74,6 +74,11 @@ export namespace Conversation {
       STATE,
       state => state.participantSelectorDialog.newSelectedIds
     )
+
+    export const SEARCHED_TERM = ngrxStore.createSelector(
+      STATE,
+      state => state.participantsSearchTerm
+    )
   }
 }
 

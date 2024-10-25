@@ -74,5 +74,9 @@ export class ParticipantListComponent {
 
   public participantDialogBackdropClickHandler() {
     this._store.dispatch(state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked())
+    /**
+     * This action efectively resets the state property of participantsSearchTerm to `undefined`
+     */
+    this._store.dispatch(state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Search.actions.changed({searchTerm: undefined}))
   }
 }

@@ -69,6 +69,11 @@ export interface ConState {
    * Mouse-over flag for tracking the currently hovered userId of conParticipant that is being hovered.
    */
   hoveredParticipantId : models.User.Id | undefined
+
+  /**
+   * Search term value holds the string input which is used to filter potential participants 
+   */
+  participantsSearchTerm: string | undefined
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -86,7 +91,8 @@ export namespace ConState {
       open: false,
       newSelectedIds: []
     },
-    hoveredParticipantId: undefined
+    hoveredParticipantId: undefined,
+    participantsSearchTerm: undefined
   }
 
   export const REDUCER = createReducer<ConState>(
@@ -298,6 +304,11 @@ export namespace ConState {
     })),
 
     /* ----------------------- participant selector dialog ---------------------- */
+    on(actions.Con.Ui.ParticipantSelectorDialog.Search.actions.changed, (state, { searchTerm}) =>({
+      ...state,
+      participantsSearchTerm: searchTerm
+    })),
+    
     on(actions.Con.Ui.List.Buttons.Add.actions.clicked, (state, { }) => ({
       ...state,
       participantSelectorDialog: {

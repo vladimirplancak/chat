@@ -1,4 +1,10 @@
 <div class="participant-selector-dialog">
+   <input 
+    type="text"
+    [placeholder]="_searcedTerm() ? _searcedTerm() : 'search...'"
+    (input)="onSearchInputChange($event)"
+   />
+  @if (!this._searcedTerm() || this._searcedTerm()?.trim() === '') {
     @for(user of usersSg(); track $index) {
       <!-- [disabled]="isAlreadyParticipant(user.id)"   TODO: explain why is this bad! -->
     <div class="participant-selector-dialog__participant-item" >
@@ -11,5 +17,20 @@
       {{ user.name }}
     </div>
     }
+  } @else {
+    @for(user of searchTermUsersSg(); track $index) {
+      <div class="participant-selector-dialog__participant-item" >
+        <input 
+          type="checkbox" 
+          [disabled]="disabledUserIdsLookupSg()[user.id]"
+          [checked]="checkedUserIdsLookupSg()[user.id]"
+          (change)="participantCheckboxChangeHandler(user.id)"
+      />
+        {{ user.name }}
+      </div>
+    }
+  }
+
+
     <button (click)="saveBtnClickHandler()">Save</button>
   </div>
