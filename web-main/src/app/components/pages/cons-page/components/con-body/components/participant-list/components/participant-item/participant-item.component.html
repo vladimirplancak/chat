@@ -1,9 +1,17 @@
-<div class="participant-item">
-    <div 
-      class="participant-item__selector"
-      [class.participant-item__selector--online]="isOnlineSg()"
-    >
-      {{ participantSg().name }}
-    </div>  
+<div class="participant-item"  
+(mouseenter)="onParticipantHovered(participantSg().id)" 
+(mouseleave)="onParticipantHovered(undefined)"
+>
+  <div 
+    class="participant-item__selector"
+    [class.participant-item__selector--online]="isOnlineSg()"
+   >
+    {{ participantSg().name }}
+ 
+    @if(_hoveredParticipantId() === participantSg().id){
+      <span class="participant-item__mouseOver-close" (click)="onUserRemoveMouseClick(participantSg().id)">
+        <i>&nbsp;<mat-icon>close</mat-icon></i> 
+      </span>
+    }
   </div>
-  
+</div>

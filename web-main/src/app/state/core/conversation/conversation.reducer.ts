@@ -64,6 +64,11 @@ export interface ConState {
     open?: boolean
     newSelectedIds?: models.User.Id[]
   }
+
+  /**
+   * Mouse-over flag for tracking the currently hovered userId of conParticipant that is being hovered.
+   */
+  hoveredParticipantId : models.User.Id | undefined
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -80,7 +85,8 @@ export namespace ConState {
     participantSelectorDialog: {
       open: false,
       newSelectedIds: []
-    }
+    },
+    hoveredParticipantId: undefined
   }
 
   export const REDUCER = createReducer<ConState>(
@@ -148,7 +154,7 @@ export namespace ConState {
     })),
 
     on(actions.Con.Api.Con.Update.actions.succeeded, (state, { conversation }) => {
-      console.log(`reducer/state.conLookup`,state.conLookup[conversation.id]?.messages)
+      
     
       const existingMessages = state.conLookup[conversation.id]?.messages
       if(!existingMessages){
@@ -265,7 +271,13 @@ export namespace ConState {
     /* -------------------------------------------------------------------------- */
     /*                                 UI Reducers                                */
     /* -------------------------------------------------------------------------- */
-
+    /* ------------------------- mouse events ------------------------- */
+    on(actions.Con.Ui.MouseEvent.Participant.actions.hovered, (state, { hoveredParticipantId }) => {
+      return {
+        ...state,
+        hoveredParticipantId: hoveredParticipantId
+      }
+    }),
     /* ------------------------- conversation selection ------------------------- */
     on(actions.Con.Ui.List.ConItem.actions.clicked, (state, { selectedId }) => ({ ...state, selectedId })),
 

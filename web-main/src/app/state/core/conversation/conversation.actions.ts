@@ -9,6 +9,20 @@ export namespace Con {
   export namespace Ui {
     export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Ui')
 
+    export namespace MouseEvent {
+      export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'MouseEvent')
+      export namespace Participant{
+        export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'Participant')
+        export const actions = ngrxStore.createActionGroup({
+          source:SOURCE,
+          events: {
+            'hovered': ngrxStore.props<{ hoveredParticipantId: models.User.Id | undefined}>()
+          }
+        })
+      }
+
+    }
+
     export namespace UserSelectorDialog {
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'UserSelectorDialog')
       export const actions = ngrxStore.createActionGroup({
@@ -18,6 +32,7 @@ export namespace Con {
         }
       })
     }
+
 
     export namespace ParticipantSelectorDialog{
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ParticipantSelectorDialog')
@@ -55,7 +70,7 @@ export namespace Con {
         } 
       }
 
-      
+
     }
 
 
@@ -75,7 +90,7 @@ export namespace Con {
         export const SOURCE = common.Action.Source.from(List.SOURCE, 'Buttons')
 
         export namespace Add {
-          export const SOURCE = common.Action.Source.from(Buttons.SOURCE, 'Add')
+          export const SOURCE = common.Action.Source.from(Buttons.SOURCE, 'AddParticipants')
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE,
             events: {
@@ -83,6 +98,17 @@ export namespace Con {
             }
           })
         }
+
+        export namespace RemoveParticipant {
+          export const SOURCE = common.Action.Source.from(Buttons.SOURCE, 'RemoveParticipant')
+          export const actions = ngrxStore.createActionGroup({
+            source: SOURCE,
+            events: {
+              'clicked': ngrxStore.props<{ participantId: models.User.Id }>()
+            }
+          })
+        }
+    
       }
     }
 

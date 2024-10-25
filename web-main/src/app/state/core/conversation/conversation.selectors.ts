@@ -58,7 +58,12 @@ export namespace Conversation {
       (lookup, selectedId) => selectedId ? lookup[selectedId] : undefined
     )
   }
-
+  export namespace HoveredParticipant{
+    export const ID = ngrxStore.createSelector(
+      STATE,
+      (state) => state.hoveredParticipantId
+    )
+  }
   export namespace ParticipantsDialog {
     export const SHOULD_PRESENT = ngrxStore.createSelector(
       STATE,

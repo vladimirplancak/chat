@@ -1,15 +1,22 @@
 @use 'variables' as v;
 
 
-.participant-item{
-    padding: 3px 0;
+.participant-item {
+  padding: 3px 0;
 
-    &__selector{
-      display: flex;
-      justify-content: center;
+  &__selector {
+    display: flex;
+    justify-content: center;
 
-      &--online {
-        background-color: v.$secondary;
-      }
+    &--online {
+      background-color: v.$secondary;
     }
+  }
+
+  &__mouseOver-close {
+    &:hover {
+      color: v.$quaternary;
+      cursor: pointer;
+    }
+  }
 }

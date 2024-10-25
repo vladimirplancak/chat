@@ -109,9 +109,7 @@ export class ConversationEffects {
 
   onApiConUpdateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Update.actions.started),
-    //rxjs.filter(({ updates }) => !updates.participantIds),
     rxjs.switchMap(({ id, updates }) => this._conApiService.updateCon(id, updates).pipe(
-      rxjs.tap((updatedConversation) => console.log(`I RUN`, updates)),
       rxjs.map(updatedConversation => actions.Con.Api.Con.Update.actions.succeeded({ conversation: updatedConversation })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.Update.actions.failed({ errorMessage: error?.message }))
@@ -231,10 +229,29 @@ export class ConversationEffects {
 
         return actions.Con.Api.Con.Update.actions.started({
           id: conversationId,
-          updates: { participantIds: selectedParticipantIds },
+          updates: { participantIdsToAdd: selectedParticipantIds },
         })
       })
     )
   );
+
+  onRemovedParticipantClicked$ = ngrxEffects.createEffect(() =>
+    this._actions.pipe(
+      ngrxEffects.ofType(actions.Con.Ui.List.Buttons.RemoveParticipant.actions.clicked),
+      rxjs.withLatestFrom(
+        this._store.select(selectors.Conversation.Selected.ID)
+      ),
+      rxjs.map(([{ participantId }, conversationId]) => {
+        if (!conversationId) {
+          throw new Error('Cannot proceed without conversation id')
+        }
+
+        return actions.Con.Api.Con.Update.actions.started({
+          id: conversationId,
+          updates: { participantIdToRemove: participantId },
+        })
+      })
+    )
+  )
 
 }

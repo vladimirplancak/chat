@@ -50,18 +50,18 @@ export class ConApiService {
   // with "msgReceived$" stream at all, that part should be done through "hub"
   // methods. 
   public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input): rxjs.Observable<void> {
-    
+
     const messageList = IN_MEMORY_MSG_LIST[payloadMessage.conId];
-    
-    if(!messageList) {
+
+    if (!messageList) {
       throw new Error('Message doesn\'t exist in cache')
     }
 
     const newCachedId = (messageList.length + 1).toString()
 
     // Simulate, that we send message to the server, and then we receive it back 
-    return rxjs.timer(1000).pipe(rxjs.map(() => { 
-      this.msgReceived$.next({ ...payloadMessage, id: newCachedId })  
+    return rxjs.timer(1000).pipe(rxjs.map(() => {
+      this.msgReceived$.next({ ...payloadMessage, id: newCachedId })
     }))
   }
 
@@ -79,12 +79,12 @@ export class ConApiService {
       ...input
     }
     // consider this as direct message
-    if(!input.name && input.participantIds.length === 2) {
+    if (!input.name && input.participantIds.length === 2) {
       // TODO: should get actual user names, rather then ids
       input.name = `${input.participantIds[0]}-${input.participantIds[1]}`
     }
     const newCon = { id: IN_MEMORY_CON_LIST.length.toString(), ...input }
-    
+
     IN_MEMORY_CON_LIST = [...IN_MEMORY_CON_LIST, newCon];
     //IN_MEMORY_CON_LIST.push(newCon)
 
@@ -92,41 +92,47 @@ export class ConApiService {
   }
 
   public updateCon(
-    id: models.Conversation.Id, 
+    id: models.Conversation.Id,
     updates: models.Conversation.Update
   ): rxjs.Observable<models.Conversation> {
     const foundCon = IN_MEMORY_CON_LIST.find(it => it.id === id);
     console.log(`foundCon:`, foundCon);
     console.log(`updates:`, updates);
-  
+
     if (!foundCon) {
       throw new Error('conversation not found');
     }
-  
-    
-    const mergedParticipantIds = updates.participantIds?.length
-      ? [...new Set([...foundCon.participantIds, ...updates.participantIds])]
+
+
+    const mergedParticipantIds = updates.participantIdsToAdd?.length
+      ? [...new Set([...foundCon.participantIds, ...updates.participantIdsToAdd])]
       : foundCon.participantIds;
-  
-    
+
+
     const updatedCon = {
-      ...foundCon, 
+      ...foundCon,
       ...updates,
-      participantIds: mergedParticipantIds, 
+      participantIds: mergedParticipantIds,
     };
-  
-    IN_MEMORY_CON_LIST = IN_MEMORY_CON_LIST.map(con => 
+
+    IN_MEMORY_CON_LIST = IN_MEMORY_CON_LIST.map(con =>
       con.id === id ? updatedCon : con
     );
-  
-    console.log(`updatedCon:`, updatedCon);  
-  
+
+    if (updates.participantIdToRemove) {
+      updatedCon.participantIds = updatedCon.participantIds.filter(
+        id => id !== updates.participantIdToRemove
+      )
+    }
+    
+    console.log(`updatedCon:`, updatedCon);
+
     return rxjs.of({ ...updatedCon }).pipe(randomDelayOperator());
   }
-  
-  
 
-  
+
+
+
 
   public deleteCon(id: models.Conversation.Id): rxjs.Observable<models.Conversation> {
     const index = IN_MEMORY_CON_LIST.findIndex(it => it.id === id)
