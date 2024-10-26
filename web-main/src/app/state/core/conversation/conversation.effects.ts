@@ -8,6 +8,7 @@ import * as authState from '../auth'
 import * as services from '../../services';
 import * as rootState from '../root'
 import * as ngRouter from '@angular/router'
+import * as auth from '../auth'
 
 @ngCore.Injectable()
 export class ConversationEffects {
@@ -239,16 +240,26 @@ export class ConversationEffects {
     this._actions.pipe(
       ngrxEffects.ofType(actions.Con.Ui.List.Buttons.RemoveParticipant.actions.clicked),
       rxjs.withLatestFrom(
-        this._store.select(selectors.Conversation.Selected.ID)
+        this._store.select(selectors.Conversation.Selected.ID),
+        this._store.select(auth.selectors.Auth.SELF_ID)
       ),
-      rxjs.map(([{ participantId }, conversationId]) => {
+      rxjs.map(([{ participantId }, selfId, conversationId]) => {
+        // NOTE: this should never happen, in case it happens, it means that we
+        // have some unforeseen edge case, usually indicating a bug.
         if (!conversationId) {
           throw new Error('Cannot proceed without conversation id')
         }
 
+        // TODO: We are not sure, what should we do at this point If it is ok to
+        // remove ourself from the conversation or not? We don't want to
+        // speculate at this time, so we will just give a warning.
+        if(participantId === selfId) { 
+          console.warn('We are about to remove ourself from the conversation')
+        }
+
         return actions.Con.Api.Con.Update.actions.started({
           id: conversationId,
-          updates: { participantIdToRemove: participantId },
+          updates: { participantIdsToRemove: [participantId] },
         })
       })
     )

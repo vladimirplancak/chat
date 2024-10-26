@@ -16,7 +16,8 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source:SOURCE,
           events: {
-            'hovered': ngrxStore.props<{ hoveredParticipantId: models.User.Id | undefined}>()
+            'hovered': ngrxStore.props<{ participantId: models.User.Id }>(),
+            'unHovered': ngrxStore.props<{ participantId: models.User.Id }>(),
           }
         })
       }

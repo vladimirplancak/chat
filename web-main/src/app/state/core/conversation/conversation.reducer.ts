@@ -278,10 +278,16 @@ export namespace ConState {
     /*                                 UI Reducers                                */
     /* -------------------------------------------------------------------------- */
     /* ------------------------- mouse events ------------------------- */
-    on(actions.Con.Ui.MouseEvent.Participant.actions.hovered, (state, { hoveredParticipantId }) => {
+    on(actions.Con.Ui.MouseEvent.Participant.actions.hovered, (state, { participantId }) => {
       return {
         ...state,
-        hoveredParticipantId: hoveredParticipantId
+        hoveredParticipantId: participantId
+      }
+    }),
+    on(actions.Con.Ui.MouseEvent.Participant.actions.unHovered, (state) => {
+      return {
+        ...state,
+        hoveredParticipantId: undefined
       }
     }),
     /* ------------------------- conversation selection ------------------------- */

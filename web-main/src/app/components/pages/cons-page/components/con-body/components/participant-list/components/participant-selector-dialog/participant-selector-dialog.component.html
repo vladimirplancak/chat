@@ -6,7 +6,6 @@
    />
   @if (!this._searcedTerm() || this._searcedTerm()?.trim() === '') {
     @for(user of usersSg(); track $index) {
-      <!-- [disabled]="isAlreadyParticipant(user.id)"   TODO: explain why is this bad! -->
     <div class="participant-selector-dialog__participant-item" >
         <input 
           type="checkbox" 

@@ -119,9 +119,9 @@ export class ConApiService {
       con.id === id ? updatedCon : con
     );
 
-    if (updates.participantIdToRemove) {
+    if (updates.participantIdsToRemove) {
       updatedCon.participantIds = updatedCon.participantIds.filter(
-        id => id !== updates.participantIdToRemove
+        id => !updates.participantIdsToRemove?.includes(id)
       )
     }
     

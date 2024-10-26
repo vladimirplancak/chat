@@ -1,6 +1,6 @@
 <div class="participant-item"  
-(mouseenter)="onParticipantHovered(participantSg().id)" 
-(mouseleave)="onParticipantHovered(undefined)"
+(mouseenter)="onParticipantHovered(participantSg())" 
+(mouseleave)="onParticipantUnHovered(participantSg())"
 >
   <div 
     class="participant-item__selector"
@@ -8,10 +8,10 @@
    >
     {{ participantSg().name }}
  
-    @if(_hoveredParticipantId() === participantSg().id){
-      <span class="participant-item__mouseOver-close" (click)="onUserRemoveMouseClick(participantSg().id)">
-        <i>&nbsp;<mat-icon>close</mat-icon></i> 
-      </span>
+    @if(selfIdSg() !== participantSg().id && hoveredParticipantIdSg() === participantSg().id){
+    <span class="participant-item__mouseOver-close" (click)="onParticipantRemoveButtonClickHandler(participantSg().id)">
+      <i>&nbsp;<mat-icon>close</mat-icon></i>
+    </span>
     }
   </div>
 </div>

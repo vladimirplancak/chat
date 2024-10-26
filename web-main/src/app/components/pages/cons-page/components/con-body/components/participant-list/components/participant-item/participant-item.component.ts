@@ -2,7 +2,6 @@ import * as ngCore from '@angular/core';
 import * as ngrxStore from '@ngrx/store'
 import * as models from '../../../../../../../../../models';
 import * as matIcon from '@angular/material/icon';
-import * as con from '../../../../../../../../../state/core/conversation/conversation.actions'
 import * as state from '../../../../../../../../../state'
 
 @ngCore.Component({
@@ -18,13 +17,18 @@ export class ParticipantItemComponent {
 
   public readonly participantSg = ngCore.input.required<models.User>({ alias: 'participant' })
   public readonly isOnlineSg = ngCore.input.required<boolean>({ alias: 'isOnline' })
-  public readonly _hoveredParticipantId = this._store.selectSignal(state.core.con.selectors.Conversation.HoveredParticipant.ID)
+  public readonly hoveredParticipantIdSg = this._store.selectSignal(state.core.con.selectors.Conversation.HoveredParticipant.ID)
+  public readonly selfIdSg = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)
   
-  onParticipantHovered(hoveredParticipantId: string | undefined) {
-      this._store.dispatch(con.Con.Ui.MouseEvent.Participant.actions.hovered({ hoveredParticipantId: hoveredParticipantId }))
+  public onParticipantHovered(participant: models.User) {
+      this._store.dispatch(state.core.con.actions.Con.Ui.MouseEvent.Participant.actions.hovered({ participantId: participant.id }))
   }
 
-  onUserRemoveMouseClick(userId: string) {
-    this._store.dispatch(con.Con.Ui.List.Buttons.RemoveParticipant.actions.clicked({ participantId: userId }))
+  public onParticipantUnHovered(participant: models.User) {
+      this._store.dispatch(state.core.con.actions.Con.Ui.MouseEvent.Participant.actions.unHovered({ participantId: participant.id }))
+  }
+
+  public onParticipantRemoveButtonClickHandler(participantId: models.User.Id) {
+    this._store.dispatch(state.core.con.actions.Con.Ui.List.Buttons.RemoveParticipant.actions.clicked({ participantId: participantId }))
   }
 }

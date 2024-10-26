@@ -18,7 +18,7 @@ export namespace Conversation {
     export type Id = string
     export type Input = Omit<Conversation, 'id'>
     export interface Update extends Partial<Omit<Input, 'participantIds'>> {
-      participantIdToRemove?: User.Id
+      participantIdsToRemove?: User.Id[]
       participantIdsToAdd?: User.Id[]
     }
 
