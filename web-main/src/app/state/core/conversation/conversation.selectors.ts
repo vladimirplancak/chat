@@ -77,7 +77,7 @@ export namespace Conversation {
 
     export const SEARCHED_TERM = ngrxStore.createSelector(
       STATE,
-      state => state.participantsSearchTerm
+      state => state.participantSelectorDialog.searchTerm
     )
   }
 }

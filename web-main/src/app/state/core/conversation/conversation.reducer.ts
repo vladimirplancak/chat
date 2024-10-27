@@ -56,24 +56,37 @@ export interface ConState {
    */
   inProgressMessageByConId?: Partial<Record<models.Conversation.Id, string>>
 
-  
+
   /**
    * Participant dialog state, usually, used in 'ParticipantSelectorDialogComponent'
    */
   participantSelectorDialog: {
     open?: boolean
     newSelectedIds?: models.User.Id[]
+    /**
+     * Search term value holds the string input which is used to filter
+     * potential participants
+     * 
+     * __NOTE:__ that this will be applied with 'string'.toLowerCase().includes(searchTerm.toLowerCase())
+     * 
+     * @example
+     * const participantList = ['John Doe', 'Jane Doe', 'John Smith']
+     * const searchTerm = 'John'
+     * // results: ['John Doe', 'John Smith']
+     * 
+     * searchTerm = 'doe'
+     * // results: ['John Doe', 'Jane Doe']  
+     *  
+     */
+    searchTerm?: string
   }
 
   /**
    * Mouse-over flag for tracking the currently hovered userId of conParticipant that is being hovered.
    */
-  hoveredParticipantId : models.User.Id | undefined
+  hoveredParticipantId: models.User.Id | undefined
 
-  /**
-   * Search term value holds the string input which is used to filter potential participants 
-   */
-  participantsSearchTerm: string | undefined
+
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -89,10 +102,10 @@ export namespace ConState {
     pendingConListMessagesRequests: new Set(),
     participantSelectorDialog: {
       open: false,
-      newSelectedIds: []
+      newSelectedIds: [],
+      searchTerm: undefined 
     },
     hoveredParticipantId: undefined,
-    participantsSearchTerm: undefined
   }
 
   export const REDUCER = createReducer<ConState>(
@@ -160,15 +173,17 @@ export namespace ConState {
     })),
 
     on(actions.Con.Api.Con.Update.actions.succeeded, (state, { conversation }) => {
-      
-    
+
+
       const existingMessages = state.conLookup[conversation.id]?.messages
-      if(!existingMessages){
-        throw new Error ("Messages do not exist")
+      if (!existingMessages) {
+        throw new Error("Messages do not exist")
       }
-      return ({...state,
-      pendingConMutation: false,
-      conLookup: { ...state.conLookup, [conversation.id]: { ...conversation, messages: existingMessages } }})
+      return ({
+        ...state,
+        pendingConMutation: false,
+        conLookup: { ...state.conLookup, [conversation.id]: { ...conversation, messages: existingMessages } }
+      })
 
     }),
 
@@ -310,11 +325,11 @@ export namespace ConState {
     })),
 
     /* ----------------------- participant selector dialog ---------------------- */
-    on(actions.Con.Ui.ParticipantSelectorDialog.Search.actions.changed, (state, { searchTerm}) =>({
+    on(actions.Con.Ui.ParticipantSelectorDialog.Search.actions.changed, (state, { searchTerm }) => ({
       ...state,
       participantsSearchTerm: searchTerm
     })),
-    
+
     on(actions.Con.Ui.List.Buttons.Add.actions.clicked, (state, { }) => ({
       ...state,
       participantSelectorDialog: {
@@ -326,23 +341,24 @@ export namespace ConState {
       ...state,
       participantSelectorDialog: {
         open: false,
+        searchTerm: undefined
       }
     })),
 
     on(actions.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked, (state, { userId }) => {
       let newSelectedIds = state.participantSelectorDialog.newSelectedIds ?? []
-      
-      if(newSelectedIds.includes(userId)){
+
+      if (newSelectedIds.includes(userId)) {
         newSelectedIds = newSelectedIds.filter(id => id !== userId)
       } else {
-      newSelectedIds = [...newSelectedIds, userId]
+        newSelectedIds = [...newSelectedIds, userId]
       }
 
       return ({
         ...state,
         participantSelectorDialog: {
           ...state.participantSelectorDialog,
-          newSelectedIds 
+          newSelectedIds
         }
       })
     }),
