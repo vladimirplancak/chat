@@ -78,7 +78,7 @@ export interface ConState {
      * // results: ['John Doe', 'Jane Doe']  
      *  
      */
-    searchTerm?: string
+    searchTerm?: string | undefined
   }
 
   /**
@@ -327,7 +327,12 @@ export namespace ConState {
     /* ----------------------- participant selector dialog ---------------------- */
     on(actions.Con.Ui.ParticipantSelectorDialog.Search.actions.changed, (state, { searchTerm }) => ({
       ...state,
-      participantsSearchTerm: searchTerm
+      
+      participantSelectorDialog:{
+        ...state.participantSelectorDialog,
+        searchTerm: searchTerm
+      },
+      
     })),
 
     on(actions.Con.Ui.List.Buttons.Add.actions.clicked, (state, { }) => ({

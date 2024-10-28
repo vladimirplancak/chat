@@ -12,17 +12,14 @@ import * as con from '../../../../../../../../../state/core/conversation/convers
   templateUrl: './participant-selector-dialog.component.html',
   styleUrl: './participant-selector-dialog.component.scss'
 })
-export class ParticipantSelectorDialogComponent implements ngCore.OnInit {
-  ngOnInit(): void {
-    console.log(this._searcedTerm())
-  }
-
-
+export class ParticipantSelectorDialogComponent  {
 
   private readonly _store = ngCore.inject(ngrxStore.Store)
+
+  public readonly searcedTerm = this._store.selectSignal(state.core.con.selectors.Conversation.ParticipantsDialog.SEARCHED_TERM)
   private readonly _selfIdSg = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)
   private readonly _selectedConversation = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)
-  public readonly _searcedTerm = this._store.selectSignal(state.core.con.selectors.Conversation.ParticipantsDialog.SEARCHED_TERM)
+  
 
   /**
    * Userlist (without the current user and already existing users, filtered by searchTerm
@@ -31,22 +28,28 @@ export class ParticipantSelectorDialogComponent implements ngCore.OnInit {
   public readonly searchTermUsersSg = ngCore.computed((
     allUSers = this.usersSg(),
     existingUsers = this._selectedConversation()?.participantIds ?? [],
-    searchTerm = this._searcedTerm()?.trim().toLocaleLowerCase() || '',
+    searchTerm = this.searcedTerm()?.trim().toLocaleLowerCase() || '',
   ) => {
+  
     const nonParticipantUsers = allUSers.filter(user => !existingUsers.includes(user.id))
     const filterdUsersBySearchTerm = nonParticipantUsers.filter(user =>
       user.name.toLocaleLowerCase().includes(searchTerm)
     )
+
     return filterdUsersBySearchTerm
 
   })
   /**
-   * All users except the current user.
+   * All users except self and already existing users.
    */
   public readonly usersSg = ngCore.computed((
     allUsers = this._store.selectSignal(state.core.user.selectors.User.USERS)(),
-    _selfId = this._selfIdSg()
-  ) => allUsers.filter((user) => user.id !== _selfId))
+    _selfId = this._selfIdSg(),
+    _existingParticipants = this._selectedConversation()?.participantIds ?? []
+  ) => {
+
+    return allUsers.filter((user) => user.id !== _selfId && !_existingParticipants.includes(user.id))
+  })
 
   /**
    * All participants of the current conversation.
@@ -117,10 +120,12 @@ export class ParticipantSelectorDialogComponent implements ngCore.OnInit {
         selectedParticipantIds: newSelectedUserIds,
       })
     );
-    /**
- * This action efectively resets the state property of participantsSearchTerm to `undefined`
- */
-    this._store.dispatch(con.Con.Ui.ParticipantSelectorDialog.Search.actions.changed({ searchTerm: undefined }))
+
+  
+
+    //Close the participant dialog after saving the additional selected participants to the conversation.
+    this._store.dispatch(con.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked())
+
   }
 
   public participantCheckboxChangeHandler(userId: models.User.Id): void {
@@ -128,9 +133,10 @@ export class ParticipantSelectorDialogComponent implements ngCore.OnInit {
   }
 
   onSearchInputChange(event: Event | undefined): void {
+    
     const inputElement = event?.target as HTMLInputElement
     const searchTerm = inputElement.value
+    console.log(`searchTerm:`, searchTerm)
     this._store.dispatch(con.Con.Ui.ParticipantSelectorDialog.Search.actions.changed({ searchTerm }))
-    console.log(`search term:`, searchTerm)
   }
 }

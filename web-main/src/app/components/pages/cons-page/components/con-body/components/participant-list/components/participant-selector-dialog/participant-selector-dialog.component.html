@@ -1,10 +1,11 @@
 <div class="participant-selector-dialog">
    <input 
     type="text"
-    [placeholder]="_searcedTerm() ? _searcedTerm() : 'search...'"
+    [placeholder]="searcedTerm() ? searcedTerm() : 'search...'"
     (input)="onSearchInputChange($event)"
    />
-  @if (!this._searcedTerm() || this._searcedTerm()?.trim() === '') {
+  @if (!this.searcedTerm() || this.searcedTerm()?.trim() === '') {
+
     @for(user of usersSg(); track $index) {
     <div class="participant-selector-dialog__participant-item" >
         <input 
@@ -16,8 +17,11 @@
       {{ user.name }}
     </div>
     }
-  } @else {
+  } 
+  @else if(searchTermUsersSg().length > 0) {
+   
     @for(user of searchTermUsersSg(); track $index) {
+      
       <div class="participant-selector-dialog__participant-item" >
         <input 
           type="checkbox" 
@@ -29,6 +33,12 @@
       </div>
     }
   }
+  @else {
+    <div class="participant-selector-dialog__participant-item" >
+    {{ 'No users found.'}}
+  </div>
+  }
+  
 
 
     <button (click)="saveBtnClickHandler()">Save</button>
