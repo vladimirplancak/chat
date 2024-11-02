@@ -29,7 +29,8 @@ export class UserEffects {
 
   onApiListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(User.Api.List.actions.started),
-    rxjs.switchMap(() => this._userApiService.list().pipe(
+    rxjs.switchMap(() => this._userApiService.getAllUsers().pipe(
+      rxjs.tap((res)=> console.log(`effects/users`, res)),
       rxjs.map(users => User.Api.List.actions.succeeded({ users })),
       rxjs.catchError(error =>
         rxjs.of(User.Api.List.actions.failed({ errorMessage: error?.message }))

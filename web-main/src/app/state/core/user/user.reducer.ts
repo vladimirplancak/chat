@@ -21,7 +21,7 @@ export interface UserState {
    * Initially this starts with true, because we want to fetch the list of users
    * as soon as possible
    * 
-   * @see {@link services.UserApiService.list}
+   * @see {@link services.UserApiService.getAllUsers}
    */
   pendingListRequest: boolean
   /**
@@ -73,12 +73,16 @@ export namespace UserState {
     on(actions.User.Api.ListOnlineIds.actions.started, (state) => ({ ...state })),
 
     /* -------------------------------- succeeded ------------------------------- */
-    on(actions.User.Api.List.actions.succeeded, (state, { users }) => ({
-      ...state,
+    on(actions.User.Api.List.actions.succeeded, (state, { users }) => {
+      console.log(`reducer/users`, users)
+      users.reduce((lookup, user) => ({ ...lookup, [user.id]: user }), {})
+      console.log(`reducer/users/after`, users)
+      return {
+        ...state,
       pendingListRequest: false,
       ids: users.map(user => user.id),
-      userLookup: users.reduce((lookup, user) => ({ ...lookup, [user.id]: user }), {})
-    })),
+      userLookup: users.reduce((lookup, user) => ({ ...lookup, [user.id]: user }), {})}
+    }),
     on(actions.User.Api.Get.actions.succeeded, (state, { user }) => {
       // NOTE: if we haven't found a user on the back-end 
       // we will consider that we do not need to make an update 

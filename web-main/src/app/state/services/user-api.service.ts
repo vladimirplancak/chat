@@ -45,6 +45,10 @@ export class UserApiService {
       const randomOnlineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
       const randomOfflineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
 
+      //  this.userCameOnline$.next(randomOnlineUser.id)
+      //  this.userWentOffline$.next(randomOfflineUser.id)
+    })
+    
       //socketIO
 
       this._socket = io('http://localhost:5000/', {
@@ -54,11 +58,12 @@ export class UserApiService {
       this._socket.on('connect', () => {
         console.log('Socket connected');
       });
-      //  this.userCameOnline$.next(randomOnlineUser.id)
-      //  this.userWentOffline$.next(randomOfflineUser.id)
-    })
   }
-
+  
+  public getAllUsers(): rxjs.Observable<models.User[]> {
+    return this._http.get<any[]>(`${this._apiUrl}`)
+  }
+  
 
   public list(): rxjs.Observable<readonly models.User[]> {
     return rxjs.of(IN_MEMORY_USERS_LIST).pipe(randomDelayOperator())
@@ -100,10 +105,8 @@ export class UserApiService {
 
     return rxjs.of(oldUser).pipe(randomDelayOperator())
   }
-  
-  public getAllUsers():rxjs.Observable<models.User[]> {
-    return this._http.get<models.User[]>(`${this._apiUrl}`)
-  }
+
+
 
 
 }

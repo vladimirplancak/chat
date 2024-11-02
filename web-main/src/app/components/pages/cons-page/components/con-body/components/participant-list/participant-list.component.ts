@@ -16,7 +16,7 @@ import * as common from '../../../../../../common'
   templateUrl: './participant-list.component.html',
   selector: 'app-participant-list'
 })
-export class ParticipantListComponent {
+export class ParticipantListComponent  {
 
   private readonly _store = ngCore.inject(ngrxStore.Store)
   private readonly _selectedConSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)
@@ -70,6 +70,7 @@ export class ParticipantListComponent {
 
   public participantListAddBtnClickHandler() {
     this._store.dispatch(state.core.con.actions.Con.Ui.List.Buttons.Add.actions.clicked())
+    console.log(`users in the state:`, this._userLookUpSg())
   }
 
   public participantDialogBackdropClickHandler() {
