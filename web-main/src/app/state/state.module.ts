@@ -5,6 +5,7 @@ import * as core from './core'
 import * as ngrxStoreDevtools from '@ngrx/store-devtools'
 import * as services from './services';
 import * as ngrxRouterStore from '@ngrx/router-store';
+import { HttpClientModule } from '@angular/common/http'
 
 @ngCore.NgModule({
   imports: [
@@ -48,7 +49,8 @@ import * as ngrxRouterStore from '@ngrx/router-store';
           set: true,
         },
       },
-     })
+     }),
+     HttpClientModule,
   ],
   providers: [
     services.UserApiService,

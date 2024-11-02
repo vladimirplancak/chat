@@ -1,6 +1,8 @@
 import * as ngCore from '@angular/core';
 import * as models from '../../models';
 import * as rxjs from 'rxjs'
+import * as http from '@angular/common/http'
+import { io, Socket } from 'socket.io-client'; // Import the io function
 
 
 export const IN_MEMORY_USERS_LIST: models.User[] = [
@@ -29,19 +31,33 @@ export const IN_MEMORY_USERS_LIST: models.User[] = [
 
 @ngCore.Injectable()
 export class UserApiService {
+  private _socket: Socket | undefined; // Use the Socket type from socket.io-client
+
+  private _apiUrl = 'http://localhost:5000/api/users'
+  private readonly _http = ngCore.inject(http.HttpClient)
+
   public readonly userCameOnline$ = new rxjs.Subject<models.User.Id>()
   public readonly userWentOffline$ = new rxjs.Subject<models.User.Id>()
 
-   constructor() {
+  constructor() {
     // TODO: remove this hardcoded online / offline approach once implementing backend
-     rxjs.timer(0, 500).subscribe(() => {
-       const randomOnlineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
-       const randomOfflineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
+    rxjs.timer(0, 500).subscribe(() => {
+      const randomOnlineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
+      const randomOfflineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
 
+      //socketIO
+
+      this._socket = io('http://localhost:5000/', {
+
+        withCredentials: true,
+      });
+      this._socket.on('connect', () => {
+        console.log('Socket connected');
+      });
       //  this.userCameOnline$.next(randomOnlineUser.id)
       //  this.userWentOffline$.next(randomOfflineUser.id)
-     })
-   }
+    })
+  }
 
 
   public list(): rxjs.Observable<readonly models.User[]> {
@@ -50,7 +66,7 @@ export class UserApiService {
 
   public get(id: models.User.Id): rxjs.Observable<models.User | undefined> {
     const foundUser = IN_MEMORY_USERS_LIST.find(it => it.id === id)
-    return rxjs.of(foundUser ? {...foundUser} : undefined).pipe(randomDelayOperator())
+    return rxjs.of(foundUser ? { ...foundUser } : undefined).pipe(randomDelayOperator())
   }
 
   public create(input: models.User.Input): rxjs.Observable<models.User> {
@@ -58,13 +74,13 @@ export class UserApiService {
 
     IN_MEMORY_USERS_LIST.push(newUser)
 
-    return rxjs.of({...newUser}).pipe(randomDelayOperator())
+    return rxjs.of({ ...newUser }).pipe(randomDelayOperator())
   }
 
   public update(id: models.User.Id, updates: models.User.Update): rxjs.Observable<models.User> {
     const foundUser = IN_MEMORY_USERS_LIST.find(it => it.id === id)
 
-    if(!foundUser) {
+    if (!foundUser) {
       throw new Error('User not found')
     }
 
@@ -78,12 +94,17 @@ export class UserApiService {
 
     const oldUser = IN_MEMORY_USERS_LIST[index]
 
-    if(index !== -1) {
+    if (index !== -1) {
       IN_MEMORY_USERS_LIST.splice(index, 1)
     }
 
     return rxjs.of(oldUser).pipe(randomDelayOperator())
-  }  
+  }
+  
+  public getAllUsers():rxjs.Observable<models.User[]> {
+    return this._http.get<models.User[]>(`${this._apiUrl}`)
+  }
+
 
 }
 

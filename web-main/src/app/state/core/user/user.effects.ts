@@ -11,15 +11,21 @@ export class UserEffects {
   private readonly _actions = ngCore.inject(ngrxEffects.Actions)
   private readonly _userApiService = ngCore.inject(services.UserApiService)
 
+  
   onRootInitialized$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(rootState.actions.Root.Ui.actions.initialized),
-    rxjs.switchMap(() => 
+    rxjs.switchMap(() => {
+     const allUsers = this._userApiService.getAllUsers()
+      allUsers.subscribe((users) =>{
+        console.log(`getAllUsers`, users)
+      })
       // TODO: Dispatch another action here, which will be something like:
       // User.Api.List.actions.started() &
       // "User.Api.ListOnlineIds.action.started()"
-      rxjs.of(User.Api.List.actions.started()),
+    return  rxjs.of(User.Api.List.actions.started())}
     ),
   ))
+
 
   onApiListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(User.Api.List.actions.started),
