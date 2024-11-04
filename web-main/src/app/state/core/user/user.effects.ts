@@ -15,10 +15,6 @@ export class UserEffects {
   onRootInitialized$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(rootState.actions.Root.Ui.actions.initialized),
     rxjs.switchMap(() => {
-     const allUsers = this._userApiService.getAllUsers()
-      allUsers.subscribe((users) =>{
-        console.log(`getAllUsers`, users)
-      })
       // TODO: Dispatch another action here, which will be something like:
       // User.Api.List.actions.started() &
       // "User.Api.ListOnlineIds.action.started()"
@@ -30,7 +26,6 @@ export class UserEffects {
   onApiListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(User.Api.List.actions.started),
     rxjs.switchMap(() => this._userApiService.getAllUsers().pipe(
-      rxjs.tap((res)=> console.log(`effects/users`, res)),
       rxjs.map(users => User.Api.List.actions.succeeded({ users })),
       rxjs.catchError(error =>
         rxjs.of(User.Api.List.actions.failed({ errorMessage: error?.message }))

@@ -2,7 +2,7 @@ import * as ngCore from '@angular/core';
 import * as models from '../../models';
 import * as rxjs from 'rxjs'
 import { IN_MEMORY_USERS_LIST } from './user-api.service'
-
+import * as http from '@angular/common/http'
 let now = new Date()
 
 function _incrementDate(date: Date, seconds: number): Date {
@@ -45,7 +45,9 @@ const IN_MEMORY_MSG_LIST: Partial<Record<models.Conversation.Id, readonly models
 @ngCore.Injectable()
 export class ConApiService {
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
-
+  private _conversationAPIurl = 'http://localhost:5000/api/conversations'
+  private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
+  private readonly _http = ngCore.inject(http.HttpClient)
   // TODO: this should be actually refactored, and should not have interaction
   // with "msgReceived$" stream at all, that part should be done through "hub"
   // methods. 
@@ -65,6 +67,10 @@ export class ConApiService {
     }))
   }
 
+  public getAllConvos(): rxjs.Observable<models.Conversation[]> {
+    return this._http.get<models.Conversation[]>(`${this._conversationAPIurl}`)
+  }
+  
   public conList(): rxjs.Observable<readonly models.Conversation[]> {
     return rxjs.of(IN_MEMORY_CON_LIST).pipe(randomDelayOperator())
   }
@@ -145,6 +151,11 @@ export class ConApiService {
 
     return rxjs.of(oldCon).pipe(randomDelayOperator())
   }
+
+  public getConMessages(conId: models.Conversation.Id): rxjs.Observable<models.Conversation.Message[]> {
+    return this._http.get<models.Conversation.Message[]>(`${this._messageAPIurl}/${conId}`)
+  }
+  
 
   public listConMessages(conId: models.Conversation.Id): rxjs.Observable<readonly models.Conversation.Message[]> {
     const foundMsgs = [...(IN_MEMORY_MSG_LIST[conId] ?? [])]

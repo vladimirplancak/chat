@@ -59,9 +59,9 @@ export class UserApiService {
         console.log('Socket connected');
       });
   }
-  
+
   public getAllUsers(): rxjs.Observable<models.User[]> {
-    return this._http.get<any[]>(`${this._apiUrl}`)
+    return this._http.get<models.User[]>(`${this._apiUrl}`)
   }
   
 

@@ -38,7 +38,8 @@ export class ParticipantListComponent  {
 
   /** All participants of the selected conversation. */
   public readonly participantsSg = ngCore.computed(() => {
-    const selectedCon = this._selectedConSg()
+   const selectedCon = this._selectedConSg()
+
     if (!selectedCon) {
       return []
     }
@@ -58,7 +59,7 @@ export class ParticipantListComponent  {
    * ```
    */
   public participantOnlineLookupSg = ngCore.computed(() => {
-    const participants = this.participantsSg()
+    const participants = this.participantsSg() ?? []
     return participants.reduce<Partial<Record<models.User.Id, boolean>>>((lookup, participant) => {
       const isOnline = this._store.selectSignal(state.core.user.selectors.User.IS_ONLINE(participant.id))()
       lookup[participant.id] = isOnline

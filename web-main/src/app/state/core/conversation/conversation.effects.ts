@@ -27,14 +27,28 @@ export class ConversationEffects {
 
   onApiConListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.List.actions.started),
-    rxjs.switchMap(() => this._conApiService.conList().pipe(
+    rxjs.switchMap(() => this._conApiService.getAllConvos().pipe(
       rxjs.map(conversations => actions.Con.Api.Con.List.actions.succeeded({ conversations })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.List.actions.failed({ errorMessage: error?.message }))
       )
     )),
   ))
-
+  
+  onApiMessageListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(actions.Con.Api.Message.List.actions.started),
+    rxjs.switchMap(({ conversationId }) => this._conApiService.getConMessages(conversationId).pipe(
+      rxjs.map(messages =>
+        actions.Con.Api.Message.List.actions.succeeded({
+          messages,
+          conversationId
+        })
+      ),
+      rxjs.catchError(error =>
+        rxjs.of(actions.Con.Api.Message.List.actions.failed({ conversationId, errorMessage: error?.message }))
+      )
+    )),
+  ))
   // TODO: explain what this does.
   shouldLoadMessages$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.List.actions.started),
@@ -141,20 +155,7 @@ export class ConversationEffects {
     ),
   ))
 
-  onApiMessageListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
-    ngrxEffects.ofType(actions.Con.Api.Message.List.actions.started),
-    rxjs.switchMap(({ conversationId }) => this._conApiService.listConMessages(conversationId).pipe(
-      rxjs.map(messages =>
-        actions.Con.Api.Message.List.actions.succeeded({
-          messages,
-          conversationId
-        })
-      ),
-      rxjs.catchError(error =>
-        rxjs.of(actions.Con.Api.Message.List.actions.failed({ conversationId, errorMessage: error?.message }))
-      )
-    )),
-  ))
+
 
   /**
    * Purpose of the effect, is to compute the payload for the {@link actions.Con.Api.Message.Send.actions.started}

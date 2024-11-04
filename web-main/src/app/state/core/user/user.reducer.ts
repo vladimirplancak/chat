@@ -74,9 +74,6 @@ export namespace UserState {
 
     /* -------------------------------- succeeded ------------------------------- */
     on(actions.User.Api.List.actions.succeeded, (state, { users }) => {
-      console.log(`reducer/users`, users)
-      users.reduce((lookup, user) => ({ ...lookup, [user.id]: user }), {})
-      console.log(`reducer/users/after`, users)
       return {
         ...state,
       pendingListRequest: false,

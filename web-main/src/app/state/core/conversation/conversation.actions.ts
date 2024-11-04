@@ -1,5 +1,4 @@
 import * as common from '../../common'
-import type * as user from '../user'
 import * as ngrxStore from '@ngrx/store'
 import * as models from '../../../models'
 

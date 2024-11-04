@@ -16,7 +16,7 @@ export class MsgListComponent {
 
   public readonly messagesSg = ngCore.computed(() => {
     const selectedConversation = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)()
-
+   
     // If the selected conversation is not present, we are not able to display
     // any messages from that conversation, thus we return the empty array (no
     // messages).
@@ -28,8 +28,9 @@ export class MsgListComponent {
     // still loading, meaning, that users for that conversation are not yet loader, 
     // we return the empty array (no messages). Note, that this only covers the case
     // where the participants that actually sent th messages are not yet loaded.
-    const participantIds = selectedConversation.participantIds
+    const participantIds = selectedConversation.participantIds ?? [] // changed this: remove ?? []
     const filteredUsers = this._store.selectSignal(state.core.user.selectors.User.USERS_FILTERED(participantIds))()
+
     if (filteredUsers.length !== participantIds.length) {
       return []
     }

@@ -103,7 +103,7 @@ export namespace ConState {
     participantSelectorDialog: {
       open: false,
       newSelectedIds: [],
-      searchTerm: undefined 
+      searchTerm: undefined
     },
     hoveredParticipantId: undefined,
   }
@@ -122,32 +122,35 @@ export namespace ConState {
     on(actions.Con.Api.Con.Delete.actions.started, (state) => ({ ...state, pendingConMutation: true })),
 
 
-    on(actions.Con.Api.Con.List.actions.succeeded, (state, { conversations }) => ({
-      ...state,
-      pendingConListRequest: false,
-      ids: conversations.map(conversation => conversation.id),
-      conLookup: conversations.reduce<Partial<Record<models.Conversation.Id, models.Conversation.WithMessages>>>((lookup, con) => {
-        const lookupEntry = state.conLookup[con.id]
+    on(actions.Con.Api.Con.List.actions.succeeded, (state, { conversations }) => {
 
-        if (!!lookupEntry) {
-          return ({
-            ...lookup,
-            [con.id]: {
-              ...lookupEntry,
-              ...con,
-              messages: lookupEntry.messages
-            }
-          })
-        } else {
-          return ({
-            ...lookup,
-            [con.id]: { ...con, messages: [] }
-          })
-        }
+      return {
+        ...state,
+        pendingConListRequest: false,
+        ids: conversations.map(conversation => conversation.id),
+        conLookup: conversations.reduce<Partial<Record<models.Conversation.Id, models.Conversation.WithMessages>>>((lookup, con) => {
+
+          const lookupEntry = state.conLookup[con.id]
+          if (!!lookupEntry) {
+            return ({
+              ...lookup,
+              [con.id]: {
+                ...lookupEntry,
+                ...con,
+                messages: lookupEntry.messages
+              }
+            })
+          } else {
+            return ({
+              ...lookup,
+              [con.id]: { ...con, messages: [] }
+            })
+          }
 
 
-      }, {})
-    })),
+        }, {})
+      }
+    }),
 
     on(actions.Con.Api.Con.Get.actions.succeeded, (state, { conversation }) => {
       // NOTE: if we haven't found a conversation on the back-end 
@@ -220,15 +223,15 @@ export namespace ConState {
     }),
 
     /* -------------------------------- succeeded ------------------------------- */
+
     on(actions.Con.Api.Message.List.actions.succeeded, (state, { conversationId, messages }) => {
       // FIXME: refactor below, we can do some 'early' returns here, and don't
       // need so many explicit checks.
       const pendingConListMessagesRequestsCopy = new Set([...state.pendingConListMessagesRequests])
       pendingConListMessagesRequestsCopy.delete(conversationId)
 
-
       let conversationCopy = { ...state.conLookup }[conversationId]
-
+      console.log(`Existing conversationCopy:`, conversationCopy)
 
       // NOTE: In cases where the conversation is already loaded and there is a
       // conversation record in the state, it is safe to assume that the
@@ -237,34 +240,44 @@ export namespace ConState {
       // under a "placeholder" conversation object until the conversation object
       // is fully loaded, which should happen soon.
       if (conversationCopy) {
-        conversationCopy = {
-          ...conversationCopy,
-          messages
+        // Ensure participant IDs are present in the existing conversation copy
+        if (!conversationCopy.participantIds || conversationCopy.participantIds.length === 0) {
+          const participantIds = Array.from(new Set(messages.map(message => message.userId)))
+          conversationCopy = {
+            ...conversationCopy,
+            participantIds: participantIds,
+            messages,
+          }
+        } else {
+          conversationCopy = {
+            ...conversationCopy,
+            messages: [...conversationCopy.messages, ...messages]
+          }
         }
+
       } else {
-        const participantIds = messages.map(message => message.userId) // may have duplicates
-        const distinctParticipantIdsSet = new Set(participantIds) // make set, so we avoid duplicates
-        const distinctParticipantIds = Array.from(distinctParticipantIdsSet) // convert back to array
+        // Create a new placeholder conversation with participant IDs
+        const participantIds = Array.from(new Set(messages.map(message => message.userId)))
         state = {
           ...state,
-          ids: [...state.ids, conversationId]
+          ids: [...state.ids, conversationId],
         }
 
         conversationCopy = {
           id: conversationId,
           messages,
-          participantIds: distinctParticipantIds,
+          participantIds,
         }
       }
 
-      return ({
+      return {
         ...state,
         pendingConListMessagesRequests: pendingConListMessagesRequestsCopy,
         conLookup: {
           ...state.conLookup,
-          [conversationCopy.id]: conversationCopy
-        }
-      })
+          [conversationCopy.id]: conversationCopy,
+        },
+      }
     }),
     /* ------------------------------ subscriptions ----------------------------- */
     on(actions.Con.Api.Message.Subscriptions.actions.messageReceived, (state, { message }) => {
@@ -288,6 +301,7 @@ export namespace ConState {
       };
 
     }),
+
 
     /* -------------------------------------------------------------------------- */
     /*                                 UI Reducers                                */
@@ -316,7 +330,7 @@ export namespace ConState {
           ...state.inProgressMessageByConId,
           [conversationId]: messageText
         }
-      };
+      }
     }),
 
     on(actions.Con.Api.Message.Send.actions.succeeded, (state, { conversationId }) => ({
@@ -327,12 +341,12 @@ export namespace ConState {
     /* ----------------------- participant selector dialog ---------------------- */
     on(actions.Con.Ui.ParticipantSelectorDialog.Search.actions.changed, (state, { searchTerm }) => ({
       ...state,
-      
-      participantSelectorDialog:{
+
+      participantSelectorDialog: {
         ...state.participantSelectorDialog,
         searchTerm: searchTerm
       },
-      
+
     })),
 
     on(actions.Con.Ui.List.Buttons.Add.actions.clicked, (state, { }) => ({
