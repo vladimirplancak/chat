@@ -18,12 +18,21 @@ export class ConversationEffects {
   private readonly _store = ngCore.inject(ngrxStore.Store)
   private readonly _router = ngCore.inject(ngRouter.Router)
 
+
   onRootInitialized$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(rootState.actions.Root.Ui.actions.initialized),
-    rxjs.switchMap(() =>
-      rxjs.of(actions.Con.Api.Con.List.actions.started()),
-    ),
-  ))
+    //NOTE: rxjs.mergeMap() merges runs inner observables
+    //at the same time, without any cancelations. If this
+    //proves to produce undesired results, consider using
+    //rxjs.concatMap() which sequentially processes the inner
+    //the observables - waits for the first one to finish before
+    //processing the second one.
+    rxjs.concatMap(() => [
+      actions.Con.Api.Con.List.actions.started(),
+      actions.Con.Api.Con.LoadConParticipants.actions.started()
+    ]),
+  ));
+
 
   onApiConListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.List.actions.started),
@@ -34,7 +43,24 @@ export class ConversationEffects {
       )
     )),
   ))
-  
+
+  onApiConLoadConParticipantsstarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(actions.Con.Api.Con.LoadConParticipants.actions.started),
+
+    rxjs.switchMap(() => {
+     
+        return this._conApiService.getAllConsParticipants().pipe(
+          rxjs.tap((res) => console.log(`effect result:`, res)),
+          rxjs.map(consParticipants => actions.Con.Api.Con.LoadConParticipants.actions.succeeded({ consParticipants: consParticipants })),
+          rxjs.catchError(error =>
+            rxjs.of(actions.Con.Api.Con.LoadConParticipants.actions.failed({ errorMessage: error?.message }))
+          )
+        )
+     
+   
+    })
+  ))
+
   onApiMessageListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Message.List.actions.started),
     rxjs.switchMap(({ conversationId }) => this._conApiService.getConMessages(conversationId).pipe(

@@ -47,6 +47,7 @@ export class ConApiService {
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
   private _conversationAPIurl = 'http://localhost:5000/api/conversations'
   private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
+  private _convParticipantsAPIurl = 'http://localhost:5000/api/usersConversations'
   private readonly _http = ngCore.inject(http.HttpClient)
   // TODO: this should be actually refactored, and should not have interaction
   // with "msgReceived$" stream at all, that part should be done through "hub"
@@ -150,6 +151,9 @@ export class ConApiService {
     }
 
     return rxjs.of(oldCon).pipe(randomDelayOperator())
+  }
+  public getAllConsParticipants(): rxjs.Observable<models.Conversation[]>{
+    return this._http.get<models.Conversation[]>(`${this._convParticipantsAPIurl}`)
   }
 
   public getConMessages(conId: models.Conversation.Id): rxjs.Observable<models.Conversation.Message[]> {

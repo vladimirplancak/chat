@@ -121,7 +121,41 @@ export namespace ConState {
     on(actions.Con.Api.Con.Update.actions.started, (state) => ({ ...state, pendingConMutation: true })),
     on(actions.Con.Api.Con.Delete.actions.started, (state) => ({ ...state, pendingConMutation: true })),
 
-
+    /* --------------------------------- succeeded -------------------------------- */
+    on(actions.Con.Api.Con.LoadConParticipants.actions.succeeded, (state, { consParticipants }) => {
+  
+      // Create a copy of the current state.conLookup and update it
+      const updatedConLookup = { ...state.conLookup };
+      console.log(`reducer/updatedConLookup`, updatedConLookup);
+      for (const conversationId in updatedConLookup) {
+        if (updatedConLookup.hasOwnProperty(conversationId)) {
+          const matchingParticipantObj = consParticipants.find(
+            participantObj => participantObj.id === conversationId
+          );
+    
+          // If a match is found, add the participantIds dynamically
+          if (matchingParticipantObj) {
+            const currentConversation = updatedConLookup[conversationId];
+            
+            // Make sure to define the id and use messages safely
+            updatedConLookup[conversationId] = {
+              ...currentConversation,
+              participantIds: matchingParticipantObj.participantIds,
+              messages: currentConversation?.messages || [], // Ensure messages is never undefined
+              id: currentConversation?.id!, // Use non-null assertion if you're sure id exists
+            };
+          }
+        }
+      }
+    
+      return {
+        ...state,
+        conLookup: updatedConLookup,
+      };
+    }),
+    
+    
+    
     on(actions.Con.Api.Con.List.actions.succeeded, (state, { conversations }) => {
 
       return {
@@ -231,8 +265,7 @@ export namespace ConState {
       pendingConListMessagesRequestsCopy.delete(conversationId)
 
       let conversationCopy = { ...state.conLookup }[conversationId]
-      console.log(`Existing conversationCopy:`, conversationCopy)
-
+  
       // NOTE: In cases where the conversation is already loaded and there is a
       // conversation record in the state, it is safe to assume that the
       // messages can be stored in the conversation object. However, if the
