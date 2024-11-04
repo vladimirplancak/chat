@@ -39,7 +39,7 @@ export class ParticipantListComponent  {
   /** All participants of the selected conversation. */
   public readonly participantsSg = ngCore.computed(() => {
    const selectedCon = this._selectedConSg()
-    console.log(`component/selectedCon`,selectedCon)
+
     if (!selectedCon) {
       return []
     }

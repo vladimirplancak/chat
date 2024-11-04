@@ -123,41 +123,41 @@ export namespace ConState {
 
     /* --------------------------------- succeeded -------------------------------- */
     on(actions.Con.Api.Con.LoadConParticipants.actions.succeeded, (state, { consParticipants }) => {
-  
+
       // Create a copy of the current state.conLookup and update it
-      const updatedConLookup = { ...state.conLookup };
-      console.log(`reducer/updatedConLookup`, updatedConLookup);
+      const updatedConLookup = { ...state.conLookup }
+      console.log(`reducer/updatedConLookup`, updatedConLookup)
       for (const conversationId in updatedConLookup) {
         if (updatedConLookup.hasOwnProperty(conversationId)) {
           const matchingParticipantObj = consParticipants.find(
             participantObj => participantObj.id === conversationId
-          );
-    
+          )
+
           // If a match is found, add the participantIds dynamically
           if (matchingParticipantObj) {
-            const currentConversation = updatedConLookup[conversationId];
-            
+            const currentConversation = updatedConLookup[conversationId]
+
             // Make sure to define the id and use messages safely
             updatedConLookup[conversationId] = {
               ...currentConversation,
               participantIds: matchingParticipantObj.participantIds,
               messages: currentConversation?.messages || [], // Ensure messages is never undefined
               id: currentConversation?.id!, // Use non-null assertion if you're sure id exists
-            };
+            }
           }
         }
       }
-    
+
       return {
         ...state,
         conLookup: updatedConLookup,
-      };
+      }
     }),
-    
-    
-    
-    on(actions.Con.Api.Con.List.actions.succeeded, (state, { conversations }) => {
 
+
+
+    on(actions.Con.Api.Con.List.actions.succeeded, (state, { conversations }) => {
+     
       return {
         ...state,
         pendingConListRequest: false,
@@ -265,7 +265,7 @@ export namespace ConState {
       pendingConListMessagesRequestsCopy.delete(conversationId)
 
       let conversationCopy = { ...state.conLookup }[conversationId]
-  
+      console.log(`conversationCopy`, messages)
       // NOTE: In cases where the conversation is already loaded and there is a
       // conversation record in the state, it is safe to assume that the
       // messages can be stored in the conversation object. However, if the
@@ -282,15 +282,20 @@ export namespace ConState {
             messages,
           }
         } else {
+          // Deduplicate messages before adding
+          const existingMessageIds = new Set(conversationCopy.messages.map(msg => msg.id))
+          const newMessages = messages.filter(msg => !existingMessageIds.has(msg.id)) // Only keep new messages
+
           conversationCopy = {
             ...conversationCopy,
-            messages: [...conversationCopy.messages, ...messages]
+            messages: [...conversationCopy.messages, ...newMessages]
           }
         }
 
       } else {
         // Create a new placeholder conversation with participant IDs
         const participantIds = Array.from(new Set(messages.map(message => message.userId)))
+
         state = {
           ...state,
           ids: [...state.ids, conversationId],
@@ -314,15 +319,15 @@ export namespace ConState {
     }),
     /* ------------------------------ subscriptions ----------------------------- */
     on(actions.Con.Api.Message.Subscriptions.actions.messageReceived, (state, { message }) => {
-      const conversation = state.conLookup[message.conId];
+      const conversation = state.conLookup[message.conId]
       if (!conversation) {
-        return state;
+        return state
       }
 
       const updatedCon: models.Conversation.WithMessages = {
         ...conversation,
         messages: [...conversation.messages, message]
-      };
+      }
 
 
       return {
@@ -331,7 +336,7 @@ export namespace ConState {
           ...state.conLookup,
           [message.conId]: updatedCon
         }
-      };
+      }
 
     }),
 
