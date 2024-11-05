@@ -47,7 +47,7 @@ export class ConApiService {
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
   private _conversationAPIurl = 'http://localhost:5000/api/conversations'
   private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
-  private _convParticipantsAPIurl = 'http://localhost:5000/api/usersConversations'
+  private _participantsByConIdAPIurl ='http://localhost:5000/api/participantsByConId' 
   private readonly _http = ngCore.inject(http.HttpClient)
   // TODO: this should be actually refactored, and should not have interaction
   // with "msgReceived$" stream at all, that part should be done through "hub"
@@ -68,13 +68,6 @@ export class ConApiService {
     }))
   }
 
-  public getAllConvos(): rxjs.Observable<models.Conversation[]> {
-    return this._http.get<models.Conversation[]>(`${this._conversationAPIurl}`)
-  }
-  
-  public conList(): rxjs.Observable<readonly models.Conversation[]> {
-    return rxjs.of(IN_MEMORY_CON_LIST).pipe(randomDelayOperator())
-  }
 
   public getCon(id: models.Conversation.Id): rxjs.Observable<models.Conversation | undefined> {
     const foundCon = IN_MEMORY_CON_LIST.find(it => it.id === id)
@@ -152,21 +145,17 @@ export class ConApiService {
 
     return rxjs.of(oldCon).pipe(randomDelayOperator())
   }
-  public getAllConsParticipants(): rxjs.Observable<models.Conversation[]>{
-    return this._http.get<models.Conversation[]>(`${this._convParticipantsAPIurl}`)
+  public getAllConvos(): rxjs.Observable<models.Conversation[]> {
+    return this._http.get<models.Conversation[]>(`${this._conversationAPIurl}`)
   }
-
+  
+  public getParticipantsByConId(id: models.Conversation.Id): rxjs.Observable<models.Conversation>{
+    return this._http.get<models.Conversation>(`${this._participantsByConIdAPIurl}/${id}`)
+  }
   public getConMessages(conId: models.Conversation.Id): rxjs.Observable<models.Conversation.Message[]> {
     return this._http.get<models.Conversation.Message[]>(`${this._messageAPIurl}/${conId}`)
   }
   
-
-  public listConMessages(conId: models.Conversation.Id): rxjs.Observable<readonly models.Conversation.Message[]> {
-    const foundMsgs = [...(IN_MEMORY_MSG_LIST[conId] ?? [])]
-
-    return rxjs.of(foundMsgs).pipe(randomDelayOperator())
-  }
-
 }
 
 function randomDelayOperator<T>(): rxjs.OperatorFunction<T, T> {

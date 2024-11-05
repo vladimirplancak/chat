@@ -21,17 +21,10 @@ export class ConversationEffects {
 
   onRootInitialized$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(rootState.actions.Root.Ui.actions.initialized),
-    //NOTE: rxjs.mergeMap() merges runs inner observables
-    //at the same time, without any cancelations. If this
-    //proves to produce undesired results, consider using
-    //rxjs.concatMap() which sequentially processes the inner
-    //the observables - waits for the first one to finish before
-    //processing the second one.
-    rxjs.concatMap(() => [
-      actions.Con.Api.Con.List.actions.started(),
-      actions.Con.Api.Con.LoadConParticipants.actions.started()
-    ]),
-  ));
+    rxjs.switchMap(() =>
+      rxjs.of(actions.Con.Api.Con.List.actions.started()),
+    ),
+  ))
 
 
   onApiConListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
@@ -44,23 +37,23 @@ export class ConversationEffects {
     )),
   ))
 
-  onApiConLoadConParticipantsstarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
-    ngrxEffects.ofType(actions.Con.Api.Con.LoadConParticipants.actions.started),
-
-    rxjs.switchMap(() => {
-     
-        return this._conApiService.getAllConsParticipants().pipe(
-          rxjs.tap((res) => console.log(`effect result:`, res)),
-          rxjs.map(consParticipants => actions.Con.Api.Con.LoadConParticipants.actions.succeeded({ consParticipants: consParticipants })),
-          rxjs.catchError(error =>
-            rxjs.of(actions.Con.Api.Con.LoadConParticipants.actions.failed({ errorMessage: error?.message }))
-          )
+  onSelectedConversationChanged$ = ngrxEffects.createEffect(() => this._store.select(selectors.Conversation.Selected.ID).pipe(
+    rxjs.filter(selectedConId => !!selectedConId),
+    rxjs.switchMap(selectedConId => {
+      if(!selectedConId){
+        throw new Error('No conversation selected.')
+      }
+      return this._conApiService.getParticipantsByConId(selectedConId).pipe(
+        rxjs.map(consParticipants =>
+          actions.Con.Api.Con.LoadConParticipantsByConId.actions.succeeded({ id:  consParticipants.id, participantIds: consParticipants.participantIds })
+        ),
+        rxjs.catchError(error =>
+          rxjs.of(actions.Con.Api.Con.LoadConParticipantsByConId.actions.failed({ errorMessage: error?.message }))
         )
-     
-   
+      )
     })
-  ))
-
+  ));
+  
   onApiMessageListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Message.List.actions.started),
     rxjs.switchMap(({ conversationId }) => this._conApiService.getConMessages(conversationId).pipe(
@@ -180,7 +173,7 @@ export class ConversationEffects {
         : rxjs.of(actions.Con.Api.Message.List.actions.started({ conversationId: action.conversation.id })),
     ),
   ))
-
+  
 
 
   /**

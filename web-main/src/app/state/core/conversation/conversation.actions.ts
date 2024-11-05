@@ -167,15 +167,14 @@ export namespace Con {
           }
         })
       }
-
-      export namespace LoadConParticipants{
-        export const SOURCE = common.Action.Source.from(Con.SOURCE, 'LoadConPariticpants')
+      export namespace LoadConParticipantsByConId{
+        export const SOURCE = common.Action.Source.from(Con.SOURCE, 'LoadConParticipantsByConId')
 
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE, 
           events: {
             'started': ngrxStore.emptyProps(),
-            'succeeded': ngrxStore.props<{ consParticipants: readonly models.Conversation[] }>(),
+            'succeeded': ngrxStore.props<{ id:  models.Conversation.Id, participantIds: models.User.Id[] }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })
