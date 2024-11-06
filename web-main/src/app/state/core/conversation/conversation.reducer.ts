@@ -250,7 +250,6 @@ export namespace ConState {
       pendingConListMessagesRequestsCopy.delete(conversationId)
 
       let conversationCopy = { ...state.conLookup }[conversationId]
-      
       // NOTE: In cases where the conversation is already loaded and there is a
       // conversation record in the state, it is safe to assume that the
       // messages can be stored in the conversation object. However, if the

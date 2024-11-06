@@ -23,9 +23,12 @@ export class ConsHeaderComponent {
   public readonly selfSg = ngCore.computed((
     lookup = this._store.selectSignal(state.core.user.selectors.User.USER_LOOKUP)(),
     selfId = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)()
-  ) => selfId
+  ) => {
+    
+    console.log(lookup)
+     return selfId
       ? lookup[selfId]
-      : undefined
+      : undefined}
   )
 
   public readonly presetUserSelectorDialogSg = ngCore.signal(false)

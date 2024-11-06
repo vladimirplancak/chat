@@ -56,6 +56,7 @@ export class ConversationEffects {
   
   onApiMessageListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Message.List.actions.started),
+    rxjs.filter(conversationId => !!conversationId),
     rxjs.switchMap(({ conversationId }) => this._conApiService.getConMessages(conversationId).pipe(
       rxjs.map(messages =>
         actions.Con.Api.Message.List.actions.succeeded({
@@ -71,14 +72,14 @@ export class ConversationEffects {
   // TODO: explain what this does.
   shouldLoadMessages$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.List.actions.started),
-    rxjs.switchMap((action) =>
-      this._store.select(selectors.Conversation.Selected.ID)
+    rxjs.switchMap((action) => {
+      return this._store.select(selectors.Conversation.Selected.ID)
         .pipe(
           rxjs.filter((selectedId: any): selectedId is string => !!selectedId),
           rxjs.first(),
           rxjs.map(conversationId => actions.Con.Api.Message.List.actions.started({ conversationId }))
         )
-    ),
+      }),
   ))
 
   onApiConGetStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(

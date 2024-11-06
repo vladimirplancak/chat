@@ -3,8 +3,7 @@ import * as models from '../../models'
 
 export class AuthApiService {
   // TODO: The setting of jwt token should go away from here.
-  private  static readonly _jwt: string = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE3MjQxNjkxMzYsImV4cCI6MTc1NTcwNTEzNiwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsInVzZXJJZCI6IjAifQ.iQBeAzIt-dJvso82ApXG8aYxTCuaJzPIVcQyatlqwFA'
-
+  private  static readonly _jwt: string = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE3MzA4MTg1NDEsImV4cCI6MTc2MjM1NDU0MSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsInVzZXJJZCI6IkZFQUIwNjIyLTk5QTAtNEI5OS1CREMxLUI5QUYyQTBFN0M4MyJ9.Y8-lrBXgsVkqFbopXjBgqeUlpT_D2YQ6Ab-bstfbLMQ'
   constructor() {
     // TODO: remove this after full implementation  
     models.Auth.LocalStorage.Token.set(AuthApiService._jwt)
