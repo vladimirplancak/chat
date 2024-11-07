@@ -144,7 +144,7 @@ export class ConversationEffects {
 
   onApiConUpdateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Update.actions.started),
-    rxjs.switchMap(({ id, updates }) => this._conApiService.updateCon(id, updates).pipe(
+    rxjs.switchMap(({ id, updates }) => this._conApiService.updateConv(id, updates).pipe(
       rxjs.map(updatedConversation => actions.Con.Api.Con.Update.actions.succeeded({ conversation: updatedConversation })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.Update.actions.failed({ errorMessage: error?.message }))
@@ -264,7 +264,7 @@ export class ConversationEffects {
         this._store.select(selectors.Conversation.Selected.ID),
         this._store.select(auth.selectors.Auth.SELF_ID)
       ),
-      rxjs.map(([{ participantId }, selfId, conversationId]) => {
+      rxjs.map(([{ participantId },conversationId, selfId]) => {
         // NOTE: this should never happen, in case it happens, it means that we
         // have some unforeseen edge case, usually indicating a bug.
         if (!conversationId) {

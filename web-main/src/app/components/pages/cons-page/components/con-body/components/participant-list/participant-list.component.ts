@@ -71,7 +71,6 @@ export class ParticipantListComponent  {
 
   public participantListAddBtnClickHandler() {
     this._store.dispatch(state.core.con.actions.Con.Ui.List.Buttons.Add.actions.clicked())
-    console.log(`users in the state:`, this._userLookUpSg())
   }
 
   public participantDialogBackdropClickHandler() {

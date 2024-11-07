@@ -68,67 +68,73 @@ export class ConApiService {
     }))
   }
 
-
+  //TODO: investigate how exactly does this work and refactor it.
   public getCon(id: models.Conversation.Id): rxjs.Observable<models.Conversation | undefined> {
     const foundCon = IN_MEMORY_CON_LIST.find(it => it.id === id)
     return rxjs.of(foundCon ? { ...foundCon } : undefined).pipe(randomDelayOperator())
   }
 
-  public createCon(input: models.Conversation.Input): rxjs.Observable<models.Conversation> {
-    input = {
-      ...input
-    }
-    // consider this as direct message
-    if (!input.name && input.participantIds.length === 2) {
-      // TODO: should get actual user names, rather then ids
-      input.name = `${input.participantIds[0]}-${input.participantIds[1]}`
-    }
-    const newCon = { id: IN_MEMORY_CON_LIST.length.toString(), ...input }
+  // public createCon(input: models.Conversation.Input): rxjs.Observable<models.Conversation> {
+  //   input = {
+  //     ...input
+  //   }
+  //   // consider this as direct message
+  //   if (!input.name && input.participantIds.length === 2) {
+  //     // TODO: should get actual user names, rather then ids
+  //     input.name = `${input.participantIds[0]}-${input.participantIds[1]}`
+  //   }
+  //   const newCon = { id: IN_MEMORY_CON_LIST.length.toString(), ...input }
 
-    IN_MEMORY_CON_LIST = [...IN_MEMORY_CON_LIST, newCon];
-    //IN_MEMORY_CON_LIST.push(newCon)
+  //   IN_MEMORY_CON_LIST = [...IN_MEMORY_CON_LIST, newCon];
+  //   //IN_MEMORY_CON_LIST.push(newCon)
 
-    return rxjs.of({ ...newCon }).pipe(randomDelayOperator())
-  }
-
-  public updateCon(
+  //   return rxjs.of({ ...newCon }).pipe(randomDelayOperator())
+  // }
+  public updateConv(
     id: models.Conversation.Id,
-    updates: models.Conversation.Update
-  ): rxjs.Observable<models.Conversation> {
-    const foundCon = IN_MEMORY_CON_LIST.find(it => it.id === id);
-    console.log(`foundCon:`, foundCon);
-    console.log(`updates:`, updates);
+    updates?: models.Conversation.Update)
+    : rxjs.Observable<models.Conversation> {
+    return this._http.put<models.Conversation>(`${this._conversationAPIurl}/${id}`, updates)
+  } 
 
-    if (!foundCon) {
-      throw new Error('conversation not found');
-    }
+  // public updateCon(
+  //   id: models.Conversation.Id,
+  //   updates: models.Conversation.Update
+  // ): rxjs.Observable<models.Conversation> {
+  //   const foundCon = IN_MEMORY_CON_LIST.find(it => it.id === id);
+  //   console.log(`foundCon:`, foundCon);
+  //   console.log(`updates:`, updates);
+
+  //   if (!foundCon) {
+  //     throw new Error('conversation not found');
+  //   }
 
 
-    const mergedParticipantIds = updates.participantIdsToAdd?.length
-      ? [...new Set([...foundCon.participantIds, ...updates.participantIdsToAdd])]
-      : foundCon.participantIds;
+  //   const mergedParticipantIds = updates.participantIdsToAdd?.length
+  //     ? [...new Set([...foundCon.participantIds, ...updates.participantIdsToAdd])]
+  //     : foundCon.participantIds;
 
 
-    const updatedCon = {
-      ...foundCon,
-      ...updates,
-      participantIds: mergedParticipantIds,
-    };
+  //   const updatedCon = {
+  //     ...foundCon,
+  //     ...updates,
+  //     participantIds: mergedParticipantIds,
+  //   };
 
-    IN_MEMORY_CON_LIST = IN_MEMORY_CON_LIST.map(con =>
-      con.id === id ? updatedCon : con
-    );
+  //   IN_MEMORY_CON_LIST = IN_MEMORY_CON_LIST.map(con =>
+  //     con.id === id ? updatedCon : con
+  //   );
 
-    if (updates.participantIdsToRemove) {
-      updatedCon.participantIds = updatedCon.participantIds.filter(
-        id => !updates.participantIdsToRemove?.includes(id)
-      )
-    }
+  //   if (updates.participantIdsToRemove) {
+  //     updatedCon.participantIds = updatedCon.participantIds.filter(
+  //       id => !updates.participantIdsToRemove?.includes(id)
+  //     )
+  //   }
     
-    console.log(`updatedCon:`, updatedCon);
+  //   console.log(`updatedCon:`, updatedCon);
 
-    return rxjs.of({ ...updatedCon }).pipe(randomDelayOperator());
-  }
+  //   return rxjs.of({ ...updatedCon }).pipe(randomDelayOperator());
+  // }
 
 
 

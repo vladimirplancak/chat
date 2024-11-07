@@ -39,8 +39,8 @@ export interface ConState {
    * Indicates whether a mutation is currently ongoing.
    * 
    * @see {@link services.ConApiService.createConv}
-   * @see {@link services.ConApiService.updateCon}
-   * @see {@link services.ConApiService.deleteCon}
+   * @see {@link services.ConApiService.updateConv}
+   
    */
   pendingConMutation: boolean
   /**
