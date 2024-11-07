@@ -106,7 +106,7 @@ export class ConversationEffects {
             throw new Error('User not authenticated');
           }
 
-          if (directCon) {
+          if (directCon) {   
             return rxjs.of(actions.Con.Misc.Selection.actions.requested({ directConId: directCon.id }));
           } else {
             return rxjs.of(actions.Con.Api.Con.Create.actions.started({ input: { participantIds: [selfId, action.userId] } }));
@@ -134,7 +134,7 @@ export class ConversationEffects {
 
   onApiConCreateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Create.actions.started),
-    rxjs.switchMap(({ input }) => this._conApiService.createCon(input).pipe(
+    rxjs.switchMap(({ input }) => this._conApiService.createConv(input.participantIds).pipe(
       rxjs.map(createdConversation => actions.Con.Api.Con.Create.actions.succeeded({ conversation: createdConversation })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.Create.actions.failed({ errorMessage: error?.message }))

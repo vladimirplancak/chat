@@ -32,7 +32,7 @@ export namespace Conversation {
    * Selector that returns the conversations where participant is present
    */
   export const BY_PARTICIPANT = (participantId: models.User.Id) => ngrxStore.createSelector(CONS, cons => {
-    return cons.filter(con => con.participantIds.includes(participantId))
+    return cons.filter(con => con.participantIds?.includes(participantId))
   })
 
   /**

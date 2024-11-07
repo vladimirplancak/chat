@@ -24,8 +24,6 @@ export class ConsHeaderComponent {
     lookup = this._store.selectSignal(state.core.user.selectors.User.USER_LOOKUP)(),
     selfId = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)()
   ) => {
-    
-    console.log(lookup)
      return selfId
       ? lookup[selfId]
       : undefined}

@@ -38,7 +38,7 @@ export interface ConState {
   /**
    * Indicates whether a mutation is currently ongoing.
    * 
-   * @see {@link services.ConApiService.createCon}
+   * @see {@link services.ConApiService.createConv}
    * @see {@link services.ConApiService.updateCon}
    * @see {@link services.ConApiService.deleteCon}
    */
@@ -124,17 +124,17 @@ export namespace ConState {
     /* --------------------------------- succeeded -------------------------------- */
 
     on(actions.Con.Api.Con.LoadConParticipantsByConId.actions.succeeded, (state, { id, participantIds }) => {
-      console.log(`reducer/id, participantIds:`, id, participantIds)
+      
       const stateSnapShot = state.conLookup[id]
-      console.log(`reducer/stateSnapShot:`, stateSnapShot)
+     
     
       return {
         ...state,
         conLookup: {
           ...state.conLookup,
           [id]: {
-            ...stateSnapShot, // Preserve existing conversation details
-            participantIds: participantIds, // Update only participantIds
+            ...stateSnapShot, 
+            participantIds: participantIds,
             messages: stateSnapShot?.messages ?? []
           } as  models.Conversation.WithMessages
         }

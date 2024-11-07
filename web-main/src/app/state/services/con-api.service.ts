@@ -145,6 +145,11 @@ export class ConApiService {
 
     return rxjs.of(oldCon).pipe(randomDelayOperator())
   }
+
+  /*-------------------- API CALLS ---------------------------*/
+  public createConv(participantIds: models.User.Id[]): rxjs.Observable<models.Conversation>{
+    return this._http.post<models.Conversation>(`${this._conversationAPIurl}`,{participantIds})
+  }
   public getAllConvos(): rxjs.Observable<models.Conversation[]> {
     return this._http.get<models.Conversation[]>(`${this._conversationAPIurl}`)
   }
