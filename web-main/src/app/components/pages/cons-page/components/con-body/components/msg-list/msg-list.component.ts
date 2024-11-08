@@ -1,17 +1,20 @@
 import * as ngCore from '@angular/core';
 import * as ngrxStore from '@ngrx/store';
 import * as state from '../../../../../../../state'
-
+import * as models from '../../../../../../../models'
+import * as services from '../../../../../../../state/services'
+import * as rxjs from 'rxjs'
+import { AsyncPipe } from '@angular/common';
 
 @ngCore.Component({
   standalone: true,
   styleUrl: './msg-list.component.scss',
   templateUrl: './msg-list.component.html',
   selector: 'app-msg-list',
+  imports:[AsyncPipe]
 })
 export class MsgListComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store)
-  private readonly _selectedConIdSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ID)
   private readonly _presentUserLoaderSg = this._store.selectSignal(state.core.user.selectors.User.PRESENT_LOADER)
 
   public readonly messagesSg = ngCore.computed(() => {

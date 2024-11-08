@@ -1,9 +1,8 @@
 import * as ngCore from '@angular/core';
-import * as models from '../../models';
+import * as models from '../../../models';
 import * as rxjs from 'rxjs'
 import * as http from '@angular/common/http'
-import { io, Socket } from 'socket.io-client'; // Import the io function
-
+import * as socketService from '../socket/message-socket.service';
 
 export const IN_MEMORY_USERS_LIST: models.User[] = [
   { id: '0', name: 'Alice' },
@@ -31,10 +30,9 @@ export const IN_MEMORY_USERS_LIST: models.User[] = [
 
 @ngCore.Injectable()
 export class UserApiService {
-  private _socket: Socket | undefined; // Use the Socket type from socket.io-client
-
   private _apiUrl = 'http://localhost:5000/api/users'
   private readonly _http = ngCore.inject(http.HttpClient)
+  private readonly _socketService = ngCore.inject(socketService.MessageSocket)
 
   public readonly userCameOnline$ = new rxjs.Subject<models.User.Id>()
   public readonly userWentOffline$ = new rxjs.Subject<models.User.Id>()
@@ -50,16 +48,16 @@ export class UserApiService {
     })
     
       //socketIO
+      
+      // this._socket = io('http://localhost:5000/', {
 
-      this._socket = io('http://localhost:5000/', {
-
-        withCredentials: true,
-      });
-      this._socket.on('connect', () => {
-        console.log('Socket connected');
-      });
+      //   withCredentials: true,
+      // });
+      // this._socket.on('connect', () => {
+      //   console.log('Socket connected');
+      // });
   }
-
+  /*-------------------- API CALLS ---------------------------*/
   public getAllUsers(): rxjs.Observable<models.User[]> {
     return this._http.get<models.User[]>(`${this._apiUrl}`)
   }

@@ -1,8 +1,11 @@
 import * as ngCore from '@angular/core';
-import * as models from '../../models';
+import * as models from '../../../models';
 import * as rxjs from 'rxjs'
-import { IN_MEMORY_USERS_LIST } from './user-api.service'
+import { IN_MEMORY_USERS_LIST } from '../api/user-api.service'
 import * as http from '@angular/common/http'
+import * as socketServices from '../socket/message-socket.service';
+
+
 let now = new Date()
 
 function _incrementDate(date: Date, seconds: number): Date {
@@ -45,27 +48,44 @@ const IN_MEMORY_MSG_LIST: Partial<Record<models.Conversation.Id, readonly models
 @ngCore.Injectable()
 export class ConApiService {
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
+  public readonly messageStream$ = new rxjs.BehaviorSubject<models.Conversation.Message.InContext | null>(null);
+
   private _conversationAPIurl = 'http://localhost:5000/api/conversations'
   private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
   private _participantsByConIdAPIurl ='http://localhost:5000/api/participantsByConId' 
   private readonly _http = ngCore.inject(http.HttpClient)
+  private readonly _socketService = ngCore.inject(socketServices.MessageSocket)
+
+  constructor() {
+    // Subscribe to incoming messages from the socket and push them into messageStream$
+    this._socketService.messageReceived$.subscribe((message) => {
+      console.log(`Received message from server:`, message);
+      this.messageStream$.next(message);
+    });
+  }
+  
   // TODO: this should be actually refactored, and should not have interaction
   // with "msgReceived$" stream at all, that part should be done through "hub"
   // methods. 
   public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input): rxjs.Observable<void> {
+    console.log(`we emit the message to the server:`, payloadMessage)
+    this._socketService.sendMessage(payloadMessage);
+    return rxjs.of()
+    // const messageList = IN_MEMORY_MSG_LIST[payloadMessage.conId];
 
-    const messageList = IN_MEMORY_MSG_LIST[payloadMessage.conId];
+    // if (!messageList) {
+    //   throw new Error('Message doesn\'t exist in cache')
+    // }
 
-    if (!messageList) {
-      throw new Error('Message doesn\'t exist in cache')
-    }
+    // const newCachedId = (messageList.length + 1).toString()
 
-    const newCachedId = (messageList.length + 1).toString()
-
-    // Simulate, that we send message to the server, and then we receive it back 
-    return rxjs.timer(1000).pipe(rxjs.map(() => {
-      this.msgReceived$.next({ ...payloadMessage, id: newCachedId })
-    }))
+    // // Simulate, that we send message to the server, and then we receive it back 
+    // return rxjs.timer(1000).pipe(rxjs.map(() => {
+    //   this.msgReceived$.next({ ...payloadMessage, id: newCachedId })
+    // }))
+  }
+  public getMessageStream(): rxjs.Observable<models.Conversation.Message.InContext | null> {
+    return this.messageStream$.asObservable();
   }
 
   //TODO: investigate how exactly does this work and refactor it.
@@ -74,72 +94,7 @@ export class ConApiService {
     return rxjs.of(foundCon ? { ...foundCon } : undefined).pipe(randomDelayOperator())
   }
 
-  // public createCon(input: models.Conversation.Input): rxjs.Observable<models.Conversation> {
-  //   input = {
-  //     ...input
-  //   }
-  //   // consider this as direct message
-  //   if (!input.name && input.participantIds.length === 2) {
-  //     // TODO: should get actual user names, rather then ids
-  //     input.name = `${input.participantIds[0]}-${input.participantIds[1]}`
-  //   }
-  //   const newCon = { id: IN_MEMORY_CON_LIST.length.toString(), ...input }
-
-  //   IN_MEMORY_CON_LIST = [...IN_MEMORY_CON_LIST, newCon];
-  //   //IN_MEMORY_CON_LIST.push(newCon)
-
-  //   return rxjs.of({ ...newCon }).pipe(randomDelayOperator())
-  // }
-  public updateConv(
-    id: models.Conversation.Id,
-    updates?: models.Conversation.Update)
-    : rxjs.Observable<models.Conversation> {
-    return this._http.put<models.Conversation>(`${this._conversationAPIurl}/${id}`, updates)
-  } 
-
-  // public updateCon(
-  //   id: models.Conversation.Id,
-  //   updates: models.Conversation.Update
-  // ): rxjs.Observable<models.Conversation> {
-  //   const foundCon = IN_MEMORY_CON_LIST.find(it => it.id === id);
-  //   console.log(`foundCon:`, foundCon);
-  //   console.log(`updates:`, updates);
-
-  //   if (!foundCon) {
-  //     throw new Error('conversation not found');
-  //   }
-
-
-  //   const mergedParticipantIds = updates.participantIdsToAdd?.length
-  //     ? [...new Set([...foundCon.participantIds, ...updates.participantIdsToAdd])]
-  //     : foundCon.participantIds;
-
-
-  //   const updatedCon = {
-  //     ...foundCon,
-  //     ...updates,
-  //     participantIds: mergedParticipantIds,
-  //   };
-
-  //   IN_MEMORY_CON_LIST = IN_MEMORY_CON_LIST.map(con =>
-  //     con.id === id ? updatedCon : con
-  //   );
-
-  //   if (updates.participantIdsToRemove) {
-  //     updatedCon.participantIds = updatedCon.participantIds.filter(
-  //       id => !updates.participantIdsToRemove?.includes(id)
-  //     )
-  //   }
-    
-  //   console.log(`updatedCon:`, updatedCon);
-
-  //   return rxjs.of({ ...updatedCon }).pipe(randomDelayOperator());
-  // }
-
-
-
-
-
+  
   public deleteCon(id: models.Conversation.Id): rxjs.Observable<models.Conversation> {
     const index = IN_MEMORY_CON_LIST.findIndex(it => it.id === id)
 
@@ -153,13 +108,18 @@ export class ConApiService {
   }
 
   /*-------------------- API CALLS ---------------------------*/
+  public updateConv(
+    id: models.Conversation.Id,
+    updates?: models.Conversation.Update)
+    : rxjs.Observable<models.Conversation> {
+    return this._http.put<models.Conversation>(`${this._conversationAPIurl}/${id}`, updates)
+  } 
   public createConv(participantIds: models.User.Id[]): rxjs.Observable<models.Conversation>{
     return this._http.post<models.Conversation>(`${this._conversationAPIurl}`,{participantIds})
   }
   public getAllConvos(): rxjs.Observable<models.Conversation[]> {
     return this._http.get<models.Conversation[]>(`${this._conversationAPIurl}`)
   }
-  
   public getParticipantsByConId(id: models.Conversation.Id): rxjs.Observable<models.Conversation>{
     return this._http.get<models.Conversation>(`${this._participantsByConIdAPIurl}/${id}`)
   }
