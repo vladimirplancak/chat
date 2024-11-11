@@ -20,8 +20,18 @@ export class MessageSocket {
 
   private setupSocketListeners(): void {
     // Listen for new messages from the server
-    this._socket?.on('newMessage', (message: models.Conversation.Message.InContext) => {
-      this.messageReceived$.next(message)
+    this._socket?.on('newMessage', (message: any) => {
+      // models.Conversation.Message.InContext.assertIsMesageInContext(message)
+ 
+      const transformedMessage: models.Conversation.Message.InContext = {
+        id: message.id, 
+        userId: message.userId, 
+        content: message.content, 
+        datetime: new Date(message.dateTime), 
+        conId: message.conversationId, 
+      };
+  
+    this.messageReceived$.next(transformedMessage)
     })
   }
 
@@ -33,4 +43,5 @@ export class MessageSocket {
   public disconnect(): void {
     this._socket?.disconnect()
   }
+
 }

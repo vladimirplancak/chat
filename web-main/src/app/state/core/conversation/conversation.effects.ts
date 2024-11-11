@@ -232,8 +232,10 @@ export class ConversationEffects {
   // that will update the state.
   onMessageReceived$ = ngrxEffects.createEffect(() =>
     this._conApiService.msgReceived$.pipe(
-      rxjs.map((message) =>
-        actions.Con.Api.Message.Subscriptions.actions.messageReceived({ message })
+      rxjs.map((message) => 
+        {  
+          return actions.Con.Api.Message.Subscriptions.actions.messageReceived({ message });
+        }
       ),
     )
   )

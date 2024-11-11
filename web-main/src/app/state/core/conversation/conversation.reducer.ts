@@ -345,7 +345,7 @@ export namespace ConState {
     on(actions.Con.Ui.List.ConItem.actions.clicked, (state, { selectedId }) => ({ ...state, selectedId })),
 
     on(actions.Con.Ui.MessageSender.TextArea.Input.actions.changed, (state, { conversationId, messageText }) => {
-
+      
       return {
         ...state,
         inProgressMessageByConId: {
