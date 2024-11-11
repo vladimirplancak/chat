@@ -2,20 +2,42 @@ import * as rxjs from 'rxjs'
 import * as models from '../../../models'
 import * as socketServices from '../socket/auth-socket.service'
 import * as ngCore from '@angular/core'
+import * as http from '@angular/common/http'
 
 export class AuthApiService {
-  // TODO: The setting of jwt token should go away from here.
-  private  static readonly _jwt: string = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE3MzA4MTg1NDEsImV4cCI6MTc2MjM1NDU0MSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsInVzZXJJZCI6IkZFQUIwNjIyLTk5QTAtNEI5OS1CREMxLUI5QUYyQTBFN0M4MyJ9.Y8-lrBXgsVkqFbopXjBgqeUlpT_D2YQ6Ab-bstfbLMQ'
   private readonly _authSocket = ngCore.inject(socketServices.AuthSocket)
+  private readonly _http = ngCore.inject(http.HttpClient)
 
-  constructor() {
-    // TODO: remove this after full implementation  
-    models.Auth.LocalStorage.Token.set(AuthApiService._jwt)
-  }
+  private _authAPIurl = 'http://localhost:5000/api/login'
 
-  public login(username: string, password: string): rxjs.Observable<string> {
+  constructor() {}
+
+  public login(username: string, password: string): rxjs.Observable<models.Auth.Response> {
     // TODO: work on full implementation
-    return rxjs.timer(1000).pipe(rxjs.map(() => AuthApiService._jwt))
+    const payload = {username, password}
+    return this._http.post<models.Auth.Response>(`${this._authAPIurl}`,payload ).pipe(
+      rxjs.map(response => {
+        // add the token to the local storage
+        models.Auth.LocalStorage.Token.set(response.jwtToken);
+
+        // After login, initialize socket and register the user
+        const decodedToken = models.Auth.Self.from(response.jwtToken);
+        if (decodedToken?.userId) {
+          // emit 'clientAuthenticated'event
+          this._authSocket.register(decodedToken.userId);  
+        }
+
+        return {
+          message: response.message,  
+          jwtToken: response.jwtToken 
+        } as models.Auth.Response;
+      }),
+      rxjs.catchError(error => {
+        console.error('Login failed', error);
+        throw new Error(error?.message || 'Login request failed');
+      })
+    )
+    //return rxjs.timer(1000).pipe(rxjs.map(() => AuthApiService._jwt))
   }
 
   /**

@@ -9,7 +9,10 @@ export namespace Auth {
     username: string
     password: string
   }
-
+  export interface Response{
+    message: string
+    jwtToken: string
+  }
   export interface Self {
     userId: string
   }

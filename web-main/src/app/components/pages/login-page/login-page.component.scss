@@ -1,10 +1,11 @@
+@use 'variables' as v;
 /* Centering the login form */
 .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh; /* Full screen height */
-    background-color: #f4f4f4; /* Optional background color */
+    background-color: v.$tertiary; /* Optional background color */
     margin: 0; /* Remove any default margin */
   }
   

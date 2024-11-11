@@ -65,7 +65,7 @@ export class AuthEffects implements ngrxEffects.OnInitEffects {
     ngrxEffects.ofType(actions.Auth.Api.actions.started),
     rxjs.switchMap((action) =>
       this._authApiService.login(action.username, action.password).pipe(
-        rxjs.map(jwtToken => actions.Auth.Api.actions.succeeded({ jwtToken })),
+        rxjs.map(response => actions.Auth.Api.actions.succeeded({ jwtToken: response.jwtToken })),
         rxjs.catchError(error =>
           rxjs.of(actions.Auth.Api.actions.failed({ errorMessage: error?.message }))
         )

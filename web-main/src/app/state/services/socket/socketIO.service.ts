@@ -9,15 +9,15 @@ export class SocketIOService {
   private _socket: socket.Socket | undefined;
   private readonly _socketUrl = 'http://localhost:5000';
 
-  constructor() {
-    this.initializeSocketConnection();
-  }
+  constructor() { }
 
-  private initializeSocketConnection(): void {
-    this._socket = socket.io(this._socketUrl, { withCredentials: true });
-
-    this._socket.on('connect', () => console.log('Socket connected'));
-    this._socket.on('disconnect', () => console.log('Socket disconnected'));
+  //initialize the socket connection only when needed
+  public initializeSocketConnection(): void {
+    if (!this._socket) {
+      this._socket = socket.io(this._socketUrl, { withCredentials: true });
+      this._socket.on('connect', () => console.log('Socket connected'));
+      this._socket.on('disconnect', () => console.log('Socket disconnected'));
+    }
   }
 
   // Method to get the socket instance
