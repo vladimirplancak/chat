@@ -13,10 +13,17 @@ export class MessageSocket {
   public messageReceived$: rxjs.Subject<models.Conversation.Message.InContext> = new rxjs.Subject()
 
   constructor() {
-    this._socket = this._socketIO.getSocket()
+    this.initializeSocket();
     this.setupSocketListeners()
   }
 
+  //initialize socket connection and assign socket instance to _socket
+  private initializeSocket(): void {
+    if (!this._socket) {
+      this._socketIO.initializeSocketConnection();
+      this._socket = this._socketIO.getSocket();
+    }
+  }
 
   private setupSocketListeners(): void {
     // Listen for new messages from the server
@@ -37,6 +44,7 @@ export class MessageSocket {
 
   // Send message to the server
   public sendMessage(message: models.Conversation.Message.InContext.Input): void {
+
     this._socket?.emit('sendMessage', message)
   }
 

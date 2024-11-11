@@ -48,6 +48,7 @@ export class ConApiService {
   // methods. 
   public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input): rxjs.Observable<void> {
     console.log(`we emit the message to the server:`, payloadMessage)
+
     this._msgSocketService.sendMessage(payloadMessage);
 
     return rxjs.of()

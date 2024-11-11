@@ -216,7 +216,7 @@ export class ConversationEffects {
     rxjs.switchMap((action) => {
       return this._conApiService.sendConMessage(action.payloadMessage).pipe(
         rxjs.map(() => {
-          debugger
+          
           return actions.Con.Api.Message.Send.actions.succeeded({ conversationId: action.payloadMessage.conId });
         }),
         rxjs.catchError(error => {
