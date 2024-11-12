@@ -23,7 +23,8 @@ export namespace AuthState {
       return {
         ...state,
         jwtToken,
-        isLoggingIn: false
+        isLoggingIn: false,
+        errorMessage: undefined
       }
     }),
     on(actions.Auth.Api.actions.failed, (state, { errorMessage }) => ({ ...state, errorMessage, isLoggingIn: false, })),

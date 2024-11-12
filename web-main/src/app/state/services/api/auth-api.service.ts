@@ -10,12 +10,12 @@ export class AuthApiService {
 
   private _authAPIurl = 'http://localhost:5000/api/login'
 
-  constructor() {}
+  constructor() { }
 
   public login(username: string, password: string): rxjs.Observable<models.Auth.Response> {
     // TODO: work on full implementation
-    const payload = {username, password}
-    return this._http.post<models.Auth.Response>(`${this._authAPIurl}`,payload ).pipe(
+    const payload = { username, password }
+    return this._http.post<models.Auth.Response>(`${this._authAPIurl}`, payload).pipe(
       rxjs.map(response => {
         // add the token to the local storage
         models.Auth.LocalStorage.Token.set(response.jwtToken);
@@ -24,17 +24,16 @@ export class AuthApiService {
         const decodedToken = models.Auth.Self.from(response.jwtToken);
         if (decodedToken?.userId) {
           // emit 'clientAuthenticated'event
-          this._authSocket.register(decodedToken.userId);  
+          this._authSocket.register(decodedToken.userId);
         }
 
         return {
-          message: response.message,  
-          jwtToken: response.jwtToken 
+          message: response.message,
+          jwtToken: response.jwtToken
         } as models.Auth.Response;
       }),
       rxjs.catchError(error => {
-        console.error('Login failed', error);
-        throw new Error(error?.message || 'Login request failed');
+        return rxjs.throwError(() => error);
       })
     )
     //return rxjs.timer(1000).pipe(rxjs.map(() => AuthApiService._jwt))
@@ -43,9 +42,9 @@ export class AuthApiService {
   /**
    * If JWT token is present in local storage, and valid, return it, otherwise return undefined
    */
-  public validateJwt() : rxjs.Observable<string | undefined> {
+  public validateJwt(): rxjs.Observable<string | undefined> {
     const token = models.Auth.LocalStorage.Token.get()
-    
+
     const decodedToken = token ? models.Auth.Self.from(token) : undefined
 
     if (decodedToken?.userId) {

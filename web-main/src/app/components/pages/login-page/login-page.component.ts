@@ -3,17 +3,20 @@ import * as forms from '@angular/forms'
 import * as ngrxStore from '@ngrx/store'
 import * as models from '../../../models'
 import * as state from '../../../state'
+import * as common from '@angular/common'
 @ngCore.Component({
   standalone: true,
   styleUrl: './login-page.component.scss',
   templateUrl: './login-page.component.html',
   selector: 'app-login-page',
   imports: [
-    forms.FormsModule
+    forms.FormsModule, 
+    common.CommonModule
   ]
 })
 export class LoginPageComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store)
+  public readonly _authErrMsgSg = this._store.selectSignal(state.core.auth.selectors.Auth.AUTH_ERR_MSG)
   public username: string = '';
   public password: string = '';
 

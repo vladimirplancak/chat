@@ -4,12 +4,13 @@ import { Action } from '@ngrx/store';
 import * as actions from './auth.actions'
 import * as rxjs from 'rxjs'
 import * as services from '../../services';
-
+import * as ngRouter from '@angular/router'
 
 @ngCore.Injectable()
 export class AuthEffects implements ngrxEffects.OnInitEffects {
   private readonly _actions = ngCore.inject(ngrxEffects.Actions)
   private readonly _authApiService = ngCore.inject(services.AuthApiService)
+  private readonly _router = ngCore.inject(ngRouter.Router)
 
   /**
    * When the application loads, this effect will execute exactly once, and it
@@ -44,7 +45,8 @@ export class AuthEffects implements ngrxEffects.OnInitEffects {
     rxjs.map(() => {
       // TODO: redirect to login page
       // this._router.navigate(['/login'])
-      throw new Error('Local authentication failed')
+      this._router.navigate(['/login'])
+     // throw new Error('Local authentication failed')
     })
   ), { dispatch: false })
 
@@ -65,13 +67,26 @@ export class AuthEffects implements ngrxEffects.OnInitEffects {
     ngrxEffects.ofType(actions.Auth.Api.actions.started),
     rxjs.switchMap((action) =>
       this._authApiService.login(action.username, action.password).pipe(
+        rxjs.tap((res) => console.log(`res`, res)),
         rxjs.map(response => actions.Auth.Api.actions.succeeded({ jwtToken: response.jwtToken })),
         rxjs.catchError(error =>
-          rxjs.of(actions.Auth.Api.actions.failed({ errorMessage: error?.message }))
+          {
+            console.log(`error format is:`, error)
+            const errorMessage = error?.error?.message || 'Login request failed';
+            console.log(`errorMessage format is:`, errorMessage)
+            return rxjs.of(actions.Auth.Api.actions.failed({ errorMessage }));
+          }
         )
       ))
   ))
-
+  
+  onLoginSucceeded$ = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(actions.Auth.Api.actions.succeeded),
+    rxjs.map(() => {
+      // Redirect to content page upon successful login
+      this._router.navigate(['/conversations']); // Adjust this path to your content page
+    })
+  ), { dispatch: false });
 
   /** @inheritdoc */
   ngrxOnInitEffects(): Action {

@@ -14,5 +14,10 @@ export namespace Auth {
   )
 
   export const SELF_ID = ngrxStore.createSelector(SELF, (self) => self?.userId)
+
+  export const AUTH_ERR_MSG = ngrxStore.createSelector(
+    STATE,
+    (state) => { return state.errorMessage}
+  )
 }
 
