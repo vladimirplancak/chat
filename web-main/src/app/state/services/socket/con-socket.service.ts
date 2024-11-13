@@ -29,12 +29,12 @@ export class ConSocket {
 
     setupSocketListeners():void {
         this._socket?.on('conParticipantListUpdatedResponse', (conversation:any)=>{
-            console.log(`convUpdated retrieved:`, conversation.conId)
+            
             const transformConv:models.Conversation = {
                 id: conversation.conId,
                 participantIds: conversation.participantIds
             }
-           console.log(`2. transformed:`, transformConv)
+          console.log(`transformConv`, transformConv)
             this.conParticipantsUpdated$.next(transformConv)
         })
     }

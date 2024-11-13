@@ -279,7 +279,6 @@ export class ConversationEffects {
   onConParticipantListUpdated$ = ngrxEffects.createEffect(() =>
     this._conApiService.conParticipantsUpdated$.pipe(
       rxjs.map((con) => {
-        console.log(`effect:`, con)
         return actions.Con.Socket.Conversation.Event.ParticipantsList.actions.updated({ conversation: con });
       }
       ),

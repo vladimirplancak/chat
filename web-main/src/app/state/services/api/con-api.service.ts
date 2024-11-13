@@ -85,6 +85,7 @@ export class ConApiService {
 
     return this._http.put<models.Conversation>(`${this._conversationAPIurl}/${id}`, updates).pipe(
       rxjs.tap((updatedConversation) => {
+        console.log(`updates prop:`, updates)
         const conId = updatedConversation.id
         const participantIds = updatedConversation.participantIds
         this._conSocketService.updateConParticipantListRequest(conId,participantIds)
