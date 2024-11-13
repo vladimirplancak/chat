@@ -1,9 +1,9 @@
-import * as ngCore from '@angular/core';
-import * as ngrxEffects from '@ngrx/effects';
-import { Action } from '@ngrx/store';
+import * as ngCore from '@angular/core'
+import * as ngrxEffects from '@ngrx/effects'
+import { Action } from '@ngrx/store'
 import * as actions from './auth.actions'
 import * as rxjs from 'rxjs'
-import * as services from '../../services';
+import * as services from '../../services'
 import * as ngRouter from '@angular/router'
 
 @ngCore.Injectable()
@@ -71,10 +71,8 @@ export class AuthEffects implements ngrxEffects.OnInitEffects {
         rxjs.map(response => actions.Auth.Api.actions.succeeded({ jwtToken: response.jwtToken })),
         rxjs.catchError(error =>
           {
-            console.log(`error format is:`, error)
-            const errorMessage = error?.error?.message || 'Login request failed';
-            console.log(`errorMessage format is:`, errorMessage)
-            return rxjs.of(actions.Auth.Api.actions.failed({ errorMessage }));
+            const errorMessage = error?.error?.message || 'Login request failed' 
+            return rxjs.of(actions.Auth.Api.actions.failed({ errorMessage }))
           }
         )
       ))
@@ -83,10 +81,10 @@ export class AuthEffects implements ngrxEffects.OnInitEffects {
   onLoginSucceeded$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Auth.Api.actions.succeeded),
     rxjs.map(() => {
-      // Redirect to content page upon successful login
-      this._router.navigate(['/conversations']); // Adjust this path to your content page
+      // redirect to content page upon successful login
+      this._router.navigate(['/conversations']) 
     })
-  ), { dispatch: false });
+  ), { dispatch: false })
 
   /** @inheritdoc */
   ngrxOnInitEffects(): Action {

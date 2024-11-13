@@ -29,7 +29,7 @@ export class ConversationEffects {
 
   onApiConListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.List.actions.started),
-    rxjs.switchMap(() => this._conApiService.getAllConvos().pipe(
+    rxjs.switchMap(() => this._conApiService.getAllCons().pipe(
       rxjs.map(conversations => actions.Con.Api.Con.List.actions.succeeded({ conversations })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.List.actions.failed({ errorMessage: error?.message }))
@@ -134,7 +134,7 @@ export class ConversationEffects {
 
   onApiConCreateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Create.actions.started),
-    rxjs.switchMap(({ input }) => this._conApiService.createConv(input.participantIds).pipe(
+    rxjs.switchMap(({ input }) => this._conApiService.createCon(input.participantIds).pipe(
       rxjs.map(createdConversation => actions.Con.Api.Con.Create.actions.succeeded({ conversation: createdConversation })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.Create.actions.failed({ errorMessage: error?.message }))
@@ -144,7 +144,7 @@ export class ConversationEffects {
 
   onApiConUpdateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Update.actions.started),
-    rxjs.switchMap(({ id, updates }) => this._conApiService.updateConv(id, updates).pipe(
+    rxjs.switchMap(({ id, updates }) => this._conApiService.updateCon(id, updates).pipe(
       rxjs.map(updatedConversation => actions.Con.Api.Con.Update.actions.succeeded({ conversation: updatedConversation })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.Update.actions.failed({ errorMessage: error?.message }))
@@ -175,7 +175,6 @@ export class ConversationEffects {
     ),
   ))
   
-
 
   /**
    * Purpose of the effect, is to compute the payload for the {@link actions.Con.Api.Message.Send.actions.started}
@@ -226,20 +225,6 @@ export class ConversationEffects {
     })
   ));
 
-
-  // NOTE: Purpose of this effect is: 
-  // back-end sends you new message, you receive it, through 'this_conApiSErvice.msgReceived$' stream, and then you dispatch an action,
-  // that will update the state.
-  onMessageReceived$ = ngrxEffects.createEffect(() =>
-    this._conApiService.msgReceived$.pipe(
-      rxjs.map((message) => 
-        {  
-          return actions.Con.Api.Message.Subscriptions.actions.messageReceived({ message });
-        }
-      ),
-    )
-  )
-
   onParticipantsSelected$ = ngrxEffects.createEffect(() =>
     this._actions.pipe(
       ngrxEffects.ofType(actions.Con.Ui.ParticipantSelectorDialog.Buttons.Save.actions.clicked),
@@ -285,6 +270,31 @@ export class ConversationEffects {
           updates: { participantIdsToRemove: [participantId] },
         })
       })
+    )
+  )
+  //------------------------socket events-----------------------------------//
+  /**
+   * This effect listens for conversation updates from the socket and directly updates the store
+   */
+  onConParticipantListUpdated$ = ngrxEffects.createEffect(() =>
+    this._conApiService.conParticipantsUpdated$.pipe(
+      rxjs.map((con) => {
+        console.log(`effect:`, con)
+        return actions.Con.Socket.Conversation.Event.ParticipantsList.actions.updated({ conversation: con });
+      }
+      ),
+    )
+  );
+    // NOTE: Purpose of this effect is: 
+  // back-end sends you new message, you receive it, through 'this_conApiSErvice.msgReceived$' stream, and then you dispatch an action,
+  // that will update the state.
+  onMessageReceived$ = ngrxEffects.createEffect(() =>
+    this._conApiService.msgReceived$.pipe(
+      rxjs.map((message) => 
+        {  
+          return actions.Con.Api.Message.Subscriptions.actions.messageReceived({ message });
+        }
+      ),
     )
   )
 

@@ -5,15 +5,36 @@ import * as models from '../../../models'
 export const CON_SOURCE = 'Con'
 
 export namespace Con {
+
+  export namespace Socket {
+
+    export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Socket')
+    export namespace Conversation {
+      export const SOURCE = common.Action.Source.from(Socket.SOURCE, 'Conversation');
+      export namespace Event {
+        export const SOURCE = common.Action.Source.from(Conversation.SOURCE, 'Event')
+        export namespace ParticipantsList {
+          export const SOURCE = common.Action.Source.from(Event.SOURCE, 'ParticipantsList')
+          export const actions = ngrxStore.createActionGroup({
+            source: SOURCE,
+            events: {
+              'updated': ngrxStore.props<{ conversation: models.Conversation }>(),
+            }
+          });
+        }
+      }
+    }
+
+  }
   export namespace Ui {
     export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Ui')
 
     export namespace MouseEvent {
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'MouseEvent')
-      export namespace Participant{
+      export namespace Participant {
         export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'Participant')
         export const actions = ngrxStore.createActionGroup({
-          source:SOURCE,
+          source: SOURCE,
           events: {
             'hovered': ngrxStore.props<{ participantId: models.User.Id }>(),
             'unHovered': ngrxStore.props<{ participantId: models.User.Id }>(),
@@ -27,14 +48,14 @@ export namespace Con {
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'UserSelectorDialog')
       export const actions = ngrxStore.createActionGroup({
         source: SOURCE,
-        events:{
-          'selected': ngrxStore.props<{userId: models.User.Id}>()
+        events: {
+          'selected': ngrxStore.props<{ userId: models.User.Id }>()
         }
       })
     }
 
 
-    export namespace ParticipantSelectorDialog{
+    export namespace ParticipantSelectorDialog {
       export const SOURCE = common.Action.Source.from(Ui.SOURCE, 'ParticipantSelectorDialog')
 
       export namespace Backdrop {
@@ -57,7 +78,7 @@ export namespace Con {
         })
       }
 
-      export namespace Buttons { 
+      export namespace Buttons {
         export const SOURCE = common.Action.Source.from(ParticipantSelectorDialog.SOURCE, 'Buttons')
         export namespace Save {
           export const SOURCE = common.Action.Source.from(Buttons.SOURCE, 'Save')
@@ -67,15 +88,15 @@ export namespace Con {
               'clicked': ngrxStore.props<{ selectedParticipantIds: models.User.Id[] }>(),
             }
           })
-        } 
+        }
       }
 
       export namespace Search {
         export const SOURCE = common.Action.Source.from(ParticipantSelectorDialog.SOURCE, 'Search')
         export const actions = ngrxStore.createActionGroup({
-          source:SOURCE,
-          events:{
-            'changed': ngrxStore.props<{ searchTerm: string | undefined}>()
+          source: SOURCE,
+          events: {
+            'changed': ngrxStore.props<{ searchTerm: string | undefined }>()
           }
         })
       }
@@ -117,7 +138,7 @@ export namespace Con {
             }
           })
         }
-    
+
       }
     }
 
@@ -137,7 +158,7 @@ export namespace Con {
       }
       export namespace Buttons {
         export const SOURCE = common.Action.Source.from(MessageSender.SOURCE, 'Buttons')
-        export namespace Send { 
+        export namespace Send {
           export const SOURCE = common.Action.Source.from(Buttons.SOURCE, 'Send')
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE,
@@ -167,14 +188,14 @@ export namespace Con {
           }
         })
       }
-      export namespace LoadConParticipantsByConId{
+      export namespace LoadConParticipantsByConId {
         export const SOURCE = common.Action.Source.from(Con.SOURCE, 'LoadConParticipantsByConId')
 
         export const actions = ngrxStore.createActionGroup({
-          source: SOURCE, 
+          source: SOURCE,
           events: {
             'started': ngrxStore.emptyProps(),
-            'succeeded': ngrxStore.props<{ id:  models.Conversation.Id, participantIds: models.User.Id[] }>(),
+            'succeeded': ngrxStore.props<{ id: models.Conversation.Id, participantIds: models.User.Id[] }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })
@@ -252,7 +273,7 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
-            'messageReceived': ngrxStore.props<{ message: models.Conversation.Message.InContext}>(),
+            'messageReceived': ngrxStore.props<{ message: models.Conversation.Message.InContext }>(),
           }
         })
       }
@@ -263,7 +284,7 @@ export namespace Con {
           source: SOURCE,
           events: {
             'started': ngrxStore.props<{ payloadMessage: models.Conversation.Message.InContext.Input }>(),
-            'succeeded':ngrxStore.props<{ conversationId: models.Conversation.Id}>(),
+            'succeeded': ngrxStore.props<{ conversationId: models.Conversation.Id }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })
@@ -273,13 +294,13 @@ export namespace Con {
 
   export namespace Misc {
     export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Misc');
-  
+
     export namespace Selection {
       export const SOURCE = common.Action.Source.from(Misc.SOURCE, 'Selection');
       export const actions = ngrxStore.createActionGroup({
         source: SOURCE,
         events: {
-          'requested': ngrxStore.props<{directConId: models.Conversation.Id}>(),
+          'requested': ngrxStore.props<{ directConId: models.Conversation.Id }>(),
         }
       });
     }

@@ -19,7 +19,7 @@ export interface ConState {
   /** 
    * Indicates whether a request has been made to the API to fetch the list of conversations.
    * 
-   * @see {@link services.ConApiService.getAllConvos}
+   * @see {@link services.ConApiService.getAllCons}
    */
   pendingConListRequest: boolean
   /**
@@ -38,8 +38,8 @@ export interface ConState {
   /**
    * Indicates whether a mutation is currently ongoing.
    * 
-   * @see {@link services.ConApiService.createConv}
-   * @see {@link services.ConApiService.updateConv}
+   * @see {@link services.ConApiService.createCon}
+   * @see {@link services.ConApiService.updateCon}
    
    */
   pendingConMutation: boolean
@@ -124,25 +124,25 @@ export namespace ConState {
     /* --------------------------------- succeeded -------------------------------- */
 
     on(actions.Con.Api.Con.LoadConParticipantsByConId.actions.succeeded, (state, { id, participantIds }) => {
-      
+
       const stateSnapShot = state.conLookup[id]
-     
-    
+
+
       return {
         ...state,
         conLookup: {
           ...state.conLookup,
           [id]: {
-            ...stateSnapShot, 
+            ...stateSnapShot,
             participantIds: participantIds,
             messages: stateSnapShot?.messages ?? []
-          } as  models.Conversation.WithMessages
+          } as models.Conversation.WithMessages
         }
       }
     }),
-   
+
     on(actions.Con.Api.Con.List.actions.succeeded, (state, { conversations }) => {
-     
+
       return {
         ...state,
         pendingConListRequest: false,
@@ -345,7 +345,7 @@ export namespace ConState {
     on(actions.Con.Ui.List.ConItem.actions.clicked, (state, { selectedId }) => ({ ...state, selectedId })),
 
     on(actions.Con.Ui.MessageSender.TextArea.Input.actions.changed, (state, { conversationId, messageText }) => {
-      
+
       return {
         ...state,
         inProgressMessageByConId: {
@@ -402,6 +402,27 @@ export namespace ConState {
           newSelectedIds
         }
       })
+    }),
+    /* -------------------------------------------------------------------------- */
+    /*                                 SOCKET event reducers                      */
+    /* -------------------------------------------------------------------------- */
+    on(actions.Con.Socket.Conversation.Event.ParticipantsList.actions.updated, (state, { conversation }) => {
+      const existingConversation = state.conLookup[conversation.id]
+
+      if (!existingConversation) {
+        return state
+      }
+
+      return {
+        ...state,
+        conLookup: {
+          ...state.conLookup,
+          [conversation.id]: {
+            ...existingConversation,
+            participantIds: conversation.participantIds,
+          }
+        }
+      }
     }),
 
 

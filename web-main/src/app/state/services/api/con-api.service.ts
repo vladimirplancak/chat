@@ -3,8 +3,8 @@ import * as models from '../../../models';
 import * as rxjs from 'rxjs'
 import { IN_MEMORY_USERS_LIST } from '../api/user-api.service'
 import * as http from '@angular/common/http'
-import * as socketServices from '../socket/message-socket.service';
-
+import * as messageSocket from '../socket/message-socket.service';
+import * as convSocket from '../socket/con-socket.service';
 let now = new Date()
 
 function _incrementDate(date: Date, seconds: number): Date {
@@ -28,33 +28,25 @@ let IN_MEMORY_CON_LIST: models.Conversation[] = [
 @ngCore.Injectable()
 export class ConApiService {
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
+  public readonly conParticipantsUpdated$ = new rxjs.Subject<models.Conversation>()
 
   private _conversationAPIurl = 'http://localhost:5000/api/conversations'
   private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
   private _participantsByConIdAPIurl = 'http://localhost:5000/api/participantsByConId'
   private readonly _http = ngCore.inject(http.HttpClient)
-  private readonly _msgSocketService = ngCore.inject(socketServices.MessageSocket)
+  private readonly _msgSocketService = ngCore.inject(messageSocket.MessageSocket)
+  private readonly _conSocketService = ngCore.inject(convSocket.ConSocket)
 
   constructor() {
     // Subscribe to incoming messages from the socket and push them into messageStream$
     this._msgSocketService.messageReceived$.subscribe((message) => {
-      console.log(`Received message from server:`, message);
       this.msgReceived$.next(message);
     });
+
+    this._conSocketService.conParticipantsUpdated$.subscribe((con)=>{
+      this.conParticipantsUpdated$.next(con)
+    })
   }
-
-  // TODO: this should be actually refactored, and should not have interaction
-  // with "msgReceived$" stream at all, that part should be done through "hub"
-  // methods. 
-  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input): rxjs.Observable<void> {
-    console.log(`we emit the message to the server:`, payloadMessage)
-
-    this._msgSocketService.sendMessage(payloadMessage);
-
-    return rxjs.of()
-
-  }
-
 
   //TODO: investigate how exactly does this work and refactor it.
   public getCon(id: models.Conversation.Id): rxjs.Observable<models.Conversation | undefined> {
@@ -76,25 +68,37 @@ export class ConApiService {
   }
 
   /*-------------------- API CALLS ---------------------------*/
-  public updateConv(
-    id: models.Conversation.Id,
-    updates?: models.Conversation.Update)
-    : rxjs.Observable<models.Conversation> {
-    return this._http.put<models.Conversation>(`${this._conversationAPIurl}/${id}`, updates)
-  }
-  public createConv(participantIds: models.User.Id[]): rxjs.Observable<models.Conversation> {
-    return this._http.post<models.Conversation>(`${this._conversationAPIurl}`, { participantIds })
-  }
-  public getAllConvos(): rxjs.Observable<models.Conversation[]> {
+  /*-------------------- conversations -----------------------*/
+  public getAllCons(): rxjs.Observable<models.Conversation[]> {
     return this._http.get<models.Conversation[]>(`${this._conversationAPIurl}`)
   }
   public getParticipantsByConId(id: models.Conversation.Id): rxjs.Observable<models.Conversation> {
     return this._http.get<models.Conversation>(`${this._participantsByConIdAPIurl}/${id}`)
   }
+  public createCon(participantIds: models.User.Id[]): rxjs.Observable<models.Conversation> {
+    return this._http.post<models.Conversation>(`${this._conversationAPIurl}`, { participantIds })
+  }
+  public updateCon(
+    id: models.Conversation.Id,
+    updates?: models.Conversation.Update)
+    : rxjs.Observable<models.Conversation> {
+
+    return this._http.put<models.Conversation>(`${this._conversationAPIurl}/${id}`, updates).pipe(
+      rxjs.tap((updatedConversation) => {
+        const conId = updatedConversation.id
+        const participantIds = updatedConversation.participantIds
+        this._conSocketService.updateConParticipantListRequest(conId,participantIds)
+      })
+    )
+  }
+  /*-------------------- messages -----------------------*/
   public getConMessages(conId: models.Conversation.Id): rxjs.Observable<models.Conversation.Message[]> {
     return this._http.get<models.Conversation.Message[]>(`${this._messageAPIurl}/${conId}`)
   }
-
+  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input): rxjs.Observable<void> {
+    this._msgSocketService.sendMessage(payloadMessage);
+    return rxjs.of()
+  }
 }
 
 function randomDelayOperator<T>(): rxjs.OperatorFunction<T, T> {
