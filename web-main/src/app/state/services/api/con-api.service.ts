@@ -29,6 +29,7 @@ let IN_MEMORY_CON_LIST: models.Conversation[] = [
 export class ConApiService {
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
   public readonly conParticipantsUpdated$ = new rxjs.Subject<models.Conversation>()
+  public readonly conParticipantRemoved$ = new rxjs.Subject<models.Conversation.Id>()
 
   private _conversationAPIurl = 'http://localhost:5000/api/conversations'
   private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
@@ -42,9 +43,13 @@ export class ConApiService {
     this._msgSocketService.messageReceived$.subscribe((message) => {
       this.msgReceived$.next(message);
     });
-
+    // Subscribe to updates (additions/removals) of participants in the conversation
     this._conSocketService.conParticipantsUpdated$.subscribe((con)=>{
       this.conParticipantsUpdated$.next(con)
+    })
+    //Subscribe to the removal of self from the conversation
+    this._conSocketService.conParticipantRemoved$.subscribe((conId) =>{
+      this.conParticipantRemoved$.next(conId)
     })
   }
 
@@ -69,8 +74,8 @@ export class ConApiService {
 
   /*-------------------- API CALLS ---------------------------*/
   /*-------------------- conversations -----------------------*/
-  public getAllCons(): rxjs.Observable<models.Conversation[]> {
-    return this._http.get<models.Conversation[]>(`${this._conversationAPIurl}`)
+  public getAllCons(clientId: models.User.Id): rxjs.Observable<models.Conversation[]> {
+    return this._http.get<models.Conversation[]>(`${this._conversationAPIurl}/${clientId}`, )
   }
   public getParticipantsByConId(id: models.Conversation.Id): rxjs.Observable<models.Conversation> {
     return this._http.get<models.Conversation>(`${this._participantsByConIdAPIurl}/${id}`)
@@ -85,10 +90,17 @@ export class ConApiService {
 
     return this._http.put<models.Conversation>(`${this._conversationAPIurl}/${id}`, updates).pipe(
       rxjs.tap((updatedConversation) => {
-        console.log(`updates prop:`, updates)
+         console.log(`updates prop:`, updates)
+        // console.log(`http response: `, updatedConversation)
         const conId = updatedConversation.id
-        const participantIds = updatedConversation.participantIds
-        this._conSocketService.updateConParticipantListRequest(conId,participantIds)
+        // const participantIds = updatedConversation.participantIds
+        const mergeParticipants ={
+          ...updates,
+          participantIdsToRemove: updates?.participantIdsToRemove ,
+          participantIdsToAdd: updates?.participantIdsToAdd
+        }
+        console.log(`merge participants:`, mergeParticipants)
+        this._conSocketService.updateConParticipantListRequest(conId,mergeParticipants)
       })
     )
   }

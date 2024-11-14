@@ -424,6 +424,28 @@ export namespace ConState {
         }
       }
     }),
+    on(actions.Con.Socket.Conversation.Event.ParticipantsList.actions.removedSelf, (state, { conversationId }) => {
+      const conId = conversationId;
+      console.log(`conId from action:`, conId);
+      console.log(`Available keys in conLookup:`, Object.keys(state.conLookup));
+    
+      if (!state.conLookup[conId]) {
+        console.warn(`Conversation ID ${conId} not found in state.`);
+        return state;
+      }
+    
+      // Create a new state with the conversation removed
+      const { [conId]: removed, ...newConLookup } = state.conLookup;
+      const newIds = state.ids.filter(id => id !== conId);
+    
+      return {
+        ...state,
+        ids: newIds,
+        conLookup: newConLookup,
+      };
+    }),
+    
+    
 
 
   )

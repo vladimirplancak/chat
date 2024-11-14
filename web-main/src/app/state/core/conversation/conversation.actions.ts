@@ -19,6 +19,7 @@ export namespace Con {
             source: SOURCE,
             events: {
               'updated': ngrxStore.props<{ conversation: models.Conversation }>(),
+              'removedSelf':ngrxStore.props<{ conversationId: models.Conversation.Id }>(),
             }
           });
         }

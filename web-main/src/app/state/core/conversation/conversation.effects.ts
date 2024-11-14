@@ -1,11 +1,11 @@
-import * as ngCore from '@angular/core';
-import * as ngrxEffects from '@ngrx/effects';
-import * as rxjs from 'rxjs';
-import * as ngrxStore from '@ngrx/store';
+import * as ngCore from '@angular/core'
+import * as ngrxEffects from '@ngrx/effects'
+import * as rxjs from 'rxjs'
+import * as ngrxStore from '@ngrx/store'
 import * as actions from './conversation.actions'
 import * as selectors from './conversation.selectors'
 import * as authState from '../auth'
-import * as services from '../../services';
+import * as services from '../../services'
 import * as rootState from '../root'
 import * as ngRouter from '@angular/router'
 import * as auth from '../auth'
@@ -29,31 +29,38 @@ export class ConversationEffects {
 
   onApiConListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.List.actions.started),
-    rxjs.switchMap(() => this._conApiService.getAllCons().pipe(
-      rxjs.map(conversations => actions.Con.Api.Con.List.actions.succeeded({ conversations })),
-      rxjs.catchError(error =>
-        rxjs.of(actions.Con.Api.Con.List.actions.failed({ errorMessage: error?.message }))
+    rxjs.withLatestFrom(this._store.select(authState.selectors.Auth.SELF_ID)),
+    
+    rxjs.switchMap(([,selfId]) => {
+       if(!selfId){
+        throw new Error('Self does not exist yet.')
+       }
+    
+      return this._conApiService.getAllCons(selfId).pipe(
+        rxjs.map(conversations => actions.Con.Api.Con.List.actions.succeeded({ conversations })),
+        rxjs.catchError(error => rxjs.of(actions.Con.Api.Con.List.actions.failed({ errorMessage: error?.message }))
+        )
       )
-    )),
+    }),
   ))
 
   onSelectedConversationChanged$ = ngrxEffects.createEffect(() => this._store.select(selectors.Conversation.Selected.ID).pipe(
     rxjs.filter(selectedConId => !!selectedConId),
     rxjs.switchMap(selectedConId => {
-      if(!selectedConId){
+      if (!selectedConId) {
         throw new Error('No conversation selected.')
       }
       return this._conApiService.getParticipantsByConId(selectedConId).pipe(
         rxjs.map(consParticipants =>
-          actions.Con.Api.Con.LoadConParticipantsByConId.actions.succeeded({ id:  consParticipants.id, participantIds: consParticipants.participantIds })
+          actions.Con.Api.Con.LoadConParticipantsByConId.actions.succeeded({ id: consParticipants.id, participantIds: consParticipants.participantIds })
         ),
         rxjs.catchError(error =>
           rxjs.of(actions.Con.Api.Con.LoadConParticipantsByConId.actions.failed({ errorMessage: error?.message }))
         )
       )
     })
-  ));
-  
+  ))
+
   onApiMessageListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Message.List.actions.started),
     rxjs.filter(conversationId => !!conversationId),
@@ -79,7 +86,7 @@ export class ConversationEffects {
           rxjs.first(),
           rxjs.map(conversationId => actions.Con.Api.Message.List.actions.started({ conversationId }))
         )
-      }),
+    }),
   ))
 
   onApiConGetStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
@@ -103,18 +110,18 @@ export class ConversationEffects {
         ),
         rxjs.switchMap(([, selfId, directCon]) => {
           if (!selfId) {
-            throw new Error('User not authenticated');
+            throw new Error('User not authenticated')
           }
 
-          if (directCon) {   
-            return rxjs.of(actions.Con.Misc.Selection.actions.requested({ directConId: directCon.id }));
+          if (directCon) {
+            return rxjs.of(actions.Con.Misc.Selection.actions.requested({ directConId: directCon.id }))
           } else {
-            return rxjs.of(actions.Con.Api.Con.Create.actions.started({ input: { participantIds: [selfId, action.userId] } }));
+            return rxjs.of(actions.Con.Api.Con.Create.actions.started({ input: { participantIds: [selfId, action.userId] } }))
           }
         })
-      );
+      )
     })
-  ));
+  ))
 
 
   onApiConCreateSucceeded$ = ngrxEffects.createEffect(() => this._actions.pipe(
@@ -127,9 +134,9 @@ export class ConversationEffects {
   navigateToSelectedConversation$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Misc.Selection.actions.requested),
     rxjs.map(({ directConId }) => {
-      this._router.navigate(['conversations', directConId]);
+      this._router.navigate(['conversations', directConId])
     })
-  ), { dispatch: false });
+  ), { dispatch: false })
 
 
   onApiConCreateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
@@ -174,7 +181,7 @@ export class ConversationEffects {
         : rxjs.of(actions.Con.Api.Message.List.actions.started({ conversationId: action.conversation.id })),
     ),
   ))
-  
+
 
   /**
    * Purpose of the effect, is to compute the payload for the {@link actions.Con.Api.Message.Send.actions.started}
@@ -207,7 +214,7 @@ export class ConversationEffects {
         }
       })
     })
-  ));
+  ))
 
   onMessageSendStart$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Message.Send.actions.started),
@@ -215,15 +222,15 @@ export class ConversationEffects {
     rxjs.switchMap((action) => {
       return this._conApiService.sendConMessage(action.payloadMessage).pipe(
         rxjs.map(() => {
-          
-          return actions.Con.Api.Message.Send.actions.succeeded({ conversationId: action.payloadMessage.conId });
+
+          return actions.Con.Api.Message.Send.actions.succeeded({ conversationId: action.payloadMessage.conId })
         }),
         rxjs.catchError(error => {
           return rxjs.of(actions.Con.Api.Message.Send.actions.failed({ errorMessage: error?.message }))
         })
       )
     })
-  ));
+  ))
 
   onParticipantsSelected$ = ngrxEffects.createEffect(() =>
     this._actions.pipe(
@@ -242,7 +249,7 @@ export class ConversationEffects {
         })
       })
     )
-  );
+  )
 
   onRemovedParticipantClicked$ = ngrxEffects.createEffect(() =>
     this._actions.pipe(
@@ -251,7 +258,7 @@ export class ConversationEffects {
         this._store.select(selectors.Conversation.Selected.ID),
         this._store.select(auth.selectors.Auth.SELF_ID)
       ),
-      rxjs.map(([{ participantId },conversationId, selfId]) => {
+      rxjs.map(([{ participantId }, conversationId, selfId]) => {
         // NOTE: this should never happen, in case it happens, it means that we
         // have some unforeseen edge case, usually indicating a bug.
         if (!conversationId) {
@@ -261,7 +268,7 @@ export class ConversationEffects {
         // TODO: We are not sure, what should we do at this point If it is ok to
         // remove ourself from the conversation or not? We don't want to
         // speculate at this time, so we will just give a warning.
-        if(participantId === selfId) { 
+        if (participantId === selfId) {
           console.warn('We are about to remove ourself from the conversation')
         }
 
@@ -274,25 +281,36 @@ export class ConversationEffects {
   )
   //------------------------socket events-----------------------------------//
   /**
-   * This effect listens for conversation updates from the socket and directly updates the store
+   * This effect listens for conversation updates from the socket and directly updates the state
    */
   onConParticipantListUpdated$ = ngrxEffects.createEffect(() =>
     this._conApiService.conParticipantsUpdated$.pipe(
       rxjs.map((con) => {
-        return actions.Con.Socket.Conversation.Event.ParticipantsList.actions.updated({ conversation: con });
+        return actions.Con.Socket.Conversation.Event.ParticipantsList.actions.updated({ conversation: con })
+      }
+      ),
+    )
+  )
+  /**
+    * This effect listens for the removal of (self) updates from the socket and directly updates the state
+    */
+  onConParticipantRemoved$ = ngrxEffects.createEffect(() =>
+    this._conApiService.conParticipantRemoved$.pipe(
+      rxjs.map((conId) => {
+        this._router.navigate(['conversations'])
+        return actions.Con.Socket.Conversation.Event.ParticipantsList.actions.removedSelf({ conversationId: conId });
       }
       ),
     )
   );
-    // NOTE: Purpose of this effect is: 
+  // NOTE: Purpose of this effect is: 
   // back-end sends you new message, you receive it, through 'this_conApiSErvice.msgReceived$' stream, and then you dispatch an action,
   // that will update the state.
   onMessageReceived$ = ngrxEffects.createEffect(() =>
     this._conApiService.msgReceived$.pipe(
-      rxjs.map((message) => 
-        {  
-          return actions.Con.Api.Message.Subscriptions.actions.messageReceived({ message });
-        }
+      rxjs.map((message) => {
+        return actions.Con.Api.Message.Subscriptions.actions.messageReceived({ message })
+      }
       ),
     )
   )
