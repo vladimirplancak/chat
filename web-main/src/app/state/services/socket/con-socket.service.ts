@@ -36,18 +36,18 @@ export class ConSocket {
                 id: conversation.conId,
                 participantIds: conversation.participantIds
             }
-          console.log(`transformConv`, transformConv)
+         
             this.conParticipantsUpdated$.next(transformConv)
         })
 
         this._socket?.on('conParticipantRemovedResponse', (conId:any) =>{
-            console.log(`does it work?:`, conId)
+        
             this.conParticipantRemoved$.next(conId)
         })
     }
 
     public updateConParticipantListRequest(conId: models.Conversation.Id, participantIds?: models.Conversation.Update ):void{
-       console.log(`emit event payload:`, participantIds)
+   
         this._socket?.emit('updateParticipantListRequest', conId,participantIds)
     }
 

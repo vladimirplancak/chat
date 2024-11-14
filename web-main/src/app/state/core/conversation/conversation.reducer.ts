@@ -19,7 +19,7 @@ export interface ConState {
   /** 
    * Indicates whether a request has been made to the API to fetch the list of conversations.
    * 
-   * @see {@link services.ConApiService.getAllCons}
+   * @see {@link services.ConApiService.getAllCons()}
    */
   pendingConListRequest: boolean
   /**
