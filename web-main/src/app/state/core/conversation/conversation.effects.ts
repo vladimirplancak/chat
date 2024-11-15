@@ -66,10 +66,12 @@ export class ConversationEffects {
     rxjs.filter(conversationId => !!conversationId),
     rxjs.switchMap(({ conversationId }) => this._conApiService.getConMessages(conversationId).pipe(
       rxjs.map(messages =>
-        actions.Con.Api.Message.List.actions.succeeded({
-          messages,
-          conversationId
-        })
+        { console.log(`effect:messages`, messages)
+          return actions.Con.Api.Message.List.actions.succeeded({
+            messages,
+            conversationId
+          })
+        }
       ),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Message.List.actions.failed({ conversationId, errorMessage: error?.message }))

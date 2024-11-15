@@ -14,7 +14,7 @@ export class ConSocket {
 
     public conParticipantsUpdated$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
     public conParticipantRemoved$: rxjs.Subject<models.Conversation.Id> = new rxjs.Subject()
-
+    public conParticipantAdded$: rxjs.Subject<models.Conversation.Id> = new rxjs.Subject()
     constructor() {
         this.initializeSocket()
         this.setupSocketListeners()
@@ -28,30 +28,35 @@ export class ConSocket {
         }
     }
 
-    setupSocketListeners():void {
+    setupSocketListeners(): void {
 
-        this._socket?.on('conParticipantListUpdatedResponse', (conversation:any)=>{
-            
-            const transformConv:models.Conversation = {
+        //notifies the all current participants of the conv of additions/removals of
+        //additional participants
+        this._socket?.on('conParticipantListUpdatedResponse', (conversation: any) => {
+
+            const transformConv: models.Conversation = {
                 id: conversation.conId,
+                name: conversation.name,
                 participantIds: conversation.participantIds
             }
-         
+            console.log(`this happens:`, transformConv)
             this.conParticipantsUpdated$.next(transformConv)
         })
-
-        this._socket?.on('conParticipantRemovedResponse', (conId:any) =>{
-        
+        //notifies the self of being removed from the conv
+        this._socket?.on('conParticipantRemovedResponse', (conId: any) => {
             this.conParticipantRemoved$.next(conId)
+        })
+        //notifies the self of being added to the conv
+        this._socket?.on('conParticipantAddedResponse', (conId: any) => {
+            this.conParticipantAdded$.next(conId)
         })
     }
 
-    public updateConParticipantListRequest(conId: models.Conversation.Id, participantIds?: models.Conversation.Update ):void{
-   
-        this._socket?.emit('updateParticipantListRequest', conId,participantIds)
+    public updateConParticipantListRequest(conId: models.Conversation.Id, participantIds?: models.Conversation.Update): void {
+        this._socket?.emit('updateConParticipantListRequest', conId, participantIds)
     }
 
     public disconnect(): void {
         this._socket?.disconnect()
-      }
+    }
 }

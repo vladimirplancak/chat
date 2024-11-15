@@ -407,27 +407,39 @@ export namespace ConState {
     /*                                 SOCKET event reducers                      */
     /* -------------------------------------------------------------------------- */
     on(actions.Con.Socket.Conversation.Event.ParticipantsList.actions.updated, (state, { conversation }) => {
-      const existingConversation = state.conLookup[conversation.id]
-
+      const existingConversation = state.conLookup[conversation.id];
+      const existingMessagesInCon = state.conLookup[conversation.id]?.messages || []
+      //const existingConName = state.conLookup[conversation.id]?.name 
+      console.log(`reducer`, conversation)
+      // If the conversation does not already exist, add it to the state
       if (!existingConversation) {
-        return state
+        return {
+          ...state,
+          ids: [...state.ids, conversation.id],
+          conLookup: {
+            ...state.conLookup,
+            [conversation.id]: { ...conversation, messages: existingMessagesInCon } 
+          }
+        };
       }
-
+    
+      // If the conversation already exists, only update its participantIds
       return {
         ...state,
         conLookup: {
           ...state.conLookup,
           [conversation.id]: {
             ...existingConversation,
-            participantIds: conversation.participantIds,
+            participantIds: conversation.participantIds // Update only participantIds
           }
         }
-      }
+      };
     }),
+    
     on(actions.Con.Socket.Conversation.Event.ParticipantsList.actions.removedSelf, (state, { conversationId }) => {
       const conId = conversationId;
-      console.log(`conId from action:`, conId);
-      console.log(`Available keys in conLookup:`, Object.keys(state.conLookup));
+      // console.log(`conId from action:`, conId);
+      // console.log(`Available keys in conLookup:`, Object.keys(state.conLookup));
     
       if (!state.conLookup[conId]) {
         console.warn(`Conversation ID ${conId} not found in state.`);
