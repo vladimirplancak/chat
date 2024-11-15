@@ -15,6 +15,8 @@ export class ConSocket {
     public conParticipantsUpdated$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
     public conParticipantRemoved$: rxjs.Subject<models.Conversation.Id> = new rxjs.Subject()
     public conParticipantAdded$: rxjs.Subject<models.Conversation.Id> = new rxjs.Subject()
+    public privateConCreated$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
+
     constructor() {
         this.initializeSocket()
         this.setupSocketListeners()
@@ -39,7 +41,6 @@ export class ConSocket {
                 name: conversation.name,
                 participantIds: conversation.participantIds
             }
-            console.log(`this happens:`, transformConv)
             this.conParticipantsUpdated$.next(transformConv)
         })
         //notifies the self of being removed from the conv
@@ -50,10 +51,21 @@ export class ConSocket {
         this._socket?.on('conParticipantAddedResponse', (conId: any) => {
             this.conParticipantAdded$.next(conId)
         })
+        //notifies participant of being added to a private conversation
+        this._socket?.on('privateConversationCreatedResponse', (con: any)=>{
+    
+            this.privateConCreated$.next(con)
+        })
     }
 
     public updateConParticipantListRequest(conId: models.Conversation.Id, participantIds?: models.Conversation.Update): void {
         this._socket?.emit('updateConParticipantListRequest', conId, participantIds)
+    }
+
+    public updateParticipantOfPrivateConCreationRequest(
+        createdConversation: models.Conversation, 
+        addedParticipantsId: models.User.Id[]): void {
+        this._socket?.emit('updateParticipantOfPrivateConCreationRequest', createdConversation,addedParticipantsId)
     }
 
     public disconnect(): void {

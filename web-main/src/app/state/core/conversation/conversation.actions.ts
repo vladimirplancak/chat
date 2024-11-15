@@ -13,8 +13,8 @@ export namespace Con {
       export const SOURCE = common.Action.Source.from(Socket.SOURCE, 'Conversation');
       export namespace Event {
         export const SOURCE = common.Action.Source.from(Conversation.SOURCE, 'Event')
-        export namespace ParticipantsList {
-          export const SOURCE = common.Action.Source.from(Event.SOURCE, 'ParticipantsList')
+        export namespace UpdateConRequest {
+          export const SOURCE = common.Action.Source.from(Event.SOURCE, 'UpdateConRequest')
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE,
             events: {

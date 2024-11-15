@@ -286,9 +286,9 @@ export class ConversationEffects {
    * This effect listens for conversation updates from the socket and directly updates the state
    */
   onConParticipantListUpdated$ = ngrxEffects.createEffect(() =>
-    this._conApiService.conParticipantsUpdated$.pipe(
+    this._conApiService.conUpdated$.pipe(
       rxjs.map((con) => {
-        return actions.Con.Socket.Conversation.Event.ParticipantsList.actions.updated({ conversation: con })
+        return actions.Con.Socket.Conversation.Event.UpdateConRequest.actions.updated({ conversation: con })
       }
       ),
     )
@@ -300,7 +300,7 @@ export class ConversationEffects {
     this._conApiService.conParticipantRemoved$.pipe(
       rxjs.map((conId) => {
         this._router.navigate(['conversations'])
-        return actions.Con.Socket.Conversation.Event.ParticipantsList.actions.removedSelf({ conversationId: conId });
+        return actions.Con.Socket.Conversation.Event.UpdateConRequest.actions.removedSelf({ conversationId: conId });
       }
       ),
     )

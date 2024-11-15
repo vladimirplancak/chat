@@ -28,8 +28,9 @@ let IN_MEMORY_CON_LIST: models.Conversation[] = [
 @ngCore.Injectable()
 export class ConApiService {
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
-  public readonly conParticipantsUpdated$ = new rxjs.Subject<models.Conversation>()
+  public readonly conUpdated$ = new rxjs.Subject<models.Conversation>()
   public readonly conParticipantRemoved$ = new rxjs.Subject<models.Conversation.Id>()
+  
 
   private _conversationAPIurl = 'http://localhost:5000/api/conversations'
   private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
@@ -45,11 +46,15 @@ export class ConApiService {
     });
     // Subscribe to updates (additions/removals) of participants in the conversation
     this._conSocketService.conParticipantsUpdated$.subscribe((con)=>{
-      this.conParticipantsUpdated$.next(con)
+      this.conUpdated$.next(con)
     })
-    //Subscribe to the removal of self from the conversation
+    //Subscribe to the removal (being kicked) of self from the conversation
     this._conSocketService.conParticipantRemoved$.subscribe((conId) =>{
       this.conParticipantRemoved$.next(conId)
+    })
+    //Subscribe to the addition to private channel event
+    this._conSocketService.privateConCreated$.subscribe((con) =>{
+      this.conUpdated$.next(con)
     })
   }
 
@@ -81,7 +86,12 @@ export class ConApiService {
     return this._http.get<models.Conversation>(`${this._participantsByConIdAPIurl}/${id}`)
   }
   public createCon(participantIds: models.User.Id[]): rxjs.Observable<models.Conversation> {
-    return this._http.post<models.Conversation>(`${this._conversationAPIurl}`, { participantIds })
+    return this._http.post<models.Conversation>(`${this._conversationAPIurl}`, { participantIds }).pipe(
+      
+      rxjs.tap((createdCon)=>{
+        this._conSocketService.updateParticipantOfPrivateConCreationRequest(createdCon, participantIds)
+      })
+    )
   }
   public updateCon(
     id: models.Conversation.Id,

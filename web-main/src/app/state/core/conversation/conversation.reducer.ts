@@ -248,10 +248,9 @@ export namespace ConState {
       // need so many explicit checks.
       const pendingConListMessagesRequestsCopy = new Set([...state.pendingConListMessagesRequests])
       pendingConListMessagesRequestsCopy.delete(conversationId)
-      console.log(`reducer/payload/conversationId`, conversationId)
-      console.log(`reducer/payload/messages`, messages)
+     
       let conversationCopy = { ...state.conLookup }[conversationId]
-      console.log(`reducer/conversationCopy`, state.conLookup)
+      
       // NOTE: In cases where the conversation is already loaded and there is a
       // conversation record in the state, it is safe to assume that the
       // messages can be stored in the conversation object. However, if the
@@ -261,7 +260,7 @@ export namespace ConState {
       if (conversationCopy) {
         // Ensure participant IDs are present in the existing conversation copy
         if (!conversationCopy.participantIds || conversationCopy.participantIds.length === 0) {
-          console.log(`if inside of an if fires`)
+         
           const participantIds = Array.from(new Set(messages.map(message => message.userId)))
           conversationCopy = {
             ...conversationCopy,
@@ -270,22 +269,22 @@ export namespace ConState {
           }
         } else {
           // Deduplicate messages before adding
-          console.log(`first else fires`)
+          
           const existingMessageIds = new Set(conversationCopy.messages.map(msg => msg.id))
-          console.log(`FIRST ELSE/existingMessageIds`,existingMessageIds )
+         
           const newMessages = messages.filter(msg => !existingMessageIds.has(msg.id)) // Only keep new messages
-          console.log(`FIRST ELSE/newMessages`,newMessages )
+          
           conversationCopy = {
             ...conversationCopy,
             id:conversationId,
             messages: [...conversationCopy.messages, ...newMessages]
           }
-          console.log(`FIRST ELSE/conversationCopy`,conversationCopy )
+         
         }
 
       } else {
         // Create a new placeholder conversation with participant IDs
-        console.log(`second else fires`)
+        
         const participantIds = Array.from(new Set(messages.map(message => message.userId)))
 
         state = {
@@ -299,7 +298,7 @@ export namespace ConState {
           participantIds,
         }
       }
-      console.log(`reducer/finaloutput/state.conLookup:`,conversationCopy)
+     
       return {
         ...state,
         pendingConListMessagesRequests: pendingConListMessagesRequestsCopy,
@@ -414,7 +413,7 @@ export namespace ConState {
     /* -------------------------------------------------------------------------- */
     /*                                 SOCKET event reducers                      */
     /* -------------------------------------------------------------------------- */
-    on(actions.Con.Socket.Conversation.Event.ParticipantsList.actions.updated, (state, { conversation }) => {
+    on(actions.Con.Socket.Conversation.Event.UpdateConRequest.actions.updated, (state, { conversation }) => {
       const existingConversation = state.conLookup[conversation.id];
       const existingMessagesInCon = state.conLookup[conversation.id]?.messages || []
       //const existingConName = state.conLookup[conversation.id]?.name 
@@ -444,7 +443,7 @@ export namespace ConState {
       };
     }),
     
-    on(actions.Con.Socket.Conversation.Event.ParticipantsList.actions.removedSelf, (state, { conversationId }) => {
+    on(actions.Con.Socket.Conversation.Event.UpdateConRequest.actions.removedSelf, (state, { conversationId }) => {
       const conId = conversationId;
       // console.log(`conId from action:`, conId);
       // console.log(`Available keys in conLookup:`, Object.keys(state.conLookup));
