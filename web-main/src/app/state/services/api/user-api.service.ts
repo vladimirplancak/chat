@@ -32,7 +32,7 @@ export const IN_MEMORY_USERS_LIST: models.User[] = [
 export class UserApiService {
   private _apiUrl = 'http://localhost:5000/api/users'
   private readonly _http = ngCore.inject(http.HttpClient)
-  private readonly _socketService = ngCore.inject(socketService.MessageSocket)
+  private readonly _socketService = ngCore.inject(socketService.MessageSocketService)
 
   public readonly userCameOnline$ = new rxjs.Subject<models.User.Id>()
   public readonly userWentOffline$ = new rxjs.Subject<models.User.Id>()

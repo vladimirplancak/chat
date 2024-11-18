@@ -36,8 +36,8 @@ export class ConApiService {
   private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
   private _participantsByConIdAPIurl = 'http://localhost:5000/api/participantsByConId'
   private readonly _http = ngCore.inject(http.HttpClient)
-  private readonly _msgSocketService = ngCore.inject(messageSocket.MessageSocket)
-  private readonly _conSocketService = ngCore.inject(convSocket.ConSocket)
+  private readonly _msgSocketService = ngCore.inject(messageSocket.MessageSocketService)
+  private readonly _conSocketService = ngCore.inject(convSocket.ConSocketService)
 
   constructor() {
     // Subscribe to incoming messages from the socket and push them into messageStream$

@@ -1,11 +1,11 @@
 import * as rxjs from 'rxjs'
 import * as models from '../../../models'
-import * as socketServices from '../socket/auth-socket.service'
+import * as services from '../socket/auth-socket.service'
 import * as ngCore from '@angular/core'
 import * as http from '@angular/common/http'
 
 export class AuthApiService {
-  private readonly _authSocket = ngCore.inject(socketServices.AuthSocket)
+  private readonly _authSocket = ngCore.inject(services.AuthSocketService)
   private readonly _http = ngCore.inject(http.HttpClient)
 
   private _authAPIurl = 'http://localhost:5000/api/login'
@@ -18,22 +18,22 @@ export class AuthApiService {
     return this._http.post<models.Auth.Response>(`${this._authAPIurl}`, payload).pipe(
       rxjs.map(response => {
         // add the token to the local storage
-        models.Auth.LocalStorage.Token.set(response.jwtToken);
+        models.Auth.LocalStorage.Token.set(response.jwtToken)
 
         // After login, initialize socket and register the user
-        const decodedToken = models.Auth.Self.from(response.jwtToken);
+        const decodedToken = models.Auth.Self.from(response.jwtToken)
         if (decodedToken?.userId) {
           // emit 'clientAuthenticated'event
-          this._authSocket.register(decodedToken.userId);
+          this._authSocket.clientAuthenticated(decodedToken.userId)
         }
 
         return {
           message: response.message,
           jwtToken: response.jwtToken
-        } as models.Auth.Response;
+        } as models.Auth.Response
       }),
       rxjs.catchError(error => {
-        return rxjs.throwError(() => error);
+        return rxjs.throwError(() => error)
       })
     )
     //return rxjs.timer(1000).pipe(rxjs.map(() => AuthApiService._jwt))
@@ -48,7 +48,7 @@ export class AuthApiService {
     const decodedToken = token ? models.Auth.Self.from(token) : undefined
 
     if (decodedToken?.userId) {
-      this._authSocket.register(decodedToken.userId)  // Emit 'register' here
+      this._authSocket.clientAuthenticated(decodedToken.userId)  // Emit 'register' here
     }
     // TODO: consider moving this "TODOs" to effect(s)
     // TODO: after we get the token, we should validate eif its valid (e.g. not expired)
