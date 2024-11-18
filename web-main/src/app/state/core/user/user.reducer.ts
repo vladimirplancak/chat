@@ -27,7 +27,7 @@ export interface UserState {
   /**
    * Indicates which users are currently being loaded.
    * 
-   * @see {@link services.UserApiService.get}
+   * @see {@link services.UserApiService.getUserById}
    */
   pendingGetRequests: Set<models.User.Id>
   /**

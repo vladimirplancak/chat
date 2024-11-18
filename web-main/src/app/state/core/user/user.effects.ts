@@ -35,7 +35,7 @@ export class UserEffects {
 
   onApiGetStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(User.Api.Get.actions.started),
-    rxjs.switchMap(({ userId }) => this._userApiService.get(userId).pipe(
+    rxjs.switchMap(({ userId }) => this._userApiService.getUserById(userId).pipe(
       rxjs.map(user => User.Api.Get.actions.succeeded({ user })),
       rxjs.catchError(error =>
         rxjs.of(User.Api.Get.actions.failed({ errorMessage: error?.message }))

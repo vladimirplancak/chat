@@ -80,6 +80,7 @@ export class ConApiService {
   }
 
   /*-------------------- messages -----------------------*/
+  //TODO: maybe move these to message-api.service.ts????
   public getConMessages(conId: models.Conversation.Id): rxjs.Observable<models.Conversation.Message[]> {
     return this._http.get<models.Conversation.Message[]>(`${this._messageAPIurl}/${conId}`)
   }
