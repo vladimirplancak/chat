@@ -2,22 +2,23 @@ import * as ngCore from '@angular/core';
 import * as models from '../../../models';
 import * as rxjs from 'rxjs'
 import * as http from '@angular/common/http'
-import * as messageSocket from '../socket/message-socket.service';
-import * as convSocket from '../socket/con-socket.service';
+import * as socketService from '../socket/';
 
 @ngCore.Injectable()
 export class ConApiService {
   private readonly _http = ngCore.inject(http.HttpClient)
-  private readonly _msgSocketService = ngCore.inject(messageSocket.MessageSocketService)
-  private readonly _conSocketService = ngCore.inject(convSocket.ConSocketService)
-
+  private readonly _msgSocketService = ngCore.inject(socketService.MessageSocketService)
+  private readonly _conSocketService = ngCore.inject(socketService.ConSocketService)
+  
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
   public readonly conUpdated$ = new rxjs.Subject<models.Conversation>()
   public readonly conParticipantRemoved$ = new rxjs.Subject<models.Conversation.Id>()
   
+
   private _conversationAPIurl = 'http://localhost:5000/api/conversations'
   private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
   private _participantsByConIdAPIurl = 'http://localhost:5000/api/participantsByConId'
+
 
   constructor() {
     // Subscribe to incoming messages from the socket and push them into messageStream$
