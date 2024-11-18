@@ -29,7 +29,7 @@ export class MessageSocketService {
   private setupSocketListeners(): void {
 
     // Listen for new messages from the server
-    this._socket?.on('newMessage', (message: any) => {
+    this._socket?.on('receivedMessage', (message: any) => {
       // models.Conversation.Message.InContext.assertIsMesageInContext(message)
       const transformedMessage: models.Conversation.Message.InContext = {
         id: message.id,
