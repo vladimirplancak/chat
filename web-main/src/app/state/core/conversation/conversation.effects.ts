@@ -66,7 +66,7 @@ export class ConversationEffects {
     rxjs.filter(conversationId => !!conversationId),
     rxjs.switchMap(({ conversationId }) => this._conApiService.getConMessages(conversationId).pipe(
       rxjs.map(messages =>
-        { console.log(`effect:messages`, messages)
+        {
           return actions.Con.Api.Message.List.actions.succeeded({
             messages,
             conversationId
@@ -93,7 +93,7 @@ export class ConversationEffects {
 
   onApiConGetStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Get.actions.started),
-    rxjs.switchMap(({ conversationId }) => this._conApiService.getCon(conversationId).pipe(
+    rxjs.switchMap(({ conversationId }) => this._conApiService.getConById(conversationId).pipe(
       rxjs.map(conversation => actions.Con.Api.Con.Get.actions.succeeded({ conversation })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.Get.actions.failed({ errorMessage: error?.message }))

@@ -1,7 +1,7 @@
 import { createReducer, on, } from '@ngrx/store'
 import * as models from '../../../models'
 import * as actions from './conversation.actions'
-import type * as services from '../../services'
+import  * as services from '../../services'
 
 
 export interface ConState {
@@ -25,7 +25,7 @@ export interface ConState {
   /**
    * Indicates which conversations are currently being loaded.
    * 
-   * @see {@link services.UserApiService.getCon}
+   * @see {@link services.ConApiService.getConById}
    */
   pendingGetConRequests: Set<models.Conversation.Id>
 
