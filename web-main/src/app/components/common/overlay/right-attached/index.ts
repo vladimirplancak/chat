@@ -1,0 +1,1 @@
+export { RightAttachedOverlayComponent as Component } from './right-attached.component'

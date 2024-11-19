@@ -1,0 +1,30 @@
+@use 'variables' as v;
+
+.userInfo-dialog {
+  width: 200px;
+  background-color: v.$quaternary;
+  border-radius: 5px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+
+  &__btn {
+    width: 100%;
+    height: 40px;
+    padding: 0 10px;
+    border-radius: 5px;
+    background-color: transparent;
+    color: v.$primary;
+    font-size: 14px;
+    border: 1px solid v.$primary;
+    cursor: pointer;
+    transition: 0.2s;
+
+    &:hover {
+      background-color: v.$primary;
+      color: v.$quaternary;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}

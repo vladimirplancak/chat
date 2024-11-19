@@ -1,11 +1,17 @@
 <div class="conversations-header">
   <div class="conversations-header__logo">logo</div>
-  <div class="conversations-header__selector" #overlayOrigin (click)="presetUserSelectorDialogSg.set(true)">users</div>
-  <div class="conversations-header__info">{{selfSg()?.name}}</div>
+  <div class="conversations-header__selector" #usersOverlayOrigin (click)="presetUserSelectorDialogSg.set(true)">users</div>
+  <div class="conversations-header__info" #selfOverlayOrigin (click)="presentSelfInfoDialogSG.set(true)">{{selfSg()?.name}}</div>
 </div>
 
 @if(presetUserSelectorDialogSg()) {
-  <attached-overlay [origin]="overlayOrigin" (backdropClick)="presetUserSelectorDialogSg.set(false)">
+  <attached-overlay [origin]="usersOverlayOrigin" (backdropClick)="presetUserSelectorDialogSg.set(false)">
     <app-user-selector-dialog />
   </attached-overlay>
+}
+
+@if(presentSelfInfoDialogSG()) {
+  <right-attached-overlay [origin]="selfOverlayOrigin" (backdropClick)="presentSelfInfoDialogSG.set(false)">
+    <app-info-selector-dialog />
+  </right-attached-overlay>
 }

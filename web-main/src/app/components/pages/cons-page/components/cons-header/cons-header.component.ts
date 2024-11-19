@@ -8,7 +8,9 @@ import * as components from './components'
   standalone: true,
   imports: [
     common.overlay.attached.Component,
+    common.overlay.rightAttached.Component,
     components.userSelectorDialog.Component,
+    components.userInfoDialog.Component
     
   ],
   styleUrl: './cons-header.component.scss',
@@ -30,6 +32,7 @@ export class ConsHeaderComponent {
   )
 
   public readonly presetUserSelectorDialogSg = ngCore.signal(false)
+  public readonly presentSelfInfoDialogSG = ngCore.signal(false)
 
   
 }
