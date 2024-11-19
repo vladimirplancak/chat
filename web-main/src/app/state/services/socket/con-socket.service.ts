@@ -16,7 +16,7 @@ export class ConSocketService {
     public conParticipantAdded$: rxjs.Subject<models.Conversation.Id> = new rxjs.Subject()
     public conParticipantRemoved$: rxjs.Subject<models.Conversation.Id> = new rxjs.Subject()
     public privateConCreated$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
-
+    public deletedConversation$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
     constructor() {
         this.initializeSocket()
         this.setupSocketListeners()
@@ -40,7 +40,8 @@ export class ConSocketService {
             const transformConv: models.Conversation = {
                 id: conversation.conId,
                 name: conversation.name,
-                participantIds: conversation.participantIds
+                participantIds: conversation.participantIds,
+                creatorId: conversation.creatorId
             }
             this.conParticipantsUpdated$.next(transformConv)
         })
@@ -56,6 +57,10 @@ export class ConSocketService {
         this._socket?.on('privateConversationCreatedResponse', (con: any) => {
             this.privateConCreated$.next(con)
         })
+        //notifies all of the participants of the deleted conversation
+        this._socket?.on('deleteCoversationResponse', (con: any)=>{
+            this.deletedConversation$.next(con)
+        })
     }
 
     //---------------------------------------- EMITTERS ---------------------------------------//
@@ -68,7 +73,9 @@ export class ConSocketService {
         addedParticipantsId: models.User.Id[]): void {
         this._socket?.emit('updateParticipantOfPrivateConCreationRequest', createdConversation, addedParticipantsId)
     }
-
+    public deleteConversationRequest(deletedConversation: models.Conversation){
+        this._socket?.emit('deleteCoversationRequest', deletedConversation)
+    }
     public disconnect(): void {
         this._socket?.disconnect()
     }

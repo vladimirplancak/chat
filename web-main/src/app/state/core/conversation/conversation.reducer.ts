@@ -191,7 +191,14 @@ export namespace ConState {
       ...state,
       pendingConMutation: false,
       ids: [...state.ids, conversation.id],
-      conLookup: { ...state.conLookup, [conversation.id]: { ...conversation, messages: [] } }
+      conLookup: {
+        ...state.conLookup,
+        [conversation.id]: {
+          ...conversation,
+          messages: [],
+          creatorId: conversation.creatorId
+        }
+      }
     })),
 
     on(actions.Con.Api.Con.Update.actions.succeeded, (state, { conversation }) => {
@@ -210,16 +217,19 @@ export namespace ConState {
     }),
 
     on(actions.Con.Api.Con.Delete.actions.succeeded, (state, { conversation }) => {
-      const filteredIds = state.ids.filter(id => id !== conversation.id)
-      const conLookupCopy = { ...state.conLookup }
-      delete conLookupCopy[conversation.id]
 
-      return ({
+      const filteredIds = state.ids.filter(id => id !== conversation.id);
+      const conLookupCopy = { ...state.conLookup };
+      delete conLookupCopy[conversation.id];
+  
+      return {
         ...state,
         ids: filteredIds,
         conLookup: conLookupCopy,
-      })
+        
+      };
     }),
+    
 
     /* --------------------------------- failed -------------------------------- */
     // TODO: implement failed reducers
@@ -296,6 +306,8 @@ export namespace ConState {
           id: conversationId,
           messages,
           participantIds,
+          creatorId: ''
+          
         }
       }
      
@@ -464,6 +476,25 @@ export namespace ConState {
       };
     }),
     
+    on(actions.Con.Socket.Conversation.Event.DeleteConRequest.actions.deleted, (state, { conversationId }) => {
+      // Check if the conversation exists in the state
+      if (!state.conLookup[conversationId]) {
+        console.warn(`Conversation ID ${conversationId} not found in state.`);
+        return state; // Return the current state if the conversation doesn't exist
+      }
+    
+      // Remove the conversation from `conLookup`
+      const { [conversationId]: removed, ...updatedConLookup } = state.conLookup;
+    
+      // Remove the conversation ID from `ids`
+      const updatedIds = state.ids.filter(id => id !== conversationId);
+    
+      return {
+        ...state,
+        ids: updatedIds,
+        conLookup: updatedConLookup,
+      };
+    }),
     
 
 

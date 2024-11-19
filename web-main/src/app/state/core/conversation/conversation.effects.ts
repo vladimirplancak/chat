@@ -18,7 +18,6 @@ export class ConversationEffects {
   private readonly _store = ngCore.inject(ngrxStore.Store)
   private readonly _router = ngCore.inject(ngRouter.Router)
 
-
   onRootInitialized$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(rootState.actions.Root.Ui.actions.initialized),
     rxjs.switchMap(() =>
@@ -26,16 +25,13 @@ export class ConversationEffects {
     ),
   ))
 
-
   onApiConListStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.List.actions.started),
     rxjs.withLatestFrom(this._store.select(authState.selectors.Auth.SELF_ID)),
-    
     rxjs.switchMap(([,selfId]) => {
        if(!selfId){
         throw new Error('Self does not exist yet.')
        }
-    
       return this._conApiService.getAllCons(selfId).pipe(
         rxjs.map(conversations => actions.Con.Api.Con.List.actions.succeeded({ conversations })),
         rxjs.catchError(error => rxjs.of(actions.Con.Api.Con.List.actions.failed({ errorMessage: error?.message }))
@@ -118,7 +114,13 @@ export class ConversationEffects {
           if (directCon) {
             return rxjs.of(actions.Con.Misc.Selection.actions.requested({ directConId: directCon.id }))
           } else {
-            return rxjs.of(actions.Con.Api.Con.Create.actions.started({ input: { participantIds: [selfId, action.userId] } }))
+            return rxjs.of(actions.Con.Api.Con.Create.actions.started({ input: 
+              {
+              participantIds: [selfId, action.userId],
+              creatorId: selfId 
+              },
+            
+          }))
           }
         })
       )
@@ -143,7 +145,8 @@ export class ConversationEffects {
 
   onApiConCreateStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Create.actions.started),
-    rxjs.switchMap(({ input }) => this._conApiService.createCon(input.participantIds).pipe(
+
+    rxjs.switchMap(({ input }) => this._conApiService.createCon(input).pipe(
       rxjs.map(createdConversation => actions.Con.Api.Con.Create.actions.succeeded({ conversation: createdConversation })),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.Create.actions.failed({ errorMessage: error?.message }))
@@ -164,7 +167,10 @@ export class ConversationEffects {
   onApiConDeleteStarted$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Con.Delete.actions.started),
     rxjs.switchMap(({ id }) => this._conApiService.deleteCon(id).pipe(
-      rxjs.map((deletedConversation) => actions.Con.Api.Con.Delete.actions.succeeded({ conversation: deletedConversation })),
+      rxjs.map((res) => {
+        this._router.navigate(['conversations'])
+        return actions.Con.Api.Con.Delete.actions.succeeded({ conversation: res })
+      }),
       rxjs.catchError(error =>
         rxjs.of(actions.Con.Api.Con.Delete.actions.failed({ errorMessage: error?.message }))
       )
@@ -281,7 +287,7 @@ export class ConversationEffects {
       })
     )
   )
-  //------------------------socket events-----------------------------------//
+  //------------------------SOCKET EVENTS-----------------------------------//
   /**
    * This effect listens for conversation updates from the socket and directly updates the state
    */
@@ -316,5 +322,12 @@ export class ConversationEffects {
       ),
     )
   )
-
+  onPrivateConversationDeleted$ = ngrxEffects.createEffect(()=>
+  this._conApiService.deletedConversation$.pipe(
+    rxjs.map((deletedConversation)=>{
+      this._router.navigate(['conversations'])
+      return actions.Con.Socket.Conversation.Event.DeleteConRequest.actions.deleted({conversationId:deletedConversation.id})
+    })
+  )
+  )
 }

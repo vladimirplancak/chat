@@ -13,6 +13,7 @@ export interface Conversation {
   */
  name?: string
  participantIds: User.Id[]
+ creatorId: User.Id
 }
 export namespace Conversation {
     export type Id = string

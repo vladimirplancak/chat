@@ -2,6 +2,7 @@ import * as ngrxStore from '@ngrx/store'
 import { ConState } from './conversation.reducer'
 import * as models from '../../../models'
 import * as ngrxRouterStore from '@ngrx/router-store'
+import * as auth from '../auth/auth.selectors';
 
 const {
   selectRouteParam, // factory function to select a route param
@@ -56,6 +57,23 @@ export namespace Conversation {
       LOOKUP,
       ID,
       (lookup, selectedId) => selectedId ? lookup[selectedId] : undefined
+    )
+    
+    export const IS_SELF_CON_CREATOR = ngrxStore.createSelector(
+      ID,
+      LOOKUP,
+      auth.Auth.SELF_ID,
+      (conId, lookup, selfId) => { 
+        console.log(`selector/ConId`, conId)
+        console.log(`selector/lookup`, lookup)
+        console.log(`selector/selfId`, selfId)
+        const selectedConversation = conId ? lookup[conId] : undefined
+        console.log(`selector/selectedConversation`, selectedConversation)
+        if(!selectedConversation || !selfId){
+          return false
+        }
+        return selectedConversation.creatorId === selfId
+      }
     )
   }
   export namespace HoveredParticipant{

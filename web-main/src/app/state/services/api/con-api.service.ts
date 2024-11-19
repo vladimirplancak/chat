@@ -13,7 +13,7 @@ export class ConApiService {
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
   public readonly conUpdated$ = new rxjs.Subject<models.Conversation>()
   public readonly conParticipantRemoved$ = new rxjs.Subject<models.Conversation.Id>()
-  
+  public readonly deletedConversation$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
 
   private _conversationAPIurl = 'http://localhost:5000/api/conversations'
   private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
@@ -37,6 +37,10 @@ export class ConApiService {
     this._conSocketService.privateConCreated$.subscribe((con) =>{
       this.conUpdated$.next(con)
     })
+    //Subscribe to the deletion of the channel
+    this._conSocketService.deletedConversation$.subscribe((con)=>{
+      this.deletedConversation$.next(con)
+    })
   }
 
   /*-------------------- API CALLS ---------------------------*/
@@ -50,11 +54,11 @@ export class ConApiService {
   public getParticipantsByConId(id: models.Conversation.Id): rxjs.Observable<models.Conversation> {
     return this._http.get<models.Conversation>(`${this._participantsByConIdAPIurl}/${id}`)
   }
-  public createCon(participantIds: models.User.Id[]): rxjs.Observable<models.Conversation> {
-    return this._http.post<models.Conversation>(`${this._conversationAPIurl}`, { participantIds }).pipe(
+  public createCon(input: models.Conversation.Input): rxjs.Observable<models.Conversation> {
+    return this._http.post<models.Conversation>(`${this._conversationAPIurl}`,input ).pipe(
       
       rxjs.tap((createdCon)=>{
-        this._conSocketService.updateParticipantOfPrivateConCreationRequest(createdCon, participantIds)
+        this._conSocketService.updateParticipantOfPrivateConCreationRequest(createdCon, input.participantIds)
       })
     )
   }
@@ -76,7 +80,12 @@ export class ConApiService {
     )
   }
   public deleteCon(id: models.Conversation.Id): rxjs.Observable<models.Conversation> {
-    return this._http.delete<models.Conversation>(`${this._conversationAPIurl}/${id}`)
+    return this._http.delete<models.Conversation>(`${this._conversationAPIurl}/${id}`).pipe(
+      rxjs.tap((deletedConversation) =>{
+        this._conSocketService.deleteConversationRequest(deletedConversation)
+      })
+    )
+
   }
 
   /*-------------------- messages -----------------------*/

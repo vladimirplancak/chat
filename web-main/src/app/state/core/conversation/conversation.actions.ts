@@ -23,6 +23,16 @@ export namespace Con {
             }
           });
         }
+        export namespace DeleteConRequest {
+          export const SOURCE = common.Action.Source.from(Event.SOURCE, 'DeleteConRequest')
+          export const actions = ngrxStore.createActionGroup({
+            source: SOURCE,
+            events: {
+              'deleted': ngrxStore.props<{ conversationId: models.Conversation.Id }>(),
+    
+            }
+          });
+        }
       }
     }
 

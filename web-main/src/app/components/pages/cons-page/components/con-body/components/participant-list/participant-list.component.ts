@@ -20,9 +20,9 @@ export class ParticipantListComponent  {
 
   private readonly _store = ngCore.inject(ngrxStore.Store)
   private readonly _selectedConSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)
-  private readonly _userLookUpSg = this._store.selectSignal(state.core.user.selectors.User.USER_LOOKUP)
   public readonly presentListErrorSg = this._store.selectSignal(state.core.user.selectors.User.LIST_ERROR)
   public readonly presetParticipantSelectorDialogSg = this._store.selectSignal(state.core.con.selectors.Conversation.ParticipantsDialog.SHOULD_PRESENT)
+  public readonly isSelfConCreatorSG = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.IS_SELF_CON_CREATOR)
   /**
    * Users are loading if there is no selected conversation (and) or if there is
    * ongoing request to fetch the list of users.
@@ -75,5 +75,13 @@ export class ParticipantListComponent  {
 
   public participantDialogBackdropClickHandler() {
     this._store.dispatch(state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked())
+  }
+
+  public conversationDeleteBtnClickHandler() {
+    const selectedCon = this._selectedConSg()?.id
+    if (!selectedCon) {
+      return []
+    }
+   return this._store.dispatch(state.core.con.actions.Con.Api.Con.Delete.actions.started({id: selectedCon}))
   }
 }

@@ -20,6 +20,12 @@
          participantListAddBtnClickHandler();">
         add
       </button>
+      @if(isSelfConCreatorSG()){
+      <button class="participant-list__delCon-button" (click)=" 
+              conversationDeleteBtnClickHandler();">
+        delete
+      </button>
+      }
     </div>
   </div>
 
