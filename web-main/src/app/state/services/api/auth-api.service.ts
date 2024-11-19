@@ -5,6 +5,7 @@ import * as ngCore from '@angular/core'
 import * as http from '@angular/common/http'
 
 export class AuthApiService {
+
   private readonly _authSocket = ngCore.inject(services.AuthSocketService)
   private readonly _http = ngCore.inject(http.HttpClient)
 
@@ -24,6 +25,7 @@ export class AuthApiService {
         const decodedToken = models.Auth.Self.from(response.jwtToken)
         if (decodedToken?.userId) {
           // emit 'clientAuthenticated'event
+         
           this._authSocket.clientAuthenticated(decodedToken.userId)
         }
 
@@ -38,7 +40,12 @@ export class AuthApiService {
     )
     //return rxjs.timer(1000).pipe(rxjs.map(() => AuthApiService._jwt))
   }
+  public logout(selfId: string): rxjs.Observable<void> {
 
+    models.Auth.LocalStorage.Token.set('')  // Clear the token
+    return rxjs.of(void 0) 
+  }
+  
   /**
    * If JWT token is present in local storage, and valid, return it, otherwise return undefined
    */

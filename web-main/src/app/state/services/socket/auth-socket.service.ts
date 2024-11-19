@@ -18,4 +18,5 @@ export class AuthSocketService {
           }
         this._socket?.emit('clientAuthenticated', userId)   
     }
+
 }

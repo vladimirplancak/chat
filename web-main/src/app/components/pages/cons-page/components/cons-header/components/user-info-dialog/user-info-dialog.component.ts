@@ -12,9 +12,10 @@ import * as models from '../../../../../../../models'
   })
 
   export class UserSelectorInfoComponent{
-    
-    onSelfLogOutBtnClick() {
-    throw new Error('Method not implemented.')
+    private readonly _store = ngCore.inject(ngrxStore.Store)
+
+  onSelfLogOutBtnClick() {
+    this._store.dispatch(state.core.auth.actions.Auth.Ui.Buttons.LogOut.actions.started())
   }
 
   }

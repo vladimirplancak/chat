@@ -18,6 +18,23 @@ export namespace Auth {
         }
       })
     }
+    export namespace Buttons {
+      export const SOURCE = common.Action.Source.from(AUTH_SOURCE, 'Buttons')
+
+      export namespace LogOut{
+        export const SOURCE = common.Action.Source.from(Buttons.SOURCE, 'LogOut')
+        export const actions = ngrxStore.createActionGroup({
+          source: SOURCE,
+          events: {
+            'started': ngrxStore.emptyProps(),
+            'succeeded': ngrxStore.emptyProps(),
+            'failed' : ngrxStore.props<{ errorMessage?: string }>(),
+          }
+        })
+      }
+
+    }
+
   }
 
   export namespace Api {
