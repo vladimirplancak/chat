@@ -65,19 +65,24 @@ export namespace Conversation {
     )
   }
   export namespace ParticipantsDialog {
-    export const SHOULD_PRESENT = ngrxStore.createSelector(
+    const DATA  = ngrxStore.createSelector(
       STATE,
-      (state) => state.participantSelectorDialog.open
+      state => state.participantSelectorDialog
+    )
+
+    export const SHOULD_PRESENT = ngrxStore.createSelector(
+      DATA,
+      data => data.open
     )
 
     export const NEW_SELECTED_IDS = ngrxStore.createSelector(
-      STATE,
-      state => state.participantSelectorDialog.newSelectedIds
+      DATA,
+      data => data.newSelectedIds
     )
 
     export const SEARCHED_TERM = ngrxStore.createSelector(
-      STATE,
-      state => state.participantSelectorDialog.searchTerm
+      DATA,
+      data => data.searchTerm
     )
   }
 }
