@@ -1,45 +1,30 @@
 <div class="participant-selector-dialog">
    <input 
     type="text"
-    [placeholder]="searcedTerm() ? searcedTerm() : 'search...'"
+    [placeholder]="'search...'"
+    [value]="searchTermSg() ?? null"
     (input)="onSearchInputChange($event)"
    />
-  @if (!this.searcedTerm() || this.searcedTerm()?.trim() === '') {
 
+   @if(usersSg().length > 0) {
     @for(user of usersSg(); track $index) {
-    <div class="participant-selector-dialog__participant-item" >
-        <input 
-          type="checkbox" 
-          [disabled]="disabledUserIdsLookupSg()[user.id]"
-          [checked]="checkedUserIdsLookupSg()[user.id]"
-          (change)="participantCheckboxChangeHandler(user.id)"
-      />
-      {{ user.name }}
-    </div>
-    }
-  } 
-  @else if(searchTermUsersSg().length > 0) {
-   
-    @for(user of searchTermUsersSg(); track $index) {
-      
       <div class="participant-selector-dialog__participant-item" >
-        <input 
-          type="checkbox" 
-          [disabled]="disabledUserIdsLookupSg()[user.id]"
-          [checked]="checkedUserIdsLookupSg()[user.id]"
-          (change)="participantCheckboxChangeHandler(user.id)"
-      />
+          <input 
+            type="checkbox" 
+            [checked]="checkedUserIdsLookupSg()[user.id]"
+            (change)="participantCheckboxChangeHandler(user.id)"
+        />
         {{ user.name }}
       </div>
-    }
-  }
+      }
+   }
   @else {
     <div class="participant-selector-dialog__participant-item" >
     {{ 'No users found.'}}
   </div>
   }
-  
-
-
-    <button (click)="saveBtnClickHandler()">Save</button>
+    <button 
+      (click)="saveBtnClickHandler()"
+      [disabled]="saveButtonDisabledSg()"
+    >Save</button>
   </div>
