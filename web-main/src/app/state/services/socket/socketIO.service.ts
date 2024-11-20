@@ -15,7 +15,12 @@ export class SocketIOService {
     if (!this._socket) {
       this._socket = socketIoClient.io(this._socketUrl, { withCredentials: true })
       this._socket.on('connect', () => console.log('Socket connected'))
-      this._socket.on('disconnect', () => console.log('Socket disconnected'))
+      this._socket.on('disconnect', () => {
+        //we explicitly set socket value to 'undefined' to avoid
+        //having residue values interfering with the if check above
+        this._socket = undefined
+        return console.log('Socket disconnected')
+      })
     }
   }
 

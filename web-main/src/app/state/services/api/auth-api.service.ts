@@ -25,7 +25,6 @@ export class AuthApiService {
         const decodedToken = models.Auth.Self.from(response.jwtToken)
         if (decodedToken?.userId) {
           // emit 'clientAuthenticated'event
-         
           this._authSocket.clientAuthenticated(decodedToken.userId)
         }
 
@@ -41,7 +40,8 @@ export class AuthApiService {
     //return rxjs.timer(1000).pipe(rxjs.map(() => AuthApiService._jwt))
   }
   public logout(selfId: string): rxjs.Observable<void> {
-
+    this._authSocket.clientLoggedOut()
+    this._authSocket.disconnectSocket()
     models.Auth.LocalStorage.Token.set('')  // Clear the token
     return rxjs.of(void 0) 
   }
