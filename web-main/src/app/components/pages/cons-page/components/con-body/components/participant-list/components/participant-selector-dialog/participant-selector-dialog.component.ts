@@ -15,65 +15,46 @@ export class ParticipantSelectorDialogComponent  {
 
   private readonly _store = ngCore.inject(ngrxStore.Store)
 
-  public readonly searcedTerm = this._store.selectSignal(state.core.con.selectors.Conversation.ParticipantsDialog.SEARCHED_TERM)
   private readonly _selfIdSg = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)
-  private readonly _selectedConversation = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)
-  
+  private readonly _selectedConversationSg = 
+    this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)
 
-  /**
-   * Userlist (without the current user and already existing users, filtered by searchTerm
+  /** 
+   * Current value of the search input, or undefined if not specified.
+   * This will implicitly affect the {@link usersSg} selector, filtering users
+   * based on the search term.
    */
+  public readonly searchTermSg = 
+    this._store.selectSignal(state.core.con.selectors.Conversation.ParticipantsDialog.SEARCH_TERM)
 
-  public readonly searchTermUsersSg = ngCore.computed((
-    allUSers = this.usersSg(),
-    existingUsers = this._selectedConversation()?.participantIds ?? [],
-    searchTerm = this.searcedTerm()?.trim().toLocaleLowerCase() || '',
-  ) => {
-  
-    const nonParticipantUsers = allUSers.filter(user => !existingUsers.includes(user.id))
-    const filterdUsersBySearchTerm = nonParticipantUsers.filter(user =>
-      user.name.toLocaleLowerCase().includes(searchTerm)
-    )
-
-    return filterdUsersBySearchTerm
-
-  })
   /**
    * All users except self and already existing users.
    */
   public readonly usersSg = ngCore.computed((
-    allUsers = this._store.selectSignal(state.core.user.selectors.User.USERS)(),
-    _selfId = this._selfIdSg(),
-    _existingParticipants = this._selectedConversation()?.participantIds ?? []
+    selfId = this._selfIdSg(),
+    conParticipantIds = this._selectedConversationSg()?.participantIds ?? [],
+    searchTerm = this.searchTermSg()
   ) => {
 
-    return allUsers.filter((user) => user.id !== _selfId && !_existingParticipants.includes(user.id))
+    /**
+     * Users to ignore that are already in the conversation. And since
+     * {@link _selfIdSg} represents "us" we should ignore that as well.
+     * 
+     * NOTE: Due to the typescript typing which gives us flexibility of
+     * {@link _selfIdSg} being undefined (which should never happen, and if it
+     * does it should be an error), we need to check if it is undefined before
+     * concatenating it with {@link conParticipantIds}
+     */
+    const ignoreUserIds = selfId
+      ? conParticipantIds.concat(selfId)
+      : conParticipantIds 
+
+    // TODO: Should utilize {ignoreUserIdOrIds} from the selector, once it is implemented
+    return this._store.selectSignal(state.core.user.selectors.User.USERS_FILTERED({ 
+      searchTerm,
+    }))().filter(user => !ignoreUserIds.includes(user.id))
   })
 
-  /**
-   * All participants of the current conversation.
-   * 
-   * @example 
-   * ['user-id-1', 'user-id-3']
-   * // ->
-   * {
-   *  'user-id-1': true,
-   *  'user-id-3': true,
-   * }
-   */
-  public readonly disabledUserIdsLookupSg = ngCore.computed((
-    selectedConversation = this._selectedConversation()
-  ) => {
-    if (selectedConversation) {
-      return selectedConversation.participantIds.reduce<Record<models.User.Id, boolean>>((lookup, userId) => {
-        lookup[userId] = true
-
-        return lookup
-      }, {})
-    } else {
-      return {}
-    }
-  })
 
   /**
    * New selected user ids lookup
@@ -99,43 +80,39 @@ export class ParticipantSelectorDialogComponent  {
       }, {})
     }
   })
+  
 
+  private readonly _newSelectedIdsSg = ngCore.computed(
+    (newSelectedIds = this._store.selectSignal(state.core.con.selectors.Conversation.ParticipantsDialog.NEW_SELECTED_IDS)() ?? []) => 
+      newSelectedIds
+  )
 
+  public readonly saveButtonDisabledSg = ngCore.computed((
+    newSelectedIds = this._newSelectedIdsSg()
+  ) => {
+    return  newSelectedIds.length === 0
+  })
 
 
   public saveBtnClickHandler(): void {
-    const newSelectedUserIds = this._store.selectSignal(
-      state.core.con.selectors.Conversation.ParticipantsDialog.NEW_SELECTED_IDS
-    )();
-
-
-    if (!newSelectedUserIds || newSelectedUserIds.length === 0) {
-      throw new Error('There are no participant ids selected')
+    if (this.saveButtonDisabledSg()) {
+      return
     }
-
 
     this._store.dispatch(
       state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Buttons.Save.actions.clicked({
-        selectedParticipantIds: newSelectedUserIds,
+        selectedParticipantIds: this._newSelectedIdsSg(),
       })
-    );
-
-  
-
-    //Close the participant dialog after saving the additional selected participants to the conversation.
-    this._store.dispatch(state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked())
-
+    )
   }
 
   public participantCheckboxChangeHandler(userId: models.User.Id): void {
     this._store.dispatch(state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked({ userId }));
   }
 
-  onSearchInputChange(event: Event | undefined): void {
-    
+  public onSearchInputChange(event: Event | undefined): void {    
     const inputElement = event?.target as HTMLInputElement
     const searchTerm = inputElement.value
-    console.log(`searchTerm:`, searchTerm)
     this._store.dispatch(state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Search.actions.changed({ searchTerm }))
   }
 }

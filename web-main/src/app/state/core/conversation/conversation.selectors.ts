@@ -80,7 +80,7 @@ export namespace Conversation {
       data => data.newSelectedIds
     )
 
-    export const SEARCHED_TERM = ngrxStore.createSelector(
+    export const SEARCH_TERM = ngrxStore.createSelector(
       DATA,
       data => data.searchTerm
     )

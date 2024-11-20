@@ -29,7 +29,7 @@ export class MsgListComponent {
     // we return the empty array (no messages). Note, that this only covers the case
     // where the participants that actually sent th messages are not yet loaded.
     const participantIds = selectedConversation.participantIds
-    const filteredUsers = this._store.selectSignal(state.core.user.selectors.User.USERS_FILTERED(participantIds))()
+    const filteredUsers = this._store.selectSignal(state.core.user.selectors.User.USERS_FILTERED({userIdOrIds: participantIds}))()
     if (filteredUsers.length !== participantIds.length) {
       return []
     }

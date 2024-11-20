@@ -342,7 +342,10 @@ export namespace ConState {
       }
     })),
 
-    on(actions.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked, (state, { }) => ({
+    on(
+      actions.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked, 
+      actions.Con.Api.Con.Update.actions.succeeded,
+      (state, { }) => ({
       ...state,
       participantSelectorDialog: {
         open: false,
@@ -350,7 +353,8 @@ export namespace ConState {
       }
     })),
 
-    on(actions.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked, (state, { userId }) => {
+    on(
+      actions.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked, (state, { userId }) => {
       let newSelectedIds = state.participantSelectorDialog.newSelectedIds ?? []
 
       if (newSelectedIds.includes(userId)) {
@@ -367,7 +371,5 @@ export namespace ConState {
         }
       })
     }),
-
-
   )
 }

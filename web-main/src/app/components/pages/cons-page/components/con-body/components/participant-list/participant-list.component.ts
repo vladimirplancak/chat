@@ -42,7 +42,7 @@ export class ParticipantListComponent {
     if (!selectedCon) {
       return []
     }
-    return this._store.selectSignal(state.core.user.selectors.User.USERS_FILTERED(selectedCon.participantIds))()
+    return this._store.selectSignal(state.core.user.selectors.User.USERS_FILTERED({userIdOrIds: selectedCon.participantIds}))()
   })
 
   /**
