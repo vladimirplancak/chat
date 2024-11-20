@@ -3,7 +3,6 @@ import * as ngCore from '@angular/core'
 import * as ngrxStore from '@ngrx/store'
 import * as state from '../../../../../../../../../state'
 import * as models from '../../../../../../../../../models'
-import * as con from '../../../../../../../../../state/core/conversation/conversation.actions'
 
 @ngCore.Component({
   selector: 'app-participant-selector-dialog',
@@ -116,7 +115,7 @@ export class ParticipantSelectorDialogComponent  {
 
 
     this._store.dispatch(
-      con.Con.Ui.ParticipantSelectorDialog.Buttons.Save.actions.clicked({
+      state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Buttons.Save.actions.clicked({
         selectedParticipantIds: newSelectedUserIds,
       })
     );
@@ -124,12 +123,12 @@ export class ParticipantSelectorDialogComponent  {
   
 
     //Close the participant dialog after saving the additional selected participants to the conversation.
-    this._store.dispatch(con.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked())
+    this._store.dispatch(state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked())
 
   }
 
   public participantCheckboxChangeHandler(userId: models.User.Id): void {
-    this._store.dispatch(con.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked({ userId }));
+    this._store.dispatch(state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked({ userId }));
   }
 
   onSearchInputChange(event: Event | undefined): void {
@@ -137,6 +136,6 @@ export class ParticipantSelectorDialogComponent  {
     const inputElement = event?.target as HTMLInputElement
     const searchTerm = inputElement.value
     console.log(`searchTerm:`, searchTerm)
-    this._store.dispatch(con.Con.Ui.ParticipantSelectorDialog.Search.actions.changed({ searchTerm }))
+    this._store.dispatch(state.core.con.actions.Con.Ui.ParticipantSelectorDialog.Search.actions.changed({ searchTerm }))
   }
 }
