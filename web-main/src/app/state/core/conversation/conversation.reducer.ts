@@ -78,7 +78,7 @@ export interface ConState {
      * // results: ['John Doe', 'Jane Doe']  
      *  
      */
-    searchTerm?: string | undefined
+    searchTerm?: string
   }
 
   /**
