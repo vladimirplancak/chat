@@ -1,65 +1,77 @@
 import * as rxjs from 'rxjs'
 import * as models from '../../../models'
-import * as services from '../socket/auth-socket.service'
+import * as services from '../socket/'
 import * as ngCore from '@angular/core'
 import * as http from '@angular/common/http'
 
+@ngCore.Injectable({
+  providedIn: 'root',
+})
 export class AuthApiService {
-
-  private readonly _authSocket = ngCore.inject(services.AuthSocketService)
+  private readonly _authSocketService = ngCore.inject(services.AuthSocketService)
+  private readonly _userSocketService = ngCore.inject(services.UserSocketService)
   private readonly _http = ngCore.inject(http.HttpClient)
 
-  private _authAPIurl = 'http://localhost:5000/api/login'
+  private readonly _authAPIurl = 'http://localhost:5000/api/login'
 
-  constructor() { }
+  constructor() {}
 
   public login(username: string, password: string): rxjs.Observable<models.Auth.Response> {
-    // TODO: work on full implementation
     const payload = { username, password }
     return this._http.post<models.Auth.Response>(`${this._authAPIurl}`, payload).pipe(
-      rxjs.map(response => {
-        // add the token to the local storage
+      rxjs.map((response) => {
+        // Store the token
         models.Auth.LocalStorage.Token.set(response.jwtToken)
 
-        // After login, initialize socket and register the user
+        // Decode the token
         const decodedToken = models.Auth.Self.from(response.jwtToken)
         if (decodedToken?.userId) {
-          // emit 'clientAuthenticated'event
-          this._authSocket.clientAuthenticated(decodedToken.userId)
+          console.log('User authenticated successfully. Setting up socket connection.')
+          
+          this._userSocketService.handleUserAuthenticated()
+     
+          this._authSocketService.clientAuthenticated(decodedToken.userId)
+       
+          this._userSocketService.userHasComeOnlineRequest(decodedToken.userId)
+        } else {
+          console.error('Invalid token. UserId not found.')
         }
 
         return {
           message: response.message,
-          jwtToken: response.jwtToken
+          jwtToken: response.jwtToken,
         } as models.Auth.Response
       }),
-      rxjs.catchError(error => {
+      rxjs.catchError((error) => {
+        console.error('Login error:', error)
         return rxjs.throwError(() => error)
       })
     )
-    //return rxjs.timer(1000).pipe(rxjs.map(() => AuthApiService._jwt))
   }
+
   public logout(selfId: string): rxjs.Observable<void> {
-    this._authSocket.clientLoggedOut()
-    this._authSocket.disconnectSocket()
-    models.Auth.LocalStorage.Token.set('')  // Clear the token
-    return rxjs.of(void 0) 
+    console.log('Logging out user:', selfId)
+    // clear the token
+    models.Auth.LocalStorage.Token.set('')
+ 
+    this._userSocketService.userHasWentOfflineRequest(selfId)
+ 
+    this._authSocketService.clientDeauthenticated()
+    //set `_isAuthenticated = false` flag and disconnect the socket
+    this._userSocketService.handleUserDeauthenticated()
+    return rxjs.of(void 0)
   }
-  
-  /**
-   * If JWT token is present in local storage, and valid, return it, otherwise return undefined
-   */
+
   public validateJwt(): rxjs.Observable<string | undefined> {
     const token = models.Auth.LocalStorage.Token.get()
-
     const decodedToken = token ? models.Auth.Self.from(token) : undefined
 
     if (decodedToken?.userId) {
-      this._authSocket.clientAuthenticated(decodedToken.userId)  // Emit 'register' here
+      console.log('Valid JWT found. Authenticating socket.')
+      this._authSocketService.clientAuthenticated(decodedToken.userId)
+    } else {
+      console.warn('No valid JWT found.')
     }
-    // TODO: consider moving this "TODOs" to effect(s)
-    // TODO: after we get the token, we should validate eif its valid (e.g. not expired)
-    // TODO: If it expired, try refreshing it, and then validating it, if it fails, return undefined.
 
     return rxjs.of(token ?? undefined)
   }

@@ -100,8 +100,10 @@ onLogoutSucceeded$ = ngrxEffects.createEffect(() =>
     ngrxEffects.ofType(actions.Auth.Api.actions.started),
     rxjs.switchMap((action) =>
       this._authApiService.login(action.username, action.password).pipe(
-        rxjs.tap((res) => console.log(`res`, res)),
-        rxjs.map(response => actions.Auth.Api.actions.succeeded({ jwtToken: response.jwtToken })),
+        rxjs.map(response => {
+          
+          return actions.Auth.Api.actions.succeeded({ jwtToken: response.jwtToken })
+        }),
         rxjs.catchError(error =>
           {
             const errorMessage = error?.error?.message || 'Login request failed' 

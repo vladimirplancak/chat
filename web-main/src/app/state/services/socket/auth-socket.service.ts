@@ -1,42 +1,70 @@
 import * as ngCore from '@angular/core'
-import * as socketIoClient from 'socket.io-client'
-import * as service from '../socket/socketIO.service'
+import * as service from '../socket/'
 
 @ngCore.Injectable({
-    providedIn: 'root',
+  providedIn: 'root',
 })
 export class AuthSocketService {
-    private readonly _socketIO = ngCore.inject(service.SocketIOService)
-    private _socket: socketIoClient.Socket | undefined
-    
-     // Notify the back end of client being authenticated
-    clientAuthenticated(userId: string) {
-         // Initialize the socket connection if not already done
-         if (!this._socket?.connected) {
-            this._socketIO.initializeSocketConnection()
-            this._socket = this._socketIO.getSocket()
-          }
-        this._socket?.emit('clientAuthenticated', userId)   
-    }
+  private readonly _socketIO = ngCore.inject(service.SocketIOService)
+ 
+  /**
+   * 
+   * Notify the back end of the client being authenticated by emiting `clientAuthenticated` request 
+   * for the purposes of updating the online users map.
+   */
+  public clientAuthenticated(userId: string): void {
+    // Ensure the socket connection is initialized
+    this._socketIO.initializeSocketConnection()
 
-    // Notify the back end of client being disconnected
-    clientLoggedOut() {
-        // Initialize the socket connection if not already done
-        if (!this._socket) {
-            this._socketIO.initializeSocketConnection()
-            this._socket = this._socketIO.getSocket()
-        }
-        this._socket?.emit('clientLoggedOut')
-    }
-    //built in method, this occurs when connection is suddenly terminated
-    //via internet connection being dropped or user closing the tab in the 
-    //browser
-    public disconnectSocket(): void {
-        if (this._socket && this._socket.connected) {
-          this._socket.disconnect(); // Close the socket connection
-          this._socket = undefined
-          console.log('Socket disconnected');
-        }
+    const socket = this._socketIO.getSocket()
+
+    if (socket) {
+      if (socket.connected) {
+        // Emit immediately if socket is already connected
+        socket.emit('clientAuthenticated', userId)
+      } else {
+        // Wait for the socket to connect
+        socket.once('connect', () => {
+          console.log('Socket connected, emitting clientAuthenticated')
+          socket.emit('clientAuthenticated', userId)
+        })
       }
-      
+    } else {
+      console.error('Socket instance is undefined.')
+    }
+  }
+  /**
+   * 
+   * Notify the back end of the client being deauthenticated by emiting `clientDeauthenticated` request 
+   * for the purposes of updating the online users map.
+   */
+  public clientDeauthenticated(): void {
+    this._socketIO.initializeSocketConnection()
+
+    const socket = this._socketIO.getSocket()
+
+    if (socket) {
+      if (socket.connected) {
+        // Emit immediately if socket is already connected
+        socket.emit('clientDeauthenticated')
+      } else {
+        // Wait for the socket to connect
+        socket.once('connect', () => {
+          console.log('Socket connected, emitting clientDeauthenticated')
+          socket.emit('clientDeauthenticated')
+        })
+      }
+    } else {
+      console.error('Socket instance is undefined.')
+    }
+  }
+
+  // Disconnect the socket
+  public disconnectSocket(): void {
+    const socket = this._socketIO.getSocket()
+    if (socket?.connected) {
+      socket.disconnect() // Close the socket connection
+      console.warn('Socket disconnected')
+    }
+  }
 }

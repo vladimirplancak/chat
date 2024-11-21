@@ -5,3 +5,4 @@ export { MessageSocketService as MessageSocketService } from './socket/message-s
 export { AuthSocketService as AuthSocketService } from './socket/auth-socket.service'
 export { SocketIOService as SocketIOService} from './socket/socketIO.service'
 export { ConSocketService as ConSocketService } from './socket/con-socket.service'
+export { UserSocketService as UserSocketService} from './socket/user-socket.service'
