@@ -1,7 +1,7 @@
 import * as ngrxStore from '@ngrx/store'
 import { UserState } from './user.reducer'
 import * as models from '../../../models'
-
+import * as auth from '../auth/auth.selectors'
 
 interface UserFilterParams {
   /**
@@ -28,6 +28,16 @@ export namespace User {
     state => state.userLookup
   )
 
+  export const SELF_DETAILS = ngrxStore.createSelector(
+    auth.Auth.SELF_ID,
+    USER_LOOKUP,
+    (selfId,userLookup ) =>{
+      if(selfId == undefined){
+        throw new Error('Self is undefined')
+      }
+      return userLookup[selfId]
+    }
+  )
   /**
    * TODO: filter works only with ids, so we should convey that with the name of the selector.
    */

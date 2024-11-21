@@ -2,11 +2,12 @@ import * as ngCore from '@angular/core';
 import * as models from '../../../models';
 import * as rxjs from 'rxjs'
 import * as http from '@angular/common/http'
+import * as socketServices from '../socket'
 
 @ngCore.Injectable()
 export class UserApiService {
   private readonly _http = ngCore.inject(http.HttpClient)
-  
+  private readonly _userSocketService = ngCore.inject(socketServices.UserSocketService)
   private _apiUrl = 'http://localhost:5000/api/users'
 
   public readonly userCameOnline$ = new rxjs.Subject<models.User.Id>()
@@ -14,6 +15,18 @@ export class UserApiService {
 
   constructor() {
     // TODO: remove this hardcoded online / offline approach once implementing backend
+
+    this._userSocketService.userHasComeOnline$.subscribe((res) =>
+      {
+        return  this.userCameOnline$.next(res)
+      }
+     
+    )
+    this._userSocketService.userHasGoneOffline$.subscribe((res)=>
+      {
+        return this.userWentOffline$.next(res);
+      }
+    )
     // rxjs.timer(0, 500).subscribe(() => {
     //   const randomOnlineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]
     //   const randomOfflineUser = IN_MEMORY_USERS_LIST[Math.floor(Math.random() * IN_MEMORY_USERS_LIST.length)]

@@ -2,8 +2,8 @@
     <div class="userInfo-dialog__profile">
       
       <div class="userInfo-dialog__info">
-        <p class="userInfo-dialog__name">John Doe</p>
-        <p class="userInfo-dialog__email">johndoe.example.com</p>
+        <p class="userInfo-dialog__name">{{selfUserInformationSG()?.name}}</p>
+        <p class="userInfo-dialog__email">{{selfUserInformationSG()?.id?.substring(1,23)}}</p>
       </div>
     </div>
   

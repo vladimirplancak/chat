@@ -64,11 +64,11 @@ export namespace Conversation {
       LOOKUP,
       auth.Auth.SELF_ID,
       (conId, lookup, selfId) => { 
-        console.log(`selector/ConId`, conId)
-        console.log(`selector/lookup`, lookup)
-        console.log(`selector/selfId`, selfId)
+        // console.log(`selector/ConId`, conId)
+        // console.log(`selector/lookup`, lookup)
+        // console.log(`selector/selfId`, selfId)
         const selectedConversation = conId ? lookup[conId] : undefined
-        console.log(`selector/selectedConversation`, selectedConversation)
+        // console.log(`selector/selectedConversation`, selectedConversation)
         if(!selectedConversation || !selfId){
           return false
         }
