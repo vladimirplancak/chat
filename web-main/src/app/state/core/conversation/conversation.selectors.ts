@@ -43,7 +43,7 @@ export namespace Conversation {
   export const DIRECT = (participantId: models.User.Id) => ngrxStore.createSelector(
     BY_PARTICIPANT(participantId),
     // TODO: Explore what will happen if more conversation are found here, because it might happen?
-    cons => cons.find(con => con.participantIds.length === 2)
+    cons => cons.find(con => con.participantIds?.length === 2)
   )
 
 

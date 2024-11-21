@@ -58,6 +58,9 @@ export class ConApiService {
     return this._http.post<models.Conversation>(`${this._conversationAPIurl}`,input ).pipe(
       
       rxjs.tap((createdCon)=>{
+        if(input.participantIds == undefined){
+          throw new Error("No participantIds provided.")
+        }
         this._conSocketService.updateParticipantOfPrivateConCreationRequest(createdCon, input.participantIds)
       })
     )

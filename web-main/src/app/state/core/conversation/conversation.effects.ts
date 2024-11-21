@@ -48,7 +48,12 @@ export class ConversationEffects {
       }
       return this._conApiService.getParticipantsByConId(selectedConId).pipe(
         rxjs.map(consParticipants =>
-          actions.Con.Api.Con.LoadConParticipantsByConId.actions.succeeded({ id: consParticipants.id, participantIds: consParticipants.participantIds })
+          {
+            if(consParticipants.participantIds == undefined){
+              throw new Error('No participantIds provided.')
+            }
+            return actions.Con.Api.Con.LoadConParticipantsByConId.actions.succeeded({ id: consParticipants.id, participantIds: consParticipants.participantIds })
+          }
         ),
         rxjs.catchError(error =>
           rxjs.of(actions.Con.Api.Con.LoadConParticipantsByConId.actions.failed({ errorMessage: error?.message }))
