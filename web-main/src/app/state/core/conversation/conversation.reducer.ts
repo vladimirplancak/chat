@@ -78,7 +78,7 @@ export interface ConState {
      * // results: ['John Doe', 'Jane Doe']  
      *  
      */
-    searchTerm?: string | undefined
+    searchTerm?: string
   }
 
   /**
@@ -397,7 +397,10 @@ export namespace ConState {
       }
     })),
 
-    on(actions.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked, (state, { }) => ({
+    on(
+      actions.Con.Ui.ParticipantSelectorDialog.Backdrop.actions.clicked, 
+      actions.Con.Api.Con.Update.actions.succeeded,
+      (state, { }) => ({
       ...state,
       participantSelectorDialog: {
         open: false,
@@ -405,7 +408,8 @@ export namespace ConState {
       }
     })),
 
-    on(actions.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked, (state, { userId }) => {
+    on(
+      actions.Con.Ui.ParticipantSelectorDialog.Item.actions.clicked, (state, { userId }) => {
       let newSelectedIds = state.participantSelectorDialog.newSelectedIds ?? []
 
       if (newSelectedIds.includes(userId)) {
@@ -423,7 +427,7 @@ export namespace ConState {
       })
     }),
     /* -------------------------------------------------------------------------- */
-    /*                                 SOCKET event reducers                      */
+    /*                            SOCKET event reducers                           */
     /* -------------------------------------------------------------------------- */
     on(actions.Con.Socket.Conversation.Event.UpdateConRequest.actions.updated, (state, { conversation }) => {
       const existingConversation = state.conLookup[conversation.id];

@@ -3,7 +3,22 @@ import { UserState } from './user.reducer'
 import * as models from '../../../models'
 
 
-
+interface UserFilterParams {
+  /**
+   * User id or ids to filter users by
+   */
+  userIdOrIds?: models.User.Id | readonly models.User.Id[]
+  /**
+   * Ignore users ids from the result
+   */
+  ignoreUserIdOrIds?: models.User.Id | readonly models.User.Id[]
+  /**
+   * Search term to filter users by
+   * 
+   * {@link models.User} object will be filtered by {@link JSON.stringify} methods
+   */
+  searchTerm?: string
+}
 
 const STATE = ngrxStore.createFeatureSelector<UserState>(UserState.FEATURE_KEY)
 
@@ -16,14 +31,34 @@ export namespace User {
   /**
    * TODO: filter works only with ids, so we should convey that with the name of the selector.
    */
-  export const USER_LOOKUP_FILTERED = (userIdOrIds: models.User.Id | readonly models.User.Id[]) => ngrxStore.createSelector(
+  export const USER_LOOKUP_FILTERED = (params: UserFilterParams = { userIdOrIds: undefined }) => ngrxStore.createSelector(
     USER_LOOKUP,
     (userLookup) => {
-      const userIds = _isReadonlyArray(userIdOrIds) ? userIdOrIds : [userIdOrIds]
+
+      let userIds = _isReadonlyArray(params.userIdOrIds) ? params.userIdOrIds : [params.userIdOrIds]
+
+      // if we are not filtering by userIds, we are still filtering by search
+      // term, thus we need to "get" all the users
+      if (!params.userIdOrIds) {
+        userIds = Object.keys(userLookup)
+      }
+
+      if(params.ignoreUserIdOrIds) {
+        throw new Error('Not implemented')
+      }
 
       return Object.fromEntries(
-        Object.entries(userLookup) 
-          .filter(([id, user]) => userIds.includes(id))
+        Object.entries(userLookup)
+          .filter(([id, user]) => {
+            // TODO Below can be better written
+            if (params.searchTerm) {
+              const userString = JSON.stringify(user)
+              const fountBySearchTerm = userString.toLowerCase().includes(params.searchTerm.toLowerCase().trim())
+              return userIds.includes(id) && fountBySearchTerm
+            } else {
+              return userIds.includes(id)
+            }
+          })
       )
     }
   )
