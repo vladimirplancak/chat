@@ -11,7 +11,7 @@ import { AsyncPipe } from '@angular/common';
   styleUrl: './msg-list.component.scss',
   templateUrl: './msg-list.component.html',
   selector: 'app-msg-list',
-  imports:[AsyncPipe]
+  //imports:[AsyncPipe] seems to be unused.
 })
 export class MsgListComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store)

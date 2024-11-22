@@ -29,9 +29,7 @@ export class AuthApiService {
           console.log('User authenticated successfully. Setting up socket connection.')
           
           this._userSocketService.handleUserAuthenticated()
-     
           this._authSocketService.clientAuthenticated(decodedToken.userId)
-       
           this._userSocketService.userHasComeOnlineRequest(decodedToken.userId)
         } else {
           console.error('Invalid token. UserId not found.')
@@ -55,9 +53,7 @@ export class AuthApiService {
     models.Auth.LocalStorage.Token.set('')
  
     this._userSocketService.userHasWentOfflineRequest(selfId)
- 
     this._authSocketService.clientDeauthenticated()
-    //set `_isAuthenticated = false` flag and disconnect the socket
     this._userSocketService.handleUserDeauthenticated()
     return rxjs.of(void 0)
   }

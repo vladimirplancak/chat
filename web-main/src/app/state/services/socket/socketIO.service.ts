@@ -16,13 +16,13 @@ export class SocketIOService {
     const token = models.Auth.LocalStorage.Token.get()
     this._isAuthenticated = !!token
     if(this._isAuthenticated){
-      console.log('Token found, user is authenticated. Initializing socket connection.');
-      this.initializeSocketConnection();
+      console.log('Token found, user is authenticated. Initializing socket connection.')
+      this.initializeSocketConnection()
     }else{
-      console.warn('No token found. User is not authenticated.');
+      console.warn('No token found. User is not authenticated.')
     }
   }
-  // Initialize the socket connection only if authenticated
+  // Initialize the socket connection only if authenticated (token exists) and socket exists
   public initializeSocketConnection(): void {
     if (this._isAuthenticated && !this._socket) {
       this._socket = socketIoClient.io(this._socketUrl, { withCredentials: true })
@@ -30,24 +30,32 @@ export class SocketIOService {
       this._socket.on('connect', () => console.warn('Socket connected'))
 
       this._socket.on('disconnect', () => {
-        this._socket = undefined // Reset socket instance on disconnect
+        this._socket = undefined 
         console.warn('Socket disconnected')
       })
     } else if (!this._isAuthenticated) {
       console.warn('Cannot initialize socket. User is not authenticated.')
     }
   }
-  // Authenticate the client (call this after successful login)
+  /**
+   * Authenticate the client by setting the flag
+   * _isAuthenticated = true and calling initializeSocketConnection().
+   */
   public authenticate(): void {
     this._isAuthenticated = true
     this.initializeSocketConnection()
   }
-  // Deauthenticate the client (call this after logout)
+    /**
+   * Deauthenticate the client by setting the flag
+   * _isAuthenticated = true and calling disconnectSocket().
+   */
   public deauthenticate(): void {
     this._isAuthenticated = false
     this.disconnectSocket()
   }
-    // Explicitly disconnect the socket
+    /**
+     * Explicit socket disconnect.
+     */
     public disconnectSocket(): void {
       if (this._socket) {
         this._socket.disconnect()
@@ -55,7 +63,7 @@ export class SocketIOService {
       }
     }
   
-  // Method to get the socket instance
+  // Method to get the instance of the socket 
   getSocket(): socketIoClient.Socket | undefined {
     return this._socket
   }

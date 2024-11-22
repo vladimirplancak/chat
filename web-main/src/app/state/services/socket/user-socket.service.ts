@@ -61,6 +61,11 @@ export class UserSocketService {
   }
 
   private registerSocketListeners(socket: Socket): void {
+
+    socket.on('onlineUsersMapResponse', (onlineUsers: models.User.Id[]) => {
+      console.log('Online users received:', onlineUsers)
+      this.markUsersAsOnline(onlineUsers)
+    })
     socket.on('userHasComeOnlineResponse', (userId: models.User.Id) => {
       this.userHasComeOnline$.next(userId)
       console.log(`User came online listener triggered:`, userId)
@@ -73,7 +78,28 @@ export class UserSocketService {
   }
 
   //---------------------------------------- EMITTERS ---------------------------------------//
+  /**
+   * Emit `requestOnlineUsers` to fetch the list of online users from the back end.
+   */
+  public requestOnlineUsersMap(userId: models.User.Id): void {
+    this._socketIOService.initializeSocketConnection()
 
+    const socket = this._socketIOService.getSocket()
+    if (socket) {
+      if (socket.connected) {
+        socket.emit('onlineUsersMapRequest', userId)
+        console.log('Online users request emitted.')
+      } else {
+        console.log('Socket not connected. Waiting for connection to emit request.')
+        socket.once('connect', () => {
+          socket.emit('onlineUsersMapRequest',userId)
+          console.log('Online users request emitted after connection.')
+        })
+      }
+    } else {
+      console.error('Socket instance is undefined. Cannot request online users.')
+    }
+  }
   /**
    *  Emit `userHasComeOnlineRequest` to the back end 
    *  for the purposes of notifying online users of this event.
@@ -120,4 +146,27 @@ export class UserSocketService {
       console.error('Socket instance is undefined. Cannot emit user offline request.')
     }
   }
+ //---------------------------------------- MISC ---------------------------------------//
+  /**
+   * Updates the local state by marking each user in the provided list as online.
+   * This function processes the list of online user IDs, retrieved from the backend,
+   * and pushes each userID into the **userHasComeOnline$** subject, effectively making it
+   * come appear as online to the client that had just logged in or has refreshed the page.
+   * 
+   * @param onlineUsers - An array of user IDs representing users who are currently online,
+   * retrieved from the backend.
+   * Each user ID in this list will be pushed to the subject updating the local state of
+   * the client.
+   */
+  public markUsersAsOnline(onlineUsers: models.User.Id[]): void {
+    console.log('Pre-existing online users received:', onlineUsers)
+    onlineUsers.forEach((userId) => {
+        if (userId) {
+            this.userHasComeOnline$.next(userId)  
+            console.log(`User ${userId} marked as online locally.`)
+        } else {
+            console.warn('Invalid user ID in online users list:', userId)
+        }
+    })
+}
 }

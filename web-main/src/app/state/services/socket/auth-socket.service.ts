@@ -6,7 +6,7 @@ import * as service from '../socket/'
 })
 export class AuthSocketService {
   private readonly _socketIO = ngCore.inject(service.SocketIOService)
- 
+  private readonly _userSocketService = ngCore.inject(service.UserSocketService)
   /**
    * 
    * Notify the back end of the client being authenticated by emiting `clientAuthenticated` request 
@@ -27,6 +27,7 @@ export class AuthSocketService {
         socket.once('connect', () => {
           console.log('Socket connected, emitting clientAuthenticated')
           socket.emit('clientAuthenticated', userId)
+          this._userSocketService.requestOnlineUsersMap(userId)
         })
       }
     } else {
