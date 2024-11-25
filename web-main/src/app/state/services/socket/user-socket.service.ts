@@ -14,7 +14,7 @@ export class UserSocketService {
   public readonly userHasGoneOffline$ = new rxjs.Subject<models.User.Id>()
 
   constructor() {
-    console.log(`UserSocketService initialized.`)
+    // console.log(`UserSocketService initialized.`)
     this.setupSocketListeners()
   }
   //---------------------------------------- AUTHENTICATION HANDLING ---------------------------------------//
@@ -23,7 +23,7 @@ export class UserSocketService {
    * instance in the main socketIOservice.
    */
   public handleUserAuthenticated(): void {
-    console.log('User authenticated. Initializing socket.')
+    // console.log('User authenticated. Initializing socket.')
     this._socketIOService.authenticate()
     this.setupSocketListeners()
   }
@@ -33,7 +33,7 @@ export class UserSocketService {
   * instance in the main socketIOservice.
   */
   public handleUserDeauthenticated(): void {
-    console.log('User logged out. Disconnecting socket.')
+    // console.log('User logged out. Disconnecting socket.')
     this._socketIOService.deauthenticate()
   }
 
@@ -46,12 +46,12 @@ export class UserSocketService {
 
     if (socket) {
       if (socket.connected) {
-        console.log('Socket is already connected. Setting up listeners.')
+        // console.log('Socket is already connected. Setting up listeners.')
         this.registerSocketListeners(socket)
       } else {
-        console.log('Socket not connected. Waiting for connection to set up listeners.')
+        // console.log('Socket not connected. Waiting for connection to set up listeners.')
         socket.once('connect', () => {
-          console.log('Socket connected. Setting up listeners.')
+          // console.log('Socket connected. Setting up listeners.')
           this.registerSocketListeners(socket)
         })
       }
@@ -63,17 +63,17 @@ export class UserSocketService {
   private registerSocketListeners(socket: Socket): void {
 
     socket.on('onlineUsersMapResponse', (onlineUsers: models.User.Id[]) => {
-      console.log('Online users received:', onlineUsers)
+      // console.log('Online users received:', onlineUsers)
       this.markUsersAsOnline(onlineUsers)
     })
     socket.on('userHasComeOnlineResponse', (userId: models.User.Id) => {
       this.userHasComeOnline$.next(userId)
-      console.log(`User came online listener triggered:`, userId)
+      // console.log(`User came online listener triggered:`, userId)
     })
 
     socket.on('userHasWentOfflineResponse', (userId: models.User.Id) => {
       this.userHasGoneOffline$.next(userId)
-      console.log(`User went offline listener triggered:`, userId)
+      // console.log(`User went offline listener triggered:`, userId)
     })
   }
 
@@ -88,12 +88,12 @@ export class UserSocketService {
     if (socket) {
       if (socket.connected) {
         socket.emit('onlineUsersMapRequest', userId)
-        console.log('Online users request emitted.')
+        // console.log('Online users request emitted.')
       } else {
         console.log('Socket not connected. Waiting for connection to emit request.')
         socket.once('connect', () => {
           socket.emit('onlineUsersMapRequest',userId)
-          console.log('Online users request emitted after connection.')
+          // console.log('Online users request emitted after connection.')
         })
       }
     } else {
@@ -111,12 +111,12 @@ export class UserSocketService {
     if (socket) {
       if (socket.connected) {
         socket.emit('userHasComeOnlineRequest', userId)
-        console.log(`User has come online request emitted:`, userId)
+        // console.log(`User has come online request emitted:`, userId)
       } else {
         console.log('Socket not connected. Waiting for connection to emit online request.')
         socket.once('connect', () => {
           socket.emit('userHasComeOnlineRequest', userId)
-          console.log(`User has come online request emitted after connection:`, userId)
+          // console.log(`User has come online request emitted after connection:`, userId)
         })
       }
     } else {
@@ -134,12 +134,12 @@ export class UserSocketService {
     if (socket) {
       if (socket.connected) {
         socket.emit('userHasWentOfflineRequest', userId)
-        console.log(`User has went offline request emitted:`, userId)
+        // console.log(`User has went offline request emitted:`, userId)
       } else {
         console.log('Socket not connected. Waiting for connection to emit offline request.')
         socket.once('connect', () => {
           socket.emit('userHasWentOfflineRequest', userId)
-          console.log(`User has went offline request emitted after connection:`, userId)
+          // console.log(`User has went offline request emitted after connection:`, userId)
         })
       }
     } else {
@@ -159,11 +159,11 @@ export class UserSocketService {
    * the client.
    */
   public markUsersAsOnline(onlineUsers: models.User.Id[]): void {
-    console.log('Pre-existing online users received:', onlineUsers)
+    // console.log('Pre-existing online users received:', onlineUsers)
     onlineUsers.forEach((userId) => {
         if (userId) {
             this.userHasComeOnline$.next(userId)  
-            console.log(`User ${userId} marked as online locally.`)
+            // console.log(`User ${userId} marked as online locally.`)
         } else {
             console.warn('Invalid user ID in online users list:', userId)
         }

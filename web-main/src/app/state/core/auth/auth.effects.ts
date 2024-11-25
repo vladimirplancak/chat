@@ -20,6 +20,7 @@ export class AuthEffects implements ngrxEffects.OnInitEffects {
   initialized$ = ngrxEffects.createEffect(() =>
     this._actions.pipe(
       ngrxEffects.ofType(actions.Auth.Misc.actions.initialized),
+      rxjs.tap(() =>{ this._authApiService.handleTokenExpiry()}), //NOTE: this feels like a mema solution, but it works
       rxjs.map(() => actions.Auth.Misc.actions.localAuthStarted())
     )
   )
@@ -102,7 +103,7 @@ onLogoutSucceeded$ = ngrxEffects.createEffect(() =>
       this._authApiService.login(action.username, action.password).pipe(
         rxjs.map(response => {
           
-          return actions.Auth.Api.actions.succeeded({ jwtToken: response.jwtToken })
+          return actions.Auth.Api.actions.succeeded({ jwtToken: response.accessToken })
         }),
         rxjs.catchError(error =>
           {
@@ -116,6 +117,8 @@ onLogoutSucceeded$ = ngrxEffects.createEffect(() =>
   onLoginSucceeded$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Auth.Api.actions.succeeded),
     rxjs.map(() => {
+      this._authApiService.handleTokenExpiry();
+
       // redirect to content page upon successful login
       this._router.navigate(['/conversations']) 
     })

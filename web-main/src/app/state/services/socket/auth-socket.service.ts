@@ -25,7 +25,7 @@ export class AuthSocketService {
       } else {
         // Wait for the socket to connect
         socket.once('connect', () => {
-          console.log('Socket connected, emitting clientAuthenticated')
+          // console.log('Socket connected, emitting clientAuthenticated')
           socket.emit('clientAuthenticated', userId)
           this._userSocketService.requestOnlineUsersMap(userId)
         })
@@ -51,7 +51,7 @@ export class AuthSocketService {
       } else {
         // Wait for the socket to connect
         socket.once('connect', () => {
-          console.log('Socket connected, emitting clientDeauthenticated')
+          // console.log('Socket connected, emitting clientDeauthenticated')
           socket.emit('clientDeauthenticated')
         })
       }

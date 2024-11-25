@@ -1,4 +1,3 @@
-
 import * as jwtDecoder from "jwt-decode"
 
 // TODO: maybe start namespace with Auth.Request, Auth.Self, Auth.Self.from
@@ -11,7 +10,8 @@ export namespace Auth {
   }
   export interface Response{
     message: string
-    jwtToken: string
+    accessToken: string
+    refreshToken: string 
   }
   export interface Self {
     userId: string
@@ -34,14 +34,30 @@ export namespace Auth {
   }
 
   export namespace LocalStorage {
-    export namespace Token {
-      const KEY = 'Token'
-      export function set(value: string): void {
-        _localStorageSet(KEY, value)
+    export namespace Tokens {
+      const ACCESS_TOKEN_KEY = 'access_token'
+      const REFRESH_TOKEN_KEY = 'refresh_token'
+      
+      export function set(value: Response): void {
+     
+        _localStorageSet(ACCESS_TOKEN_KEY, value.accessToken)
+        _localStorageSet(REFRESH_TOKEN_KEY, value.refreshToken)
       }
 
-      export function get(): string | undefined {
-        return _localStorageGet(KEY)
+      export function getAccessToken(): string | undefined {
+        return _localStorageGet(ACCESS_TOKEN_KEY)
+      }
+      export function getRefreshToken(): string | undefined {
+        return _localStorageGet(REFRESH_TOKEN_KEY)
+      }
+
+      export function TokenExpDate(){
+        const Token = getAccessToken()
+        if(!Token){
+          throw new Error('Token undefined.')
+        }
+        console.log(`Token expiry date:`,jwtDecoder.jwtDecode<jwtDecoder.JwtPayload>(Token)?.exp )
+       return (jwtDecoder.jwtDecode<jwtDecoder.JwtPayload>(Token)?.exp || 0) * 1000; // Convert to milliseconds
       }
     }
   }
@@ -55,3 +71,4 @@ function _localStorageSet(key: string, value: string): void {
 function _localStorageGet(key: string): string | undefined {
   return localStorage.getItem(key) ?? undefined
 }
+

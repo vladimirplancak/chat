@@ -13,10 +13,10 @@ export class SocketIOService {
    }
 
   private initializeAuthStatusFromToken(){
-    const token = models.Auth.LocalStorage.Token.get()
+    const token = models.Auth.LocalStorage.Tokens.getAccessToken()
     this._isAuthenticated = !!token
     if(this._isAuthenticated){
-      console.log('Token found, user is authenticated. Initializing socket connection.')
+      // console.log('Token found, user is authenticated. Initializing socket connection.')
       this.initializeSocketConnection()
     }else{
       console.warn('No token found. User is not authenticated.')
