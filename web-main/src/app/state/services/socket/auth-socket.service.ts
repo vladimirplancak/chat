@@ -1,10 +1,23 @@
 import * as ngCore from '@angular/core'
 import * as service from '../socket/'
+import * as rxjs from 'rxjs'
 
 @ngCore.Injectable({
   providedIn: 'root',
 })
-export class AuthSocketService {
+export class AuthSocketService implements ngCore.OnDestroy {
+  ngOnDestroy(): void {
+    this._destroySubscription$.next()
+    this._destroySubscription$.complete()
+  }
+
+  private readonly _socketIOService = ngCore.inject(service.SocketIOService)
+  private readonly _destroySubscription$ = new rxjs.Subject<void>()
+  private _connectedSocket$ = this._socketIOService.onSocketConnected()
+    .pipe(
+      rxjs.shareReplay(1),
+      rxjs.takeUntil(this._destroySubscription$)
+    )
   private readonly _socketIO = ngCore.inject(service.SocketIOService)
   private readonly _userSocketService = ngCore.inject(service.UserSocketService)
   /**
@@ -13,26 +26,21 @@ export class AuthSocketService {
    * for the purposes of updating the online users map.
    */
   public clientAuthenticated(userId: string): void {
-    // Ensure the socket connection is initialized
-    this._socketIO.initializeSocketConnection()
-
-    const socket = this._socketIO.getSocket()
-
-    if (socket) {
-      if (socket.connected) {
-        // Emit immediately if socket is already connected
-        socket.emit('clientAuthenticated', userId)
-      } else {
-        // Wait for the socket to connect
-        socket.once('connect', () => {
-          // console.log('Socket connected, emitting clientAuthenticated')
-          socket.emit('clientAuthenticated', userId)
-          this._userSocketService.requestOnlineUsersMap(userId)
+    this._connectedSocket$
+      .pipe(
+        rxjs.first(),
+       // rxjs.tap(() => console.log('Socket action triggered')),
+        rxjs.tap(() => {
+          const socket = this._socketIOService.getSocket()
+          if (socket) {
+            socket.emit('clientAuthenticated', userId)
+            this._userSocketService.requestOnlineUsersMap(userId)
+          } else {
+            console.error('Socket instance is undefined. Cannot emit client authenticated request.')
+          }
         })
-      }
-    } else {
-      console.error('Socket instance is undefined.')
-    }
+      )
+      .subscribe() // Keep subscription for side effects only
   }
   /**
    * 
@@ -40,24 +48,19 @@ export class AuthSocketService {
    * for the purposes of updating the online users map.
    */
   public clientDeauthenticated(): void {
-    this._socketIO.initializeSocketConnection()
-
-    const socket = this._socketIO.getSocket()
-
-    if (socket) {
-      if (socket.connected) {
-        // Emit immediately if socket is already connected
-        socket.emit('clientDeauthenticated')
-      } else {
-        // Wait for the socket to connect
-        socket.once('connect', () => {
-          // console.log('Socket connected, emitting clientDeauthenticated')
+    this._connectedSocket$.pipe(
+      rxjs.first(),
+      //rxjs.tap(() => console.log('Socket action triggered')),
+      rxjs.tap(()=>{
+        const socket = this._socketIOService.getSocket()
+        if (socket) {
           socket.emit('clientDeauthenticated')
-        })
-      }
-    } else {
-      console.error('Socket instance is undefined.')
-    }
+        } else {
+          console.error('Socket instance is undefined. Cannot emit client deauthenticated request.')
+        }
+      })
+    )
+    .subscribe()
   }
 
   // Disconnect the socket

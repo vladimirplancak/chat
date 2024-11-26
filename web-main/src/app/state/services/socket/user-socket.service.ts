@@ -7,15 +7,24 @@ import { Socket } from 'socket.io-client'
 @ngCore.Injectable({
   providedIn: 'root',
 })
-export class UserSocketService {
+export class UserSocketService implements ngCore.OnDestroy {
   private readonly _socketIOService = ngCore.inject(service.SocketIOService)
-
+  private readonly _destroySubscription$ = new rxjs.Subject<void>()
+  private _connectedSocket$ = this._socketIOService.onSocketConnected()
+    .pipe(
+      rxjs.shareReplay(1),
+      rxjs.takeUntil(this._destroySubscription$)
+    )
   public readonly userHasComeOnline$ = new rxjs.Subject<models.User.Id>()
   public readonly userHasGoneOffline$ = new rxjs.Subject<models.User.Id>()
 
   constructor() {
     // console.log(`UserSocketService initialized.`)
     this.setupSocketListeners()
+  }
+  ngOnDestroy(): void {
+    this._destroySubscription$.next()
+    this._destroySubscription$.complete()
   }
   //---------------------------------------- AUTHENTICATION HANDLING ---------------------------------------//
   /**
@@ -40,25 +49,20 @@ export class UserSocketService {
 
   //---------------------------------------- LISTENERS ---------------------------------------//
   private setupSocketListeners(): void {
-    this._socketIOService.initializeSocketConnection()
-
-    const socket = this._socketIOService.getSocket()
-
-    if (socket) {
-      if (socket.connected) {
-        // console.log('Socket is already connected. Setting up listeners.')
-        this.registerSocketListeners(socket)
-      } else {
-        // console.log('Socket not connected. Waiting for connection to set up listeners.')
-        socket.once('connect', () => {
+    this._socketIOService.onSocketConnected()
+      .pipe(rxjs.takeUntil(this._destroySubscription$))
+      .subscribe(() => {
+        const socket = this._socketIOService.getSocket()
+        if (socket) {
           // console.log('Socket connected. Setting up listeners.')
           this.registerSocketListeners(socket)
-        })
-      }
-    } else {
-      console.error('Socket instance is undefined.')
-    }
+        } else {
+          console.error('Socket instance is undefined.')
+        }
+      })
   }
+
+
 
   private registerSocketListeners(socket: Socket): void {
 
@@ -82,76 +86,58 @@ export class UserSocketService {
    * Emit `requestOnlineUsers` to fetch the list of online users from the back end.
    */
   public requestOnlineUsersMap(userId: models.User.Id): void {
-    this._socketIOService.initializeSocketConnection()
-
-    const socket = this._socketIOService.getSocket()
-    if (socket) {
-      if (socket.connected) {
-        socket.emit('onlineUsersMapRequest', userId)
-        // console.log('Online users request emitted.')
-      } else {
-        console.log('Socket not connected. Waiting for connection to emit request.')
-        socket.once('connect', () => {
-          socket.emit('onlineUsersMapRequest',userId)
-          // console.log('Online users request emitted after connection.')
-        })
-      }
-    } else {
-      console.error('Socket instance is undefined. Cannot request online users.')
-    }
+    this._connectedSocket$.pipe(
+      rxjs.tap(() => {
+        const socket = this._socketIOService.getSocket()
+        if (socket) {
+          socket.emit('onlineUsersMapRequest', userId)
+          // console.log('Online users request emitted.')
+        } else {
+          console.error('Socket instance is undefined. Cannot request online users.')
+        }
+      })
+    ).subscribe()
   }
   /**
    *  Emit `userHasComeOnlineRequest` to the back end 
    *  for the purposes of notifying online users of this event.
    */
   public userHasComeOnlineRequest(userId: models.User.Id): void {
-    this._socketIOService.initializeSocketConnection()
-
-    const socket = this._socketIOService.getSocket()
-    if (socket) {
-      if (socket.connected) {
-        socket.emit('userHasComeOnlineRequest', userId)
-        // console.log(`User has come online request emitted:`, userId)
-      } else {
-        console.log('Socket not connected. Waiting for connection to emit online request.')
-        socket.once('connect', () => {
+    this._connectedSocket$.pipe(
+      rxjs.tap(() => {
+        const socket = this._socketIOService.getSocket()
+        if (socket) {
           socket.emit('userHasComeOnlineRequest', userId)
-          // console.log(`User has come online request emitted after connection:`, userId)
-        })
-      }
-    } else {
-      console.error('Socket instance is undefined. Cannot emit user online request.')
-    }
+          // console.log('User has come online request emitted.')
+        } else {
+          console.error('Socket instance is undefined. Cannot emit user coming online request.')
+        }
+      })
+    ).subscribe()
   }
   /**
    *  Emit `userHasWentOfflineRequest` to the back end 
    *  for the purposes of notifying online users of this event.
    */
   public userHasWentOfflineRequest(userId: models.User.Id): void {
-    this._socketIOService.initializeSocketConnection()
-
-    const socket = this._socketIOService.getSocket()
-    if (socket) {
-      if (socket.connected) {
-        socket.emit('userHasWentOfflineRequest', userId)
-        // console.log(`User has went offline request emitted:`, userId)
-      } else {
-        console.log('Socket not connected. Waiting for connection to emit offline request.')
-        socket.once('connect', () => {
+    this._connectedSocket$.pipe(
+      rxjs.tap(() => {
+        const socket = this._socketIOService.getSocket()
+        if (socket) {
           socket.emit('userHasWentOfflineRequest', userId)
-          // console.log(`User has went offline request emitted after connection:`, userId)
-        })
-      }
-    } else {
-      console.error('Socket instance is undefined. Cannot emit user offline request.')
-    }
+          // console.log('User has went offline request emitted.')
+        } else {
+          console.error('Socket instance is undefined. Cannot emit user going offline request.')
+        }
+      })
+    ).subscribe()
   }
- //---------------------------------------- MISC ---------------------------------------//
+  //---------------------------------------- MISC ---------------------------------------//
   /**
    * Updates the local state by marking each user in the provided list as online.
    * This function processes the list of online user IDs, retrieved from the backend,
    * and pushes each userID into the **userHasComeOnline$** subject, effectively making it
-   * come appear as online to the client that had just logged in or has refreshed the page.
+   * appear as online to the client that had just logged in or has refreshed the page.
    * 
    * @param onlineUsers - An array of user IDs representing users who are currently online,
    * retrieved from the backend.
@@ -161,12 +147,12 @@ export class UserSocketService {
   public markUsersAsOnline(onlineUsers: models.User.Id[]): void {
     // console.log('Pre-existing online users received:', onlineUsers)
     onlineUsers.forEach((userId) => {
-        if (userId) {
-            this.userHasComeOnline$.next(userId)  
-            // console.log(`User ${userId} marked as online locally.`)
-        } else {
-            console.warn('Invalid user ID in online users list:', userId)
-        }
+      if (userId) {
+        this.userHasComeOnline$.next(userId)
+        // console.log(`User ${userId} marked as online locally.`)
+      } else {
+        console.warn('Invalid user ID in online users list:', userId)
+      }
     })
-}
+  }
 }

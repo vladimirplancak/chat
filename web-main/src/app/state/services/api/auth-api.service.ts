@@ -77,7 +77,7 @@ export class AuthApiService {
       // console.log('Valid JWT found. Authenticating socket.')
       this._authSocketService.clientAuthenticated(decodedToken.userId)
     } else {
-      console.warn('No valid JWT found.')
+      // console.warn('No valid JWT found.')
     }
 
     return rxjs.of(token ?? undefined)
@@ -86,7 +86,7 @@ export class AuthApiService {
   public handleTokenExpiry(): void {
     const token = models.Auth.LocalStorage.Tokens.getAccessToken()
     if (!token) {
-      console.warn('No token found for expiration handling.')
+      // console.warn('No token found for expiration handling.')
       return
     }
     const decodedToken = models.Auth.Self.from(token)
@@ -115,7 +115,7 @@ export class AuthApiService {
       return
     }
 
-    console.log(`Token will expire in ${timeout} ms.`)
+    // console.log(`Token will expire in ${timeout} ms.`)
     setTimeout(() => {
       console.log('Access token expired. Attempting the refresh.')
       this.refreshJwt().subscribe((response) => {

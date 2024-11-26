@@ -56,7 +56,7 @@ export namespace Auth {
         if(!Token){
           throw new Error('Token undefined.')
         }
-        console.log(`Token expiry date:`,jwtDecoder.jwtDecode<jwtDecoder.JwtPayload>(Token)?.exp )
+        // console.log(`Token expiry date:`,jwtDecoder.jwtDecode<jwtDecoder.JwtPayload>(Token)?.exp )
        return (jwtDecoder.jwtDecode<jwtDecoder.JwtPayload>(Token)?.exp || 0) * 1000; // Convert to milliseconds
       }
     }
