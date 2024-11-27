@@ -1,3 +1,6 @@
+-- TODO: This file should be cleaned so it doesn't have so much of excessive
+-- data, just some test samples
+
 /* -------------------------------------------------------------------------- */
 /*                             Creates users table                            */
 /* -------------------------------------------------------------------------- */
