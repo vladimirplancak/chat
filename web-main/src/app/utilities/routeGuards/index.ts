@@ -1,1 +1,2 @@
-export {conversationGuard as doesConExist} from './NoConSelectedGuard'
+export {doesConExistGuard as doesConExist} from './SelectedConExists.guard'
+export {isClientAuthenticatedGuard as isAuthenticated} from './IsClientAuthenticated.guard'

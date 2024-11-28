@@ -16,13 +16,14 @@ export const ROUTES: ngRouter.Routes = [
   { path: 'login', component: components.pages.loginPage.Component },
   {
     path: 'conversations', component: components.pages.consPage.Component,
+    canActivate: [guard.isAuthenticated],
     children: [
       // NOTE: order of registration below matters
-      { path: 'no-con-selected', component: PageNotImplementedComponent },
+      { path: 'no-con-selected', component: PageNotImplementedComponent,  canActivate: [guard.isAuthenticated]},
       { 
         path: ':conversationId', 
         component: components.pages.consPage.components.conBody.Component,
-        canActivate: [guard.doesConExist]
+        canActivate: [guard.isAuthenticated,guard.doesConExist]
        },
       { path: '', pathMatch: 'full', redirectTo: 'no-con-selected' },
     ],

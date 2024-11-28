@@ -3,7 +3,7 @@ import * as router from '@angular/router'
 import * as ngrxStore from '@ngrx/store'
 import * as conState from '../../state' 
 
-export const conversationGuard: router.CanActivateFn = (route, state) => {
+export const doesConExistGuard: router.CanActivateFn = (route, state) => {
   const _store = ngCore.inject(ngrxStore.Store)
   const routerInstance = ngCore.inject(router.Router)
 
@@ -14,7 +14,7 @@ export const conversationGuard: router.CanActivateFn = (route, state) => {
   if (conversationExistsSignalSg()) {
     return true 
   } else {
-    routerInstance.navigate(['/conversations/no-con-selected'])
+    routerInstance.navigate(['/conversations/no-con-selected'],{ replaceUrl: true })
     return false 
   }
 }
