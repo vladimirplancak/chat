@@ -6,6 +6,18 @@
             [isOnline]="participantOnlineLookupSg()[participant.id] ?? false"
           />
       }
+      <div >
+        <button  class="participant-list__add-button" (click)=" 
+           participantListAddBtnClickHandler();">
+          add
+        </button>
+        @if(isSelfConCreatorSG()){
+        <button class="participant-list__delCon-button" (click)=" 
+                conversationDeleteBtnClickHandler();">
+          delete
+        </button>
+        }
+      </div>
     } @else if (presentListErrorSg()) {
       <!--  TODO: implement some meaningful design -->
       Something went wrong. Please try again later.
@@ -15,18 +27,7 @@
     } @else {
       ... empty state...
     }
-    <div >
-      <button  class="participant-list__add-button" (click)=" 
-         participantListAddBtnClickHandler();">
-        add
-      </button>
-      @if(isSelfConCreatorSG()){
-      <button class="participant-list__delCon-button" (click)=" 
-              conversationDeleteBtnClickHandler();">
-        delete
-      </button>
-      }
-    </div>
+ 
   </div>
 
 @if(presetParticipantSelectorDialogSg()){
