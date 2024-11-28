@@ -25,16 +25,16 @@ const io = serverConfig.setupSocketIO(server);
 
 let pool: connPool.ConnectionPool | undefined
 
-
-db.connectToDatabase()
-  .then((dbPool: connPool.ConnectionPool) => {
-    pool = dbPool
-    console.log('Database connected and pool cached.')
-  })
-  .catch((err: unknown) => {
-    console.error('Failed to initialize the app:', err)
-    process.exit(1)
-  })
+// REVIEW: if this is needed?
+// db.connectToDatabase()
+//   .then((dbPool: connPool.ConnectionPool) => {
+//     pool = dbPool
+//     console.log('Database connected and pool cached.')
+//   })
+//   .catch((err: unknown) => {
+//     console.error('Failed to initialize the app:', err)
+//     process.exit(1)
+//   })
 
 // Set up Socket.IO events
 socketEvents.setupSocketEvents(io)
