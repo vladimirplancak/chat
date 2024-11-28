@@ -3,6 +3,7 @@ import { ConState } from './conversation.reducer'
 import * as models from '../../../models'
 import * as ngrxRouterStore from '@ngrx/router-store'
 import * as auth from '../auth/auth.selectors';
+import lookup from 'socket.io-client';
 
 const {
   selectRouteParam, // factory function to select a route param
@@ -75,7 +76,12 @@ export namespace Conversation {
         return selectedConversation.creatorId === selfId
       }
     )
+
   }
+  export const CON_EXISTS = (conversationId: string) => ngrxStore.createSelector(
+    LOOKUP,
+    (lookup) => !!lookup[conversationId]
+  )
   export namespace HoveredParticipant{
     export const ID = ngrxStore.createSelector(
       STATE,

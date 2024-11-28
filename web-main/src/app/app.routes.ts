@@ -1,7 +1,7 @@
 import * as ngRouter from '@angular/router';
 import * as components from './components'
 import * as ngCore from '@angular/core';
-
+import * as guard from './utilities/routeGuards'
 
 @ngCore.Component({
   template: 'TODO: implement page, no con selected',
@@ -19,7 +19,11 @@ export const ROUTES: ngRouter.Routes = [
     children: [
       // NOTE: order of registration below matters
       { path: 'no-con-selected', component: PageNotImplementedComponent },
-      { path: ':conversationId', component: components.pages.consPage.components.conBody.Component },
+      { 
+        path: ':conversationId', 
+        component: components.pages.consPage.components.conBody.Component,
+        canActivate: [guard.doesConExist]
+       },
       { path: '', pathMatch: 'full', redirectTo: 'no-con-selected' },
     ],
   },
