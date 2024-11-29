@@ -34,7 +34,7 @@ export class UserSocketService implements ngCore.OnDestroy {
   public handleUserAuthenticated(): void {
     // console.log('User authenticated. Initializing socket.')
     this._socketIOService.authenticate()
-    this.setupSocketListeners()
+   //this.setupSocketListeners()
   }
 
   /**
@@ -54,7 +54,7 @@ export class UserSocketService implements ngCore.OnDestroy {
       .subscribe(() => {
         const socket = this._socketIOService.getSocket()
         if (socket) {
-          // console.log('Socket connected. Setting up listeners.')
+         //console.log('Socket connected. Setting up listeners.')
           this.registerSocketListeners(socket)
         } else {
           console.error('Socket instance is undefined.')
@@ -65,6 +65,8 @@ export class UserSocketService implements ngCore.OnDestroy {
 
 
   private registerSocketListeners(socket: Socket): void {
+   // console.log(`register socket listeners procced`)
+
 
     socket.on('onlineUsersMapResponse', (onlineUsers: models.User.Id[]) => {
       // console.log('Online users received:', onlineUsers)
@@ -72,7 +74,7 @@ export class UserSocketService implements ngCore.OnDestroy {
     })
     socket.on('userHasComeOnlineResponse', (userId: models.User.Id) => {
       this.userHasComeOnline$.next(userId)
-      // console.log(`User came online listener triggered:`, userId)
+      //  console.log(`User came online response received:`, userId)
     })
 
     socket.on('userHasWentOfflineResponse', (userId: models.User.Id) => {
@@ -87,6 +89,7 @@ export class UserSocketService implements ngCore.OnDestroy {
    */
   public requestOnlineUsersMap(userId: models.User.Id): void {
     this._connectedSocket$.pipe(
+      rxjs.distinctUntilChanged(),
       rxjs.tap(() => {
         const socket = this._socketIOService.getSocket()
         if (socket) {
@@ -104,11 +107,13 @@ export class UserSocketService implements ngCore.OnDestroy {
    */
   public userHasComeOnlineRequest(userId: models.User.Id): void {
     this._connectedSocket$.pipe(
+    
+     rxjs.distinctUntilChanged(),
       rxjs.tap(() => {
         const socket = this._socketIOService.getSocket()
-        if (socket) {
+        if (socket?.connected) {
           socket.emit('userHasComeOnlineRequest', userId)
-          // console.log('User has come online request emitted.')
+//           console.log('User has come online request emitted.')
         } else {
           console.error('Socket instance is undefined. Cannot emit user coming online request.')
         }
@@ -121,6 +126,7 @@ export class UserSocketService implements ngCore.OnDestroy {
    */
   public userHasWentOfflineRequest(userId: models.User.Id): void {
     this._connectedSocket$.pipe(
+      rxjs.distinctUntilChanged(),
       rxjs.tap(() => {
         const socket = this._socketIOService.getSocket()
         if (socket) {
@@ -149,7 +155,7 @@ export class UserSocketService implements ngCore.OnDestroy {
     onlineUsers.forEach((userId) => {
       if (userId) {
         this.userHasComeOnline$.next(userId)
-        // console.log(`User ${userId} marked as online locally.`)
+         //console.log(`User ${userId} marked as online locally.`)
       } else {
         console.warn('Invalid user ID in online users list:', userId)
       }

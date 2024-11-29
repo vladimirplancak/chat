@@ -58,7 +58,7 @@ export class AuthApiService {
     const deleteAccessToken: models.Auth.Response = {
       message: '',
       accessToken: '',
-      refreshToken: models.Auth.LocalStorage.Tokens.getRefreshToken() ?? ''
+      refreshToken:  ''
     }
     models.Auth.LocalStorage.Tokens.set(deleteAccessToken)
 

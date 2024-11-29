@@ -147,7 +147,7 @@ export const loginUser = async (req: express.Request, res: express.Response): Pr
 //TODO: connect this with the front end in order to delete the refresh token up on logging out.
 export const logoutUser = async (req: express.Request, res: express.Response): Promise<void> => {
     const { userId } = req.params
-    console.log(`I RUN`, userId)
+    // console.log(`I RUN`, userId)
     if (!userId) {
         res.status(400).json({ message: 'User ID is required for logout' })
         return
