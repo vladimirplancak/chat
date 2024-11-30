@@ -10,7 +10,7 @@ import * as common from '../../../../common'
   imports: [
     components.conversationItem.Component,
     common.overlay.centered.Component,
-    
+
   ],
   standalone: true,
   styleUrl: './con-list.component.scss',
@@ -25,7 +25,14 @@ export class ConListComponent {
 
 
   public conItemClickHandler(selectedId: models.Conversation.Id): void {
-    this._router.navigate(['conversations', selectedId])
-    this._store.dispatch(state.core.con.actions.Con.Ui.List.ConItem.actions.clicked({ selectedId }))
+    const selectedConExistsSg = this._store.selectSignal(state.core.con.selectors.Conversation.CON_EXISTS(selectedId))()
+
+    if (selectedConExistsSg) {
+      this._router.navigate(['conversations', selectedId])
+      this._store.dispatch(state.core.con.actions.Con.Ui.List.ConItem.actions.clicked({ selectedId }))
+    } else {
+      this._router.navigate(['/conversations/no-con-selected'], { replaceUrl: true })
+    }
+
   }
 }
