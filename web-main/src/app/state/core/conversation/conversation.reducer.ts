@@ -433,9 +433,10 @@ export namespace ConState {
       const existingConversation = state.conLookup[conversation.id];
       const existingMessagesInCon = state.conLookup[conversation.id]?.messages || []
       //const existingConName = state.conLookup[conversation.id]?.name 
-      console.log(`reducer`, conversation)
+      
       // If the conversation does not already exist, add it to the state
       if (!existingConversation) {
+       
         return {
           ...state,
           ids: [...state.ids, conversation.id],
@@ -452,8 +453,10 @@ export namespace ConState {
         conLookup: {
           ...state.conLookup,
           [conversation.id]: {
-            ...existingConversation,
-            participantIds: conversation.participantIds // Update only participantIds
+            ...conversation,
+            name: existingConversation.name ? existingConversation.name : conversation.name ,
+            creatorId:existingConversation.creatorId,
+            messages: existingMessagesInCon
           }
         }
       };
