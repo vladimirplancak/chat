@@ -1,2 +1,2 @@
-export * as apiService from './api'
-export * as socketService from './socket'
+export * as api from './api'
+export * as socket from './socket'

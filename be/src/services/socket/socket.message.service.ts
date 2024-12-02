@@ -1,41 +1,26 @@
 import * as socketIO from 'socket.io';
-import * as db from '../../config/db'
 import * as models from '../../models'
+import * as services from '../api'
 
 export class SocketMessageService {
-  private ioServer: socketIO.Server;
+  private _ioServer: socketIO.Server;
+  private _apiMessageService: services.ApiMessageService
 
-  constructor(ioServer: socketIO.Server) {
-    this.ioServer = ioServer;
+  constructor(ioServer: socketIO.Server, apiMessageService:services.ApiMessageService) {
+    this._ioServer = ioServer;
+    this._apiMessageService = apiMessageService
   }
 
   // Broadcast the message to all connected clients
-  public async sendMessage(message: models.Messages.FrontendMessage) {
-    
+  public async notifyMessageResponse(message: models.Messages.FrontendMessage) {
+    console.log(`notifyMessageResponse`, message)
     try {
-      // Connect to the database
-      const pool = await db.connectToDatabase()
-      const result = await pool.request()
-        .input('content', message.content)
-        .input('conversationId', message.conId)
-        .input('userId', message.userId)
-        .input('dateTime', message.datetime) 
-        .query(`
-          INSERT INTO Messages (content, conversationId, userId, dateTime)
-          OUTPUT inserted.*
-          VALUES (@content, @conversationId, @userId, @dateTime)
-        `)
-
-      const createdMessage = result.recordset[0]
-
-      if (!createdMessage) {
-        throw new Error('Message creation failed')
-      }
-
+   // Save the message via the API service
+      const createdMessage = await this._apiMessageService.saveMessage(message);
       console.log('Message saved to database:', createdMessage)
 
       // Broadcast to other clients
-      this.ioServer.emit('receivedMessageResponse', createdMessage)
+      this._ioServer.emit('receivedMessageResponse', createdMessage)
 
     } catch (error) {
       console.error('Error saving message to database:', error)
@@ -46,7 +31,8 @@ export class SocketMessageService {
     // This method will register the events to the socket.
     public registerMessageEvents(socket: socketIO.Socket): void {
         socket.on('sendMessageRequest', (message: models.Messages.FrontendMessage) => {
-          this.sendMessage(message)
+          console.log(`sendMessageRequest`, message)
+          this.notifyMessageResponse(message)
         });
       }
 }

@@ -1,8 +1,8 @@
 // socket.con.service.ts
 import * as socketIO from 'socket.io'
-import * as models from '../models'
+import * as models from '../../models'
 import * as services from './socket.auth.service'
-import * as utils from '../utilities/conversation-utils'
+import * as utils from '../../utilities/conversation-utils'
 
 export class SocketConService {
   private _ioServer: socketIO.Server

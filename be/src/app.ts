@@ -8,7 +8,7 @@ import * as authRoutes from './routes/auth.routes'
 import * as usersConversationsRoutes from './routes/userConversation.routes'
 import * as cors from 'cors'
 import * as http from 'http'
-import * as socketEvents  from './services/socket.service'
+import * as services  from './services/socket'
 import * as serverConfig from './config/server.config';
 import * as corsConfig from './config/cors.config'
 
@@ -37,7 +37,7 @@ let pool: connPool.ConnectionPool | undefined
 //   })
 
 // Set up Socket.IO events
-socketEvents.setupSocketEvents(io)
+services.setupSocketEvents(io)
 // welcome root route
 app.get('/', (req: express.Request, res: express.Response): void => {
   res.send('Welcome to the Tiac Chat Reimagined API!')

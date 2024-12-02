@@ -1,1 +1,1 @@
-export * as ApiMessageService from "./api.message.service";
+export { ApiMessageService }from "./api.message.service";
