@@ -1,6 +1,6 @@
 import * as socketIO from 'socket.io';
-import * as db from '../config/db'
-import * as models from '../models'
+import * as db from '../../config/db'
+import * as models from '../../models'
 
 export class SocketMessageService {
   private ioServer: socketIO.Server;
