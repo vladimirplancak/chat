@@ -79,9 +79,9 @@ export class SocketUserService {
             rxjs.first(),
             rxjs.takeUntil(this._socketClosedCleanUp$),
             rxjs.tap((userId) => {
-                console.log(`Reactively handling connection of user: ${userId}`)
+                // console.log(`Reactively handling connection of user: ${userId}`)
                 this._authService.clientConnectionSocketIdMap.forEach((socketId) => {
-                    console.log(`Reactively sending response for socket: ${userId}/${socketId}`)
+                    // console.log(`Reactively sending response for socket: ${userId}/${socketId}`)
                     this._ioServer.to(socketId).emit('userHasComeOnlineResponse', userId)
                 })
             })

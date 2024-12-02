@@ -14,7 +14,7 @@ export class SocketAuthService {
     // Handle user authentication and store userId with socket ID
     public authenticateUser(socketId: socketIO.Socket, userId: string) {
         this.clientConnectionSocketIdMap.set(userId, socketId.id)
-        console.log(`Client authenticated: ${userId} with socket ID: ${socketId.id}`)
+        // console.log(`Client authenticated: ${userId} with socket ID: ${socketId.id}`)
         this.userConnected$.next(userId)
        
        // console.log(`map at login:`, this.clientConnectionSocketIdMap)
@@ -40,7 +40,7 @@ export class SocketAuthService {
 
     // This method will register the events to the socket.
     public registerAuthEvents(socket: socketIO.Socket): void {
-        console.log(`is socket connected`, socket.connected)
+        // console.log(`is socket connected`, socket.connected)
         socket.on('clientAuthenticated', (userId: string) => {
             this.authenticateUser(socket, userId)
         })

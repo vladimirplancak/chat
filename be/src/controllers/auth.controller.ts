@@ -172,7 +172,7 @@ export const logoutUser = async (req: express.Request, res: express.Response): P
 
 export const refreshToken = async (req: express.Request, res: express.Response): Promise<void> => {
     const  tokenPayload  = req.body
-    console.log(`refreshTokenPayload`, req.body)
+    // console.log(`refreshTokenPayload`, req.body)
     if (!tokenPayload.refreshToken) {
         res.status(400).json({ message: 'No refresh token provided!' })
         return
