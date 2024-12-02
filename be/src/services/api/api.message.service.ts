@@ -3,7 +3,7 @@ import * as models from '../../models'
 
 export class ApiMessageService{
 
-    public async saveMessage(message: models.Messages.FrontendMessage): Promise<models.Messages.FrontendMessage> {
+    public async saveMessage(message: models.Messages.FrontendMessage): Promise<models.Messages.Message> {
         try {
           const pool = await db.connectToDatabase()
           const result = await pool.request()
@@ -17,14 +17,12 @@ export class ApiMessageService{
               VALUES (@content, @conversationId, @userId, @dateTime)
             `)
     
-          const createdMessage = result.recordset[0]
+          const createdMessage: models.Messages.Message= result.recordset[0]
     
           if (!createdMessage) {
             throw new Error('Message creation failed')
           }
-    
-          console.log('Message saved to database:', createdMessage)
-    
+
           return createdMessage
         } catch (error) {
           console.error('Error saving message to database:', error)

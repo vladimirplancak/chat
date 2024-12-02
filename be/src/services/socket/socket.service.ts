@@ -9,7 +9,7 @@ export const setupSocketEvents = (io: socketIO.Server) => {
     // console.log('A user connected:', socket.id)
 
     // Instantiate services with authService as a shared dependency
-    const messageService = new services.socket.SocketMessageService(io,apiMessageService)
+    const messageService = new services.socket.SocketMessageService(io,apiMessageService,authService)
     const conService = new services.socket.SocketConService(io, authService)
     const userService = new services.socket.SocketUserService(io, authService)
 
