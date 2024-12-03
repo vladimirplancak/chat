@@ -1,11 +1,11 @@
 import * as router from 'express'
-import * as controller from '../controllers/conversation.controller'
+import { conversationController }  from '../controllers/conversation.controller'
 const routerObj = router.Router();
 
-routerObj.get('/conversations/:userId', controller.getConversationsByUserId)
-routerObj.get('/conversations/:id', controller.getConversationById)
-routerObj.post('/conversations', controller.createConversation)
-routerObj.put('/conversations/:id', controller.updateConversation)
-routerObj.delete('/conversations/:id', controller.deleteConversation) 
+routerObj.get('/conversations/:userId', conversationController.getConversationsByUserId)
+routerObj.get('/conversations/:id', conversationController.getConversationById)
+routerObj.post('/conversations', conversationController.createConversation)
+routerObj.put('/conversations/:id', conversationController.updateConversation)
+routerObj.delete('/conversations/:id', conversationController.deleteConversation) 
 
 export default routerObj
