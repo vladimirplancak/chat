@@ -41,7 +41,7 @@ export class SocketMessageService {
   // This method will register the events to the socket.
   public registerMessageEvents(socket: socketIO.Socket): void {
     socket.on('sendMessageRequest', (message: models.Messages.FrontendMessage) => {
-      console.log(`sendMessageRequest`, message)
+    
       this.notifyMessageReceivedResponse(message)
     });
   }

@@ -1,13 +1,15 @@
 import * as router from 'express'
-import * as controller from '../controllers/message.controller'
+import { messageController } from '../controllers/message.controller'
+
 
 const routerObj = router.Router();
 
-routerObj.get('/messages', controller.getMessages)
-routerObj.get('/messages/:id', controller.getMessageById)
-routerObj.get('/conversationMessages/:id', controller.getMessagesByConversationId)
-routerObj.post('/messages', controller.createMessage)
-routerObj.put('/messages/:id', controller.updateMessage)
-routerObj.delete('/messages/:id', controller.deleteMessage)
+
+
+routerObj.get('/messages', messageController.getAllMessages)
+routerObj.get('/messages/:id', messageController.getMessageById)
+routerObj.get('/conversationMessages/:id', messageController.getMessagesByConversationId)
+routerObj.put('/messages/:id', messageController.updateMessage)
+routerObj.delete('/messages/:id', messageController.deleteMessage)
 
 export default routerObj
