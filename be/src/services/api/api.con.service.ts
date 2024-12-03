@@ -3,20 +3,20 @@ import * as models from '../../models'
 import * as utils from '../../utilities'
 import mssql from 'mssql'
 
-export class ApiConService{
-     /**
-     * Fetches all conversations associated with a specific user ID.
-     * @param userId - The ID of the user.
-     * @returns A promise resolving to an array of conversations.
-     */
-     async getConversationsByUserId(userId: string): Promise<models.Conversation.Con[]> {
+export class ApiConService {
+    /**
+    * Fetches all conversations associated with a specific user ID.
+    * @param userId - The ID of the user.
+    * @returns A promise resolving to an array of conversations.
+    */
+    public async getConversationsByUserId(userId: string): Promise<models.Conversation.Con[]> {
         const pool = await db.connectToDatabase();
 
         // Fetch conversation IDs associated with the user.
         const conversationIdsResult = await pool.request()
             .input('UserId', userId)
             .query('SELECT conversationId FROM Users_Conversations WHERE UserId = @UserId');
-        
+
         const conversationIds = conversationIdsResult.recordset.map(record => record.conversationId);
 
         if (conversationIds.length === 0) return [];
@@ -28,7 +28,7 @@ export class ApiConService{
                 SELECT * FROM Conversations 
                 WHERE id IN (SELECT value FROM STRING_SPLIT(@id, ','))
             `);
-        
+
         return conversationsResult.recordset;
     }
 
@@ -37,13 +37,13 @@ export class ApiConService{
      * @param conversationId - The unique ID of the conversation.
      * @returns A promise resolving to the conversation or undefined if not found.
      */
-    async getConversationById(conversationId: string): Promise<models.Conversation.Con | undefined> {
+    public async getConversationById(conversationId: string): Promise<models.Conversation.Con | undefined> {
         const pool = await db.connectToDatabase();
 
         const result = await pool.request()
             .input('id', conversationId)
             .query('SELECT * FROM Conversations WHERE id = @id');
-        
+
         return result.recordset[0];
     }
 
@@ -52,14 +52,14 @@ export class ApiConService{
      * @param newConv - The conversation data to create.
      * @returns A promise resolving to the created conversation.
      */
-    async createConversation(newConv: models.Conversation.ConWithParticipants): Promise<models.Conversation.Con> {
+    public async createConversation(newConv: models.Conversation.ConWithParticipants): Promise<models.Conversation.Con> {
         const pool = await db.connectToDatabase();
 
         // Find user for naming the conversation.
         const findUser = await pool.request()
             .input('Id', newConv.participantIds[1])
             .query('SELECT * FROM Users WHERE Id = @Id');
-        
+
         if (!findUser.recordset.length) {
             throw new Error('Participant not found.');
         }
@@ -71,7 +71,7 @@ export class ApiConService{
             .input('Name', conversationName)
             .input('CreatorId', newConv.creatorId)
             .query('INSERT INTO Conversations (Name, CreatorId) OUTPUT inserted.* VALUES (@Name, @CreatorId)');
-        
+
         const createdConversation: models.Conversation.Con = createConv.recordset[0];
 
         if (!createdConversation) {
@@ -96,7 +96,7 @@ export class ApiConService{
      * @param participantIdsToRemove - Participant IDs to remove.
      * @returns A promise resolving to the updated conversation.
      */
-    async updateConversationParticipants(
+    public async updateConversationParticipants(
         id: string,
         participantIdsToAdd?: string[],
         participantIdsToRemove?: string[]
@@ -109,7 +109,7 @@ export class ApiConService{
      * @param id - The unique ID of the conversation to delete.
      * @returns A promise resolving to the deleted conversation data.
      */
-    async deleteConversation(id: string): Promise<models.Conversation.ConWithParticipants> {
+    public async deleteConversation(id: string): Promise<models.Conversation.ConWithParticipants> {
         const pool = await db.connectToDatabase();
 
         // Extract participants before deletion.
