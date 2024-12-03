@@ -5,4 +5,8 @@ export interface UserAuth {
     username: string
     password: string
   }
+
+export namespace Auth {
+  export type registerInfo = Omit<UserAuth,'userId'>
+}
   

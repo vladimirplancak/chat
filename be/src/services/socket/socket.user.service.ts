@@ -1,6 +1,6 @@
 import * as socketIO from 'socket.io'
-import * as db from '../config/db'
-import * as models from '../models'
+import * as db from '../../config/db'
+import * as models from '../../models'
 import * as services from './socket.auth.service'
 import * as rxjs from 'rxjs'
 
@@ -15,30 +15,7 @@ export class SocketUserService {
     }
 
     //----------------------------------- NOTIFIER METHODS ---------------------------------------//
-    // notifyAllClientsOfUserComingOnline(userId: string) {
-    //     // console.log(`Notifying all clients that user ${userId} is online.`)
-    //     this._authService.userConnected$.pipe(
-    //         rxjs.first(),
-    //         rxjs.takeUntil(this._socketClosedCleanUp$),
-    //         rxjs.tap((res)=>console.log('inside the notification method',res))).subscribe()
-    //     // Iterate over the map and send the notification to each user
-    //     this._authService.clientConnectionSocketIdMap.forEach((socketId, connectedUserId) => {
-    //         console.log(`------------------`)
-    //         console.log(`Sending 'userHasComeOnlineResponse' to user ${connectedUserId} via socket ${socketId}.`)
-    //         console.log(`------------------`)
-    //         this._ioServer.to(socketId).emit('userHasComeOnlineResponse',  userId)
-    //     })
-    // }
 
-    // notifyAllClientsOfUserGoingOffline(userId: string) {
-    //     // console.log(`Notifying all clients that user ${userId} is offline.`)
-
-    //     // Iterate over the map and send the notification to each user
-    //     this._authService.clientConnectionSocketIdMap.forEach((socketId, connectedUserId) => {
-    //         // console.log(`Sending 'userHasWentOfflineResponse' to user ${connectedUserId} via socket ${socketId}.`)
-    //         this._ioServer.to(socketId).emit('userHasWentOfflineResponse',  userId )
-    //     })
-    // }
     notifyClientOfOnlineUsersMap( userId: models.User.id, onlineUsers: string[]) {
         const foundClientSocket = this._authService.getSocketIdByUserId(userId)
         if (!foundClientSocket) {
@@ -60,17 +37,8 @@ export class SocketUserService {
                 console.error(`Error in onlineUsersMapRequest handler: ${error}`)
             }
         })
-        //TODO: most likely up for removal, redundant listener, we already dipach
-        // responses reactively through user userConnected$ and userDisconnected$ subjects
-        // socket.on('userHasComeOnlineRequest', (userId: models.User.id): void => {
-        //   // console.log(`userHasComeOnlineRequest`)
-        //     //this.notifyAllClientsOfUserComingOnline(userId)
-        // })
-        // socket.on('userHasWentOfflineRequest', (userId: models.User.id): void => {
-        //     // console.log(`userGoingOfflineListener`)
-        //     //this.notifyAllClientsOfUserGoingOffline(userId)
-        // })
-        
+         //----------------------------------- EMITTER METHODS ---------------------------------------//
+         
         //NOTE: This subject emits as many socket events as there are currently connected users (sockets)
         //TODO: Implement a system that maps each connection socket to a different subject something along
         //the lines of private userSubjects: Map<string, Subject<string>>(userId, Subject<string>). This way

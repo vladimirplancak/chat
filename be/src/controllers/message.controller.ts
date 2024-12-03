@@ -1,6 +1,4 @@
 import * as express from 'express'
-import * as db from '../config/db'
-import * as models from '../models'
 import * as services from '../services'
 
 export class MessageController {
