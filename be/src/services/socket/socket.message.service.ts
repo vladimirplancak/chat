@@ -18,6 +18,7 @@ export class SocketMessageService {
     this._authService = authSocketService
   }
 
+  //----------------------------------- NOTIFIER METHODS ---------------------------------------//
   // Broadcast the message to all connected clients
   public async notifyMessageReceivedResponse(message: models.Messages.FrontendMessage) {
 
@@ -38,11 +39,13 @@ export class SocketMessageService {
     }
   }
 
+   //----------------------------------- LISTENER METHODS ---------------------------------------//
   // This method will register the events to the socket.
   public registerMessageEvents(socket: socketIO.Socket): void {
+
     socket.on('sendMessageRequest', (message: models.Messages.FrontendMessage) => {
-    
       this.notifyMessageReceivedResponse(message)
     });
+    
   }
 }

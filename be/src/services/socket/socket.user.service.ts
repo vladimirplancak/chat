@@ -16,7 +16,7 @@ export class SocketUserService {
 
     //----------------------------------- NOTIFIER METHODS ---------------------------------------//
 
-    notifyClientOfOnlineUsersMap( userId: models.User.id, onlineUsers: string[]) {
+    notifyClientOfOnlineUsersMap(userId: models.User.id, onlineUsers: string[]) {
         const foundClientSocket = this._authService.getSocketIdByUserId(userId)
         if (!foundClientSocket) {
             console.warn(`Socket not found for user ${userId}. Cannot send online users map.`)
@@ -24,7 +24,7 @@ export class SocketUserService {
         }
         this._ioServer.to(foundClientSocket).emit('onlineUsersMapResponse', onlineUsers)
     }
-    
+
     // This method will register the events to the socket.
     public registerUserEvents(socket: socketIO.Socket): void {
 
@@ -32,13 +32,13 @@ export class SocketUserService {
             try {
                 if (!userId) throw new Error('Invalid userId received for onlineUsersMapRequest')
                 const onlineUsers = this._authService.getOnlineUsers()
-                this.notifyClientOfOnlineUsersMap(userId, onlineUsers )
+                this.notifyClientOfOnlineUsersMap(userId, onlineUsers)
             } catch (error) {
                 console.error(`Error in onlineUsersMapRequest handler: ${error}`)
             }
         })
-         //----------------------------------- EMITTER METHODS ---------------------------------------//
-         
+        //----------------------------------- EMITTER METHODS ---------------------------------------//
+
         //NOTE: This subject emits as many socket events as there are currently connected users (sockets)
         //TODO: Implement a system that maps each connection socket to a different subject something along
         //the lines of private userSubjects: Map<string, Subject<string>>(userId, Subject<string>). This way

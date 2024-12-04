@@ -13,6 +13,8 @@ export class SocketConService {
     this._authService = authService
   }
 
+  //----------------------------------- NOTIFIER METHODS ---------------------------------------//
+
   /**This method handles the notification of addition of participants to the conversation */
   public async notifyParticipantsOfAddion(conId: string) {
     try {
@@ -24,7 +26,11 @@ export class SocketConService {
       currentConParticipants.forEach(userId => {
         const participantSocketId = this._authService.getSocketIdByUserId(userId)
         if (participantSocketId) {
-          this._ioServer.to(participantSocketId).emit('conParticipantListUpdatedResponse', { conId, name: conversationName, participantIds: currentConParticipants })
+          this._ioServer.to(participantSocketId)
+          .emit('conParticipantListUpdatedResponse', 
+            { conId, name: conversationName, 
+              participantIds: currentConParticipants 
+            })
         }
       })
     } catch (error) {
@@ -49,7 +55,8 @@ export class SocketConService {
       currentConParticipants?.forEach(userId => {
         const participantSocketId = this._authService.getSocketIdByUserId(userId)
         if (participantSocketId) {
-          this._ioServer.to(participantSocketId).emit('conParticipantListUpdatedResponse', { conId, participantIds: currentConParticipants })
+          this._ioServer.to(participantSocketId)
+          .emit('conParticipantListUpdatedResponse', { conId, participantIds: currentConParticipants })
         }
       })
     } catch (error) {
@@ -60,8 +67,7 @@ export class SocketConService {
   public async notifyAddedClientOfNewConversation(
     con: models.Conversation.ConWithParticipants,
     addedParticipantsId: models.User.id[]
-  ) 
-  {
+  ) {
     try {
       const addedParticipantSocketId = this._authService.getSocketIdByUserId(addedParticipantsId[1])
       const conWithParticipants: models.Conversation.ConWithParticipants = {
@@ -73,7 +79,8 @@ export class SocketConService {
       }
       //notify added participant of private conversation creation
       if (addedParticipantSocketId) {
-        this._ioServer.to(addedParticipantSocketId).emit('privateConversationCreatedResponse', conWithParticipants)
+        this._ioServer.to(addedParticipantSocketId)
+        .emit('privateConversationCreatedResponse', conWithParticipants)
       }
     } catch (error) {
       console.error('Error emitting conversation participant update:', error)
@@ -81,19 +88,21 @@ export class SocketConService {
   }
 
   public async notifyClientsOfDeletedConversation(deletedConversation: models.Conversation.ConWithParticipants) {
-    try{
-     
+    try {
+
       const participantIdsToNotify = deletedConversation.participantIds
-      participantIdsToNotify.forEach(participantId =>{
+      participantIdsToNotify.forEach(participantId => {
         const participantSocketId = this._authService.getSocketIdByUserId(participantId)
         if (participantSocketId) {
           this._ioServer.to(participantSocketId).emit('deleteCoversationResponse', deletedConversation)
         }
       })
-    }catch(error){
+    } catch (error) {
       console.error('Error emitting conversation participant update:', error)
     }
   }
+
+  //----------------------------------- LISTENER METHODS ---------------------------------------//
 
   public registerConversationEvents(socket: socketIO.Socket): void {
     /**
@@ -120,7 +129,7 @@ export class SocketConService {
     /**
       * This request method forwards the payload to the notifier method
       */
-    socket.on('deleteCoversationRequest',(deletedConversation: models.Conversation.ConWithParticipants)=>{
+    socket.on('deleteCoversationRequest', (deletedConversation: models.Conversation.ConWithParticipants) => {
       this.notifyClientsOfDeletedConversation(deletedConversation)
     })
   }
