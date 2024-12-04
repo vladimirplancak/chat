@@ -29,7 +29,6 @@ export class AuthSocketService implements ngCore.OnDestroy {
     this._connectedSocket$
       .pipe(
         rxjs.first(),
-       // rxjs.tap(() => console.log('Socket action triggered')),
         rxjs.tap(() => {
           const socket = this._socketIOService.getSocket()
           if (socket) {
@@ -40,7 +39,7 @@ export class AuthSocketService implements ngCore.OnDestroy {
           }
         })
       )
-      .subscribe() // Keep subscription for side effects only
+      .subscribe() 
   }
   /**
    * 
@@ -50,7 +49,6 @@ export class AuthSocketService implements ngCore.OnDestroy {
   public clientDeauthenticated(): void {
     this._connectedSocket$.pipe(
       rxjs.first(),
-      //rxjs.tap(() => console.log('Socket action triggered')),
       rxjs.tap(()=>{
         const socket = this._socketIOService.getSocket()
         if (socket) {

@@ -8,7 +8,10 @@ import * as models from '../../../models';
   providedIn: 'root',
 })
 export class MessageSocketService implements ngCore.OnDestroy {
-
+  constructor() {
+    this.setupSocketListeners()
+  }
+  
   ngOnDestroy(): void {
     this._destroySubscription$.next()
     this._destroySubscription$.complete()
@@ -22,10 +25,6 @@ export class MessageSocketService implements ngCore.OnDestroy {
     )
 
   public messageReceived$: rxjs.Subject<models.Conversation.Message.InContext> = new rxjs.Subject()
-
-  constructor() {
-    this.setupSocketListeners()
-  }
 
   //---------------------------------------- LISTENERS ---------------------------------------//
   private setupSocketListeners(): void {

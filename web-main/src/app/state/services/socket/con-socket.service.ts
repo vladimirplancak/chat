@@ -8,7 +8,10 @@ import { Socket } from 'socket.io-client'
     providedIn: 'root',
 })
 export class ConSocketService implements ngCore.OnDestroy {
-
+    constructor() {
+        //console.log(`ConSocketService initialized.`)
+        this.setupSocketListeners()
+    }
     ngOnDestroy(): void {
         this._destroySubscription$.next()
         this._destroySubscription$.complete()
@@ -26,11 +29,6 @@ export class ConSocketService implements ngCore.OnDestroy {
     public conParticipantRemoved$: rxjs.Subject<models.Conversation.Id> = new rxjs.Subject()
     public privateConCreated$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
     public deletedConversation$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
-    constructor() {
-        //console.log(`ConSocketService initialized.`)
-        this.setupSocketListeners()
-    }
-
 
     //---------------------------------------- LISTENERS ---------------------------------------//
     private setupSocketListeners(): void {
@@ -44,8 +42,6 @@ export class ConSocketService implements ngCore.OnDestroy {
             }
         })
     }
-
-
 
     private registerSocketListeners(socket: Socket): void {
         //notifies the all current participants of the conv of additions/removals of
@@ -91,6 +87,7 @@ export class ConSocketService implements ngCore.OnDestroy {
             })
         ).subscribe()
     }
+    
     public updateParticipantOfPrivateConCreationRequest(
         createdConversation: models.Conversation,
         addedParticipantsId: models.User.Id[]): void {
@@ -105,6 +102,7 @@ export class ConSocketService implements ngCore.OnDestroy {
             })
         ).subscribe()
     }
+
     public deleteConversationRequest(deletedConversation: models.Conversation) {
         this._connectedSocket$.pipe(
             rxjs.tap(() => {
@@ -117,6 +115,7 @@ export class ConSocketService implements ngCore.OnDestroy {
             })
         ).subscribe()
     }
+
     public disconnect(): void {
         this._connectedSocket$.subscribe(() => {
             const socket = this._socketIOService.getSocket()

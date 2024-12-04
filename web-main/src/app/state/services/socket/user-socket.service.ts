@@ -8,6 +8,15 @@ import { Socket } from 'socket.io-client'
   providedIn: 'root',
 })
 export class UserSocketService implements ngCore.OnDestroy {
+  constructor() {
+    this.setupSocketListeners()
+  }
+
+  ngOnDestroy(): void {
+    this._destroySubscription$.next()
+    this._destroySubscription$.complete()
+  }
+  
   private readonly _socketIOService = ngCore.inject(service.SocketIOService)
   private readonly _destroySubscription$ = new rxjs.Subject<void>()
   private _connectedSocket$ = this._socketIOService.onSocketConnected()
@@ -18,14 +27,6 @@ export class UserSocketService implements ngCore.OnDestroy {
   public readonly userHasComeOnline$ = new rxjs.Subject<models.User.Id>()
   public readonly userHasGoneOffline$ = new rxjs.Subject<models.User.Id>()
 
-  constructor() {
-    // console.log(`UserSocketService initialized.`)
-    this.setupSocketListeners()
-  }
-  ngOnDestroy(): void {
-    this._destroySubscription$.next()
-    this._destroySubscription$.complete()
-  }
   //---------------------------------------- AUTHENTICATION HANDLING ---------------------------------------//
   /**
    * Sets the flag `this._isAuthenticated = true` and intializes a socket connection
@@ -34,7 +35,7 @@ export class UserSocketService implements ngCore.OnDestroy {
   public handleUserAuthenticated(): void {
     // console.log('User authenticated. Initializing socket.')
     this._socketIOService.authenticate()
-   //this.setupSocketListeners()
+    //this.setupSocketListeners()
   }
 
   /**
@@ -54,7 +55,7 @@ export class UserSocketService implements ngCore.OnDestroy {
       .subscribe(() => {
         const socket = this._socketIOService.getSocket()
         if (socket) {
-         //console.log('Socket connected. Setting up listeners.')
+          //console.log('Socket connected. Setting up listeners.')
           this.registerSocketListeners(socket)
         } else {
           console.error('Socket instance is undefined.')
@@ -65,7 +66,7 @@ export class UserSocketService implements ngCore.OnDestroy {
 
 
   private registerSocketListeners(socket: Socket): void {
-   // console.log(`register socket listeners procced`)
+    // console.log(`register socket listeners procced`)
 
 
     socket.on('onlineUsersMapResponse', (onlineUsers: models.User.Id[]) => {
@@ -107,13 +108,13 @@ export class UserSocketService implements ngCore.OnDestroy {
    */
   public userHasComeOnlineRequest(userId: models.User.Id): void {
     this._connectedSocket$.pipe(
-    
-     rxjs.distinctUntilChanged(),
+
+      rxjs.distinctUntilChanged(),
       rxjs.tap(() => {
         const socket = this._socketIOService.getSocket()
         if (socket?.connected) {
           socket.emit('userHasComeOnlineRequest', userId)
-//           console.log('User has come online request emitted.')
+          //           console.log('User has come online request emitted.')
         } else {
           console.error('Socket instance is undefined. Cannot emit user coming online request.')
         }
@@ -155,7 +156,7 @@ export class UserSocketService implements ngCore.OnDestroy {
     onlineUsers.forEach((userId) => {
       if (userId) {
         this.userHasComeOnline$.next(userId)
-         //console.log(`User ${userId} marked as online locally.`)
+        //console.log(`User ${userId} marked as online locally.`)
       } else {
         console.warn('Invalid user ID in online users list:', userId)
       }
