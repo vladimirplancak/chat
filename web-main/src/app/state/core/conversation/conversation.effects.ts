@@ -208,6 +208,7 @@ export class ConversationEffects {
       this._store.select(selectors.Message.InSelectedCon.IN_PROGRESS)
     ),
     rxjs.map(([action, conId, userId, inProgressContent]) => {
+     
       if (!conId) {
         throw new Error('No conversation')
       }
@@ -231,11 +232,9 @@ export class ConversationEffects {
 
   onMessageSendStart$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Message.Send.actions.started),
-
     rxjs.switchMap((action) => {
       return this._conApiService.sendConMessage(action.payloadMessage).pipe(
         rxjs.map(() => {
-
           return actions.Con.Api.Message.Send.actions.succeeded({ conversationId: action.payloadMessage.conId })
         }),
         rxjs.catchError(error => {

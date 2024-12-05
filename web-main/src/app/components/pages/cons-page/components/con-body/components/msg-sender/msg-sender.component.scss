@@ -6,7 +6,19 @@
   &__text {
     flex: 1;
     height: 50px;
-    background-color: v.$primary;
+    background-color: v.$tertiary;
+
+    textarea {
+      width: 95%; // Make the textarea stretch
+      height: 80%; // Match the height of the container
+      border: 1px solid v.$tertiary; // Optional, remove default borders
+      border-left: none; 
+      padding: 0; // Remove default padding for precise alignment
+      margin: 0; // Remove default margin
+      resize: none; // Prevent resizing if not needed
+      box-sizing: border-box;
+      outline: none;
+    }
   }
 
   &__btn {

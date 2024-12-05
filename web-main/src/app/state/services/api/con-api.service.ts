@@ -9,7 +9,6 @@ export class ConApiService {
   private readonly _http = ngCore.inject(http.HttpClient)
   private readonly _msgSocketService = ngCore.inject(socketService.MessageSocketService)
   private readonly _conSocketService = ngCore.inject(socketService.ConSocketService)
-  
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
   public readonly conUpdated$ = new rxjs.Subject<models.Conversation>()
   public readonly conParticipantRemoved$ = new rxjs.Subject<models.Conversation.Id>()
@@ -26,19 +25,19 @@ export class ConApiService {
       this.msgReceived$.next(message);
     });
     // Subscribe to updates (additions/removals) of participants in the conversation
-    this._conSocketService.conParticipantsUpdated$.subscribe((con)=>{
+    this._conSocketService.conParticipantsUpdated$.subscribe((con) => {
       this.conUpdated$.next(con)
     })
     //Subscribe to the removal (being kicked) of self from the conversation
-    this._conSocketService.conParticipantRemoved$.subscribe((conId) =>{
+    this._conSocketService.conParticipantRemoved$.subscribe((conId) => {
       this.conParticipantRemoved$.next(conId)
     })
     //Subscribe to the addition to private channel event
-    this._conSocketService.privateConCreated$.subscribe((con) =>{
+    this._conSocketService.privateConCreated$.subscribe((con) => {
       this.conUpdated$.next(con)
     })
     //Subscribe to the deletion of the channel
-    this._conSocketService.deletedConversation$.subscribe((con)=>{
+    this._conSocketService.deletedConversation$.subscribe((con) => {
       this.deletedConversation$.next(con)
     })
   }
@@ -55,10 +54,10 @@ export class ConApiService {
     return this._http.get<models.Conversation>(`${this._participantsByConIdAPIurl}/${id}`)
   }
   public createCon(input: models.Conversation.Input): rxjs.Observable<models.Conversation> {
-    return this._http.post<models.Conversation>(`${this._conversationAPIurl}`,input ).pipe(
-      
-      rxjs.tap((createdCon)=>{
-        if(input.participantIds == undefined){
+    return this._http.post<models.Conversation>(`${this._conversationAPIurl}`, input).pipe(
+
+      rxjs.tap((createdCon) => {
+        if (input.participantIds == undefined) {
           throw new Error("No participantIds provided.")
         }
         this._conSocketService.updateParticipantOfPrivateConCreationRequest(createdCon, input.participantIds)
@@ -73,18 +72,18 @@ export class ConApiService {
     return this._http.put<models.Conversation>(`${this._conversationAPIurl}/${id}`, updates).pipe(
       rxjs.tap((updatedConversation) => {
         const conId = updatedConversation.id
-        const mergeParticipants ={
+        const mergeParticipants = {
           ...updates,
-          participantIdsToRemove: updates?.participantIdsToRemove ,
+          participantIdsToRemove: updates?.participantIdsToRemove,
           participantIdsToAdd: updates?.participantIdsToAdd
         }
-        this._conSocketService.updateConParticipantListRequest(conId,mergeParticipants)
+        this._conSocketService.updateConParticipantListRequest(conId, mergeParticipants)
       })
     )
   }
   public deleteCon(id: models.Conversation.Id): rxjs.Observable<models.Conversation> {
     return this._http.delete<models.Conversation>(`${this._conversationAPIurl}/${id}`).pipe(
-      rxjs.tap((deletedConversation) =>{
+      rxjs.tap((deletedConversation) => {
         this._conSocketService.deleteConversationRequest(deletedConversation)
       })
     )
@@ -96,12 +95,13 @@ export class ConApiService {
   public getConMessages(conId: models.Conversation.Id): rxjs.Observable<models.Conversation.Message[]> {
     return this._http.get<models.Conversation.Message[]>(`${this._messageAPIurl}/${conId}`)
   }
-  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input): rxjs.Observable<void> {
+  public sendConMessage(payloadMessage: models.Conversation.Message.InContext.Input):
+    rxjs.Observable<models.Conversation.Message.InContext.Input> {
     this._msgSocketService.sendMessage(payloadMessage);
-    return rxjs.of()
+    return this.msgReceived$.pipe(rxjs.take(1))
   }
 }
- /*-------------------- misc -----------------------*/
+/*-------------------- misc -----------------------*/
 function randomDelayOperator<T>(): rxjs.OperatorFunction<T, T> {
   return (source: rxjs.Observable<T>): rxjs.Observable<T> =>
     source.pipe(
