@@ -223,7 +223,7 @@ export class ConversationEffects {
         payloadMessage: {
           conId,
           content: inProgressContent,
-          datetime: new Date(),
+          dateTime: new Date(),
           userId,
         }
       })

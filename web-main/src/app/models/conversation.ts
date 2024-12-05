@@ -32,7 +32,7 @@ export namespace Conversation {
       id: Message.Id
       userId: User.Id
       content: string
-      datetime: Date
+      dateTime: Date
     }
     export namespace Message {
       export type Id = string

@@ -36,8 +36,9 @@ export class MsgListComponent {
     if (filteredUsers.length !== participantIds?.length) {
       return []
     }
-
-    return selectedConversation.messages
+    const messagesCopy = [...selectedConversation.messages]
+    const sortedMessagesSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.SORT_CON_MESSAGES(messagesCopy))()
+    return sortedMessagesSg
   })
 
 

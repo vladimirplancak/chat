@@ -160,5 +160,9 @@ export namespace Message {
           ? state.inProgressMessageByConId?.[selectedConId]
           : undefined
     )
-  }
+    /** Sorts messages based on the time sent */
+    export const SORT_CON_MESSAGES = (messages: models.Conversation.Message[]) => ngrxStore.createSelector(
+      () => messages.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
+    )
+}
 }

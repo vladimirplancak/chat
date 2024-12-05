@@ -22,7 +22,7 @@ export class ApiMessageService {
                 .input('content', message.content)
                 .input('conversationId', message.conId)
                 .input('userId', message.userId)
-                .input('dateTime', message.datetime)
+                .input('dateTime', message.dateTime)
                 .query(`
               INSERT INTO Messages (content, conversationId, userId, dateTime)
               OUTPUT inserted.*

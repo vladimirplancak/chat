@@ -375,7 +375,6 @@ export namespace ConState {
     }),
 
     on(actions.Con.Api.Message.Send.actions.succeeded, (state, { conversationId }) => {
-      console.log(conversationId)
       return {
         ...state,
         inProgressMessageByConId: { ...state.inProgressMessageByConId, [conversationId]: undefined }
