@@ -37,6 +37,14 @@
       color: v.$quaternary;
     }
   }
+  &__item-date-isSeen {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    font-size: 8px;
+    align-items: center;
+    margin-top: 5px;
+  }
 
   &__item-date{
     font-size: 8px;
@@ -46,5 +54,10 @@
       align-self: flex-end;
       padding: 5px 15px;
     }
+  }
+
+  &__item-isSeen {
+    font-size: 8px;
+    color: v.$secondary; 
   }
 }

@@ -225,6 +225,7 @@ export class ConversationEffects {
           content: inProgressContent,
           dateTime: new Date(),
           userId,
+          isSeen: 0
         }
       })
     })

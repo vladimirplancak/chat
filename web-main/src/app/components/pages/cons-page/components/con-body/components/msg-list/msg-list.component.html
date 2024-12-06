@@ -18,10 +18,18 @@
         >
           {{ msg.content }}
         </div>
-        <div
-        class="message-list__item-date"
-        [class.message-list__item-date--not-self]="selfIdSg() !== msg.userId"
-        >{{msg.dateTime | date:'HH:mm:ss'}}</div>
+        <div class="message-list__item-date-isSeen">
+            <div
+            class="message-list__item-date"
+            [class.message-list__item-date--not-self]="selfIdSg() !== msg.userId"
+            >{{msg.dateTime | date:'HH:mm:ss'}}
+          </div>
+        @if(selfIdSg() == msg.userId){
+          <div class="message-list_item-isSeen">
+            {{this.isMessageSeen(msg.id)}}
+          </div>
+        }
+        </div>
       </div>
     }
   </div>

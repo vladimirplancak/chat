@@ -33,6 +33,7 @@ export namespace Conversation {
       userId: User.Id
       content: string
       dateTime: Date
+      isSeen: number
     }
     export namespace Message {
       export type Id = string

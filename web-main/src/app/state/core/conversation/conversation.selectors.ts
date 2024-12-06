@@ -60,6 +60,11 @@ export namespace Conversation {
       (lookup, selectedId) => selectedId ? lookup[selectedId] : undefined
     )
     
+    export const SELECTED_CON_MSGS = ngrxStore.createSelector(
+      ENTRY,
+      (entry) => entry?.messages
+    )
+
     export const IS_SELF_CON_CREATOR = ngrxStore.createSelector(
       ID,
       LOOKUP,
@@ -163,6 +168,14 @@ export namespace Message {
     /** Sorts messages based on the time sent */
     export const SORT_CON_MESSAGES = (messages: models.Conversation.Message[]) => ngrxStore.createSelector(
       () => messages.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
+    )
+    
+    export const IS_SEEN_MESSAGE = (messageId?: models.Conversation.Message.Id) => ngrxStore.createSelector(
+      Conversation.Selected.SELECTED_CON_MSGS,
+      (selectedConMsgs) => {
+        const msg = selectedConMsgs?.filter(msg => msg.id == messageId )
+        return msg ? !!msg[0].isSeen : false
+      } 
     )
 }
 }

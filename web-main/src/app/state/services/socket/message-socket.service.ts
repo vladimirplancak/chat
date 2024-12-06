@@ -50,6 +50,7 @@ export class MessageSocketService implements ngCore.OnDestroy {
         content: message.content,
         dateTime: new Date(message.dateTime),
         conId: message.conversationId,
+        isSeen: message.isSeen
       };
       this.messageReceived$.next(transformedMessage)
     })
