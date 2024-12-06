@@ -37,4 +37,14 @@
       color: v.$quaternary;
     }
   }
+
+  &__item-date{
+    font-size: 8px;
+    padding: 5px 15px;
+
+    &--not-self{
+      align-self: flex-end;
+      padding: 5px 15px;
+    }
+  }
 }

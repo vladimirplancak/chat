@@ -1,17 +1,14 @@
 import * as ngCore from '@angular/core';
 import * as ngrxStore from '@ngrx/store';
 import * as state from '../../../../../../../state'
-import * as models from '../../../../../../../models'
-import * as services from '../../../../../../../state/services'
-import * as rxjs from 'rxjs'
-import { AsyncPipe } from '@angular/common';
+import * as common from '@angular/common'
 
 @ngCore.Component({
   standalone: true,
   styleUrl: './msg-list.component.scss',
   templateUrl: './msg-list.component.html',
   selector: 'app-msg-list',
-  //imports:[AsyncPipe] seems to be unused.
+  imports:[common.CommonModule]
 })
 export class MsgListComponent {
   private readonly _store = ngCore.inject(ngrxStore.Store)
@@ -36,6 +33,7 @@ export class MsgListComponent {
     if (filteredUsers.length !== participantIds?.length) {
       return []
     }
+    
     const messagesCopy = [...selectedConversation.messages]
     const sortedMessagesSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.SORT_CON_MESSAGES(messagesCopy))()
     return sortedMessagesSg
