@@ -46,7 +46,7 @@ export class AuthController {
             const accessToken = await this._apiAuthService.refreshToken(refreshToken)
             res.status(200).json({ accessToken })
         } catch (error) {
-            console.error('Error refreshing token:', error)
+            // console.error('Error refreshing token:', error)
             res.status(400).json({ message: 'Error refreshing token.' })
         }
     }

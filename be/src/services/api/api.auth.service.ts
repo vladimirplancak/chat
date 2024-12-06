@@ -135,7 +135,7 @@ export class ApiAuthService {
             const newAccessToken = jwt.sign({ userId: UserId }, JWT_SECRET, { expiresIn: '10m' })
             return newAccessToken
         } catch (error) {
-            console.error('Error refreshing token:', error)
+            // console.error('Error refreshing token:', error)
             throw error
         }
     }

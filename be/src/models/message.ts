@@ -6,6 +6,7 @@ export namespace Messages{
     content: string     // Corresponds to messageBody in database
     dateTime: string    // ISO string from frontend, might need conversion to Date
     userId: string
+    isSeen?: number
   }
 
   export interface Message {
@@ -14,6 +15,7 @@ export namespace Messages{
     userId: string // uniqueidentifier in SQL corresponds to string in TypeScript
     messageBody: string // nvarchar(max) in SQL corresponds to string in TypeScript
     dateTime: Date // datetime in SQL corresponds to Date in TypeScript (optional)
+    isSeen?: number
   }
 }
 

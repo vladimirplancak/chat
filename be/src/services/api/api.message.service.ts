@@ -23,10 +23,11 @@ export class ApiMessageService {
                 .input('conversationId', message.conId)
                 .input('userId', message.userId)
                 .input('dateTime', message.dateTime)
+                .input('isSeen', message.isSeen)
                 .query(`
-              INSERT INTO Messages (content, conversationId, userId, dateTime)
+              INSERT INTO Messages (content, conversationId, userId, dateTime, isSeen)
               OUTPUT inserted.*
-              VALUES (@content, @conversationId, @userId, @dateTime)
+              VALUES (@content, @conversationId, @userId, @dateTime, @isSeen)
             `)
 
             const createdMessage: models.Messages.Message = result.recordset[0]
