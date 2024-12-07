@@ -17,6 +17,7 @@ export namespace Messages{
     dateTime: Date // datetime in SQL corresponds to Date in TypeScript (optional)
     isSeen?: number
   }
+  export type id = string | string[]
 }
 
   

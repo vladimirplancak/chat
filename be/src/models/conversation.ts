@@ -14,4 +14,5 @@ export namespace Conversation{
   }
   
   export type participantIds = string[]
+  export type id = string
 }

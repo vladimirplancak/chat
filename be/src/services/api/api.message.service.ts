@@ -95,4 +95,50 @@ export class ApiMessageService {
         return result.recordset[0] || null
     }
 
+    public async setConvMessagesAsSeen(
+        conId: models.Conversation.id,
+        selfId: models.User.id
+    ): Promise<Record<models.User.id, { seenMessageIds: string[], conversationId: string }> | null> {
+        const pool = await db.connectToDatabase();
+        const lowerCaseConId = conId.toLowerCase();
+        const lowerCaseSelfId = selfId.toLowerCase();
+        const result = await pool.request()
+            .input('conversationId', lowerCaseConId)
+            .input('selfId', lowerCaseSelfId)
+            .query(`
+                WITH UpdatedMessages AS (
+                    SELECT id, userId
+                    FROM Messages
+                    WHERE conversationId = @conversationId
+                      AND userId != @selfId
+                      AND (isSeen = 0 OR isSeen IS NULL)
+                )
+                UPDATE Messages
+                SET isSeen = 1
+                OUTPUT INSERTED.id AS messageId, INSERTED.userId
+                WHERE id IN (SELECT id FROM UpdatedMessages)
+            `);
+    
+        if (result.recordset.length > 0) {
+            const groupedByUserId: Record<string, { seenMessageIds: string[], conversationId: string }> = {};
+    
+            result.recordset.forEach(row => {
+                const userId = row.userId;
+                if (!groupedByUserId[userId]) {
+                    groupedByUserId[userId] = {
+                        seenMessageIds: [],
+                        conversationId: lowerCaseConId // Attach the conversationId here
+                    };
+                }
+                groupedByUserId[userId].seenMessageIds.push(row.messageId);
+            });
+            console.log(groupedByUserId)
+            return groupedByUserId;
+        }
+    
+        return null; // No messages were updated
+    }
+    
+    
+
 }
