@@ -335,4 +335,29 @@ export class ConversationEffects {
     })
   )
   )
+
+  onConversationSeeMsgClicked$ = ngrxEffects.createEffect(() => this._actions.pipe(
+    ngrxEffects.ofType(actions.Con.Ui.List.ConItem.actions.clicked),
+    rxjs.withLatestFrom(this._store.select(auth.selectors.Auth.SELF_ID)),
+    /** We need to send convId and selfId to the server here
+     *  The server will find the conversation and set all of the 
+     *  messages not sent by the self, but by other conv participant
+     *  to isSeen = true. After that the server will dispatch a notification
+     *  to that other participant which will contain the ids of messages[]
+     *  whose property isSeen has been changed to true.
+     */
+    rxjs.switchMap(([clickedConvId, selfId]) => {
+      const clickedCon = clickedConvId.selectedId
+      if (!selfId) {
+        throw new Error(`Self does not exist yet.`)
+      }
+      return this._conApiService.sendConClickedSeenRequest(clickedCon, selfId).pipe(
+        rxjs.map((res) => {
+          return actions.Con.Socket.Message.Event.SeenConMessagesStatus.actions.seen({ seenMessagesInConIds: res })
+        })
+      )
+    },
+    ),
+  ))
+
 }

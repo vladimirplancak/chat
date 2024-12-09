@@ -10,6 +10,7 @@ export class ConApiService {
   private readonly _msgSocketService = ngCore.inject(socketService.MessageSocketService)
   private readonly _conSocketService = ngCore.inject(socketService.ConSocketService)
   public readonly msgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
+  public readonly seenMsgIdsReceived$ = new rxjs.Subject<models.Conversation.Message.SeenMessagesInConResponse>()
   public readonly conUpdated$ = new rxjs.Subject<models.Conversation>()
   public readonly conParticipantRemoved$ = new rxjs.Subject<models.Conversation.Id>()
   public readonly deletedConversation$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
@@ -39,6 +40,10 @@ export class ConApiService {
     //Subscribe to the deletion of the channel
     this._conSocketService.deletedConversation$.subscribe((con) => {
       this.deletedConversation$.next(con)
+    })
+    //Subscribe to the participant event of seeing client's messages
+    this._msgSocketService.seenMsgIdsReceived$.subscribe((result) =>{
+      this.seenMsgIdsReceived$.next(result)
     })
   }
 
@@ -99,6 +104,12 @@ export class ConApiService {
     rxjs.Observable<models.Conversation.Message.InContext.Input> {
     this._msgSocketService.sendMessage(payloadMessage);
     return this.msgReceived$.pipe(rxjs.take(1))
+  }
+
+  public sendConClickedSeenRequest(conId: models.Conversation.Id, selfId: models.User.Id):
+  rxjs.Observable<models.Conversation.Message.SeenMessagesInConResponse>{
+    this._msgSocketService.sendConClickedSeenRequest(conId,selfId)
+    return this.seenMsgIdsReceived$.pipe(rxjs.take(1))
   }
 }
 /*-------------------- misc -----------------------*/

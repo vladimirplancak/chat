@@ -431,6 +431,43 @@ export namespace ConState {
     /* -------------------------------------------------------------------------- */
     /*                            SOCKET event reducers                           */
     /* -------------------------------------------------------------------------- */
+    on(actions.Con.Socket.Message.Event.SeenConMessagesStatus.actions.seen, (state, { seenMessagesInConIds }) => {
+
+      const conId = seenMessagesInConIds.conversationId.toUpperCase()
+      const msgIds = seenMessagesInConIds.seenMessageIds
+
+      if (!conId) {
+        console.warn('ConversationId does not exist.')
+      }
+
+      const existingConState = state.conLookup[conId]
+
+      if (!existingConState) {
+        console.warn(`Conversation ID ${conId} not found.`)
+        return state
+      }
+
+      const updateMessagesToSeen = existingConState.messages.map((msg) => {
+        if (msgIds.includes(msg.id)) {
+          return { ...msg, isSeen: 1 }
+        }
+        return msg
+      })
+      
+      const updatedConState = {
+        ...existingConState,
+        messages: updateMessagesToSeen
+      }
+
+      return {
+        ...state,
+        conLookup: {
+          ...state.conLookup,
+          [conId]: updatedConState
+        }
+      }
+    }),
+
     on(actions.Con.Socket.Conversation.Event.UpdateConRequest.actions.updated, (state, { conversation }) => {
       const existingConversation = state.conLookup[conversation.id];
       const existingMessagesInCon = state.conLookup[conversation.id]?.messages || []

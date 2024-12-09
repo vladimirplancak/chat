@@ -39,7 +39,11 @@ export namespace Conversation {
       export type Id = string
       export type Input = Omit<Message, 'id'>
       export type Update = Pick<Message, 'content'>
-
+      
+      export interface SeenMessagesInConResponse{
+        seenMessageIds: Message.Id[]
+        conversationId: Conversation.Id
+      }
       export interface InContext extends Message{
         conId: Conversation.Id
       }

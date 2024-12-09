@@ -36,6 +36,21 @@ export namespace Con {
       }
     }
 
+    export namespace Message {
+      export const SOURCE = common.Action.Source.from(Socket.SOURCE, 'Message');
+        export namespace Event {
+          export const SOURCE = common.Action.Source.from(Message.SOURCE, 'Event')
+            export namespace SeenConMessagesStatus{
+              export const actions = ngrxStore.createActionGroup({
+                source: SOURCE,
+                events:{
+                  'seen': ngrxStore.props<{seenMessagesInConIds: models.Conversation.Message.SeenMessagesInConResponse}>()
+                }
+              })
+            }
+        }
+    }
+
   }
   export namespace Ui {
     export const SOURCE = common.Action.Source.from(CON_SOURCE, 'Ui')

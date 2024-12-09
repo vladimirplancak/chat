@@ -8,6 +8,7 @@ import * as models from '../../../models';
   providedIn: 'root',
 })
 export class MessageSocketService implements ngCore.OnDestroy {
+
   constructor() {
     this.setupSocketListeners()
   }
@@ -25,6 +26,7 @@ export class MessageSocketService implements ngCore.OnDestroy {
     )
 
   public messageReceived$: rxjs.Subject<models.Conversation.Message.InContext> = new rxjs.Subject()
+  public seenMsgIdsReceived$: rxjs.Subject<models.Conversation.Message.SeenMessagesInConResponse> = new rxjs.Subject()
 
   //---------------------------------------- LISTENERS ---------------------------------------//
   private setupSocketListeners(): void {
@@ -54,6 +56,10 @@ export class MessageSocketService implements ngCore.OnDestroy {
       };
       this.messageReceived$.next(transformedMessage)
     })
+
+    socket.on('sendConClickedSeenResponse', (seenConMsgs: any) => {
+      this.seenMsgIdsReceived$.next(seenConMsgs)
+    })
   }
 
   //---------------------------------------- EMITTERS ---------------------------------------//
@@ -71,6 +77,18 @@ export class MessageSocketService implements ngCore.OnDestroy {
 
   }
 
+  sendConClickedSeenRequest(conId: models.Conversation.Id, selfId: models.User.Id): void {
+    this._connectedSocket$.pipe(
+      rxjs.tap(() => {
+        const socket = this._socketIOService.getSocket()
+        if (socket) {
+          socket.emit('sendConClickedSeenRequest', conId,selfId)
+        } else {
+          console.error('Socket instance is undefined. Cannot emit send con clicked seen message request.')
+        }
+      })
+    ).subscribe()
+  }
   // public disconnect(): void {
   //   this._socket?.disconnect()
   // }
