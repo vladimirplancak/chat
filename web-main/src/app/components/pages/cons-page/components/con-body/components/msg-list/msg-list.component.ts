@@ -60,13 +60,14 @@ export class MsgListComponent implements ngCore.OnInit{
     loaderForMessagesInCon || loaderForUsers
   )
 
-  public readonly isMsgSeenMapSg = ngCore.computed(() => {
-    const unreadMessageIds = this.unreadMessagesIdsSg()
-    const lastSeenMessageId = this.lastSeenMessageIdSg()
-    
-    const messages = this.messagesSg()
+  public readonly isMsgSeenMapSg = ngCore.computed((
+    unreadMessageIds = this.unreadMessagesIdsSg(),
+    lastSeenMessageId = this.lastSeenMessageIdSg(),
+    messages = this.messagesSg()
+  ) => {
+
     const seenStatusMap: Record<string, boolean | null> = {}
-  
+
     for (const msg of messages) {
       if (unreadMessageIds.includes(msg.id)) {
         seenStatusMap[msg.id] = false
@@ -76,7 +77,7 @@ export class MsgListComponent implements ngCore.OnInit{
         seenStatusMap[msg.id] = null
       }
     }
-  
+
     return seenStatusMap
   })
 }
