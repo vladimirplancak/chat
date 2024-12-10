@@ -1,9 +1,9 @@
-import * as ngCore from '@angular/core';
-import * as ngrxStore from '@ngrx/store';
+import * as ngCore from '@angular/core'
+import * as ngrxStore from '@ngrx/store'
 import * as state from '../../../../../../../state'
 import * as common from '@angular/common'
 import * as models from '../../../../../../../models'
-import {MatIconModule} from '@angular/material/icon';
+import {MatIconModule} from '@angular/material/icon'
 @ngCore.Component({
   standalone: true,
   styleUrl: './msg-list.component.scss',
@@ -16,16 +16,16 @@ export class MsgListComponent implements ngCore.OnInit{
     setTimeout(() => {
       console.log('unreadMessagesIdsSg',this.unreadMessagesIdsSg())
       console.log('lastSeenMessageIdSg', this.lastSeenMessageIdSg())
-    }, 400);
+    }, 400)
   }
 
   private readonly _store = ngCore.inject(ngrxStore.Store)
   private readonly _presentUserLoaderSg = this._store.selectSignal(state.core.user.selectors.User.PRESENT_LOADER)
-  public selfIdSg = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)
+  public readonly selfIdSg = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)
   public readonly participantLookupSg = this._store.selectSignal(state.core.user.selectors.User.USER_LOOKUP)
   public readonly unreadMessagesIdsSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.UNREAD_MESSAGES_IDS)
   public readonly lastSeenMessageIdSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.LAST_SEEN_MSG_ID)
-  
+ 
 
   public readonly messagesSg = ngCore.computed(() => {
     const selectedConversation = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)()
@@ -60,18 +60,23 @@ export class MsgListComponent implements ngCore.OnInit{
     loaderForMessagesInCon || loaderForUsers
   )
 
-  public isMessageSeenStatus(messageId: models.Conversation.Message.Id): boolean | null {
-    const unreadMesagesIds = this.unreadMessagesIdsSg()
+  public readonly isMsgSeenMapSg = ngCore.computed(() => {
+    const unreadMessageIds = this.unreadMessagesIdsSg()
     const lastSeenMessageId = this.lastSeenMessageIdSg()
-
-    if (unreadMesagesIds.includes(messageId)) {
-      return false
+    
+    const messages = this.messagesSg()
+    const seenStatusMap: Record<string, boolean | null> = {}
+  
+    for (const msg of messages) {
+      if (unreadMessageIds.includes(msg.id)) {
+        seenStatusMap[msg.id] = false
+      } else if (lastSeenMessageId === msg.id) {
+        seenStatusMap[msg.id] = true
+      } else {
+        seenStatusMap[msg.id] = null
+      }
     }
-
-    if (lastSeenMessageId === messageId) {
-      return true
-    }
-
-    return null
-  }
+  
+    return seenStatusMap
+  })
 }

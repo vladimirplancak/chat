@@ -191,9 +191,10 @@ export namespace Message {
         const lastSeenMessage = [...selectedConMsgs]
         .filter(msg => msg.isSeen  && msg.userId === selfId)
         .sort((a,b)=> new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime())[0]
-        console.log(`selector/lastSeenMessage`, lastSeenMessage)
         return lastSeenMessage?.id || null
       }
     )
+
+
 }
 }

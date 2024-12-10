@@ -26,11 +26,11 @@
           </div>
         @if(selfIdSg() == msg.userId){
           <div class="message-list_item-isSeen">
-            @if(isMessageSeenStatus(msg.id) === false){
+            @if(isMsgSeenMapSg()[msg.id] === false){
               <mat-icon class="small-icon">check</mat-icon>
-            } @else if (isMessageSeenStatus(msg.id) === true) {
-              <mat-icon class="small-icon" >check</mat-icon>
-              <mat-icon  class="small-icon" >check</mat-icon>
+            } @else if (isMsgSeenMapSg()[msg.id] === true) {
+              <mat-icon class="small-icon">check</mat-icon>
+              <mat-icon class="small-icon">check</mat-icon>
             }
           </div>
         }
