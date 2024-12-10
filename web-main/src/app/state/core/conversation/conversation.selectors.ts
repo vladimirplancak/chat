@@ -169,13 +169,31 @@ export namespace Message {
     export const SORT_CON_MESSAGES = (messages: models.Conversation.Message[]) => ngrxStore.createSelector(
       () => messages.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
     )
-    
-    export const IS_SEEN_MESSAGE = (messageId?: models.Conversation.Message.Id) => ngrxStore.createSelector(
+
+    export const UNREAD_MESSAGES_IDS = ngrxStore.createSelector(
       Conversation.Selected.SELECTED_CON_MSGS,
-      (selectedConMsgs) => {
-        const msg = selectedConMsgs?.filter(msg => msg.id == messageId )
-        return msg ? !!msg[0].isSeen : false
-      } 
+     
+      (selectedConMsgs) =>{
+        if(!self){
+          throw new Error('Self not defined yet.')
+        }
+        return selectedConMsgs?.filter(msg => !msg.isSeen).map(msg => msg.id) || []
+      }
+    )
+
+    export const LAST_SEEN_MSG_ID = ngrxStore.createSelector(
+      Conversation.Selected.SELECTED_CON_MSGS,
+      auth.Auth.SELF_ID,
+      (selectedConMsgs,selfId) =>{
+        if(!selectedConMsgs || selectedConMsgs.length === 0){
+          return null
+        }
+        const lastSeenMessage = [...selectedConMsgs]
+        .filter(msg => msg.isSeen  && msg.userId === selfId)
+        .sort((a,b)=> new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime())[0]
+        console.log(`selector/lastSeenMessage`, lastSeenMessage)
+        return lastSeenMessage?.id || null
+      }
     )
 }
 }

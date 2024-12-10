@@ -2,22 +2,30 @@ import * as ngCore from '@angular/core';
 import * as ngrxStore from '@ngrx/store';
 import * as state from '../../../../../../../state'
 import * as common from '@angular/common'
-
+import * as models from '../../../../../../../models'
+import {MatIconModule} from '@angular/material/icon';
 @ngCore.Component({
   standalone: true,
   styleUrl: './msg-list.component.scss',
   templateUrl: './msg-list.component.html',
   selector: 'app-msg-list',
-  imports: [common.CommonModule]
+  imports: [common.CommonModule, MatIconModule]
 })
-export class MsgListComponent{
+export class MsgListComponent implements ngCore.OnInit{
+  ngOnInit(): void {
+    setTimeout(() => {
+      console.log('unreadMessagesIdsSg',this.unreadMessagesIdsSg())
+      console.log('lastSeenMessageIdSg', this.lastSeenMessageIdSg())
+    }, 400);
+  }
 
   private readonly _store = ngCore.inject(ngrxStore.Store)
   private readonly _presentUserLoaderSg = this._store.selectSignal(state.core.user.selectors.User.PRESENT_LOADER)
-
   public selfIdSg = this._store.selectSignal(state.core.auth.selectors.Auth.SELF_ID)
   public readonly participantLookupSg = this._store.selectSignal(state.core.user.selectors.User.USER_LOOKUP)
-  public readonly isMessageSeenSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.IS_SEEN_MESSAGE())
+  public readonly unreadMessagesIdsSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.UNREAD_MESSAGES_IDS)
+  public readonly lastSeenMessageIdSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.LAST_SEEN_MSG_ID)
+  
 
   public readonly messagesSg = ngCore.computed(() => {
     const selectedConversation = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.ENTRY)()
@@ -52,8 +60,18 @@ export class MsgListComponent{
     loaderForMessagesInCon || loaderForUsers
   )
 
-  public isMessageSeen(messageId: string): boolean {
-    return this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.IS_SEEN_MESSAGE(messageId))()
-  }
+  public isMessageSeenStatus(messageId: models.Conversation.Message.Id): boolean | null {
+    const unreadMesagesIds = this.unreadMessagesIdsSg()
+    const lastSeenMessageId = this.lastSeenMessageIdSg()
 
+    if (unreadMesagesIds.includes(messageId)) {
+      return false
+    }
+
+    if (lastSeenMessageId === messageId) {
+      return true
+    }
+
+    return null
+  }
 }

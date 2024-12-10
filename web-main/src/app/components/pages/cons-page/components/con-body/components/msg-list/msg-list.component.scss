@@ -40,16 +40,26 @@
   &__item-date-isSeen {
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 4px;
     font-size: 8px;
     align-items: center;
     margin-top: 5px;
+   
+    .small-icon {
+      font-size: 2.3em;
+      color: v.$primary;
+      margin-right: -12px;
+      margin-top: 7px;
+      
+    }
+
   }
 
   &__item-date{
     font-size: 8px;
     padding: 5px 15px;
-
+    padding: 0 1px;
+    margin: 0;
     &--not-self{
       align-self: flex-end;
       padding: 5px 15px;
@@ -60,4 +70,6 @@
     font-size: 8px;
     color: v.$secondary; 
   }
+
+
 }
