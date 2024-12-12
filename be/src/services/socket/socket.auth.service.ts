@@ -4,16 +4,19 @@ import * as rxjs from 'rxjs'
 export class SocketAuthService {
 
     public clientConnectionSocketIdMap: Map<string, string>
+    public clientCurrentConvIdClickedMap: Map<string,string>
     public userDisconnected$ = new rxjs.Subject<string>()
     public userConnected$ = new rxjs.Subject<string>()
 
     constructor() {
         this.clientConnectionSocketIdMap = new Map<string, string>()
+        this.clientCurrentConvIdClickedMap = new Map<string, string>()
     }
 
     // Handle user authentication and store userId with socket ID
     public authenticateUser(socketId: socketIO.Socket, userId: string) {
         this.clientConnectionSocketIdMap.set(userId, socketId.id)
+      
         // console.log(`Client authenticated: ${userId} with socket ID: ${socketId.id}`)
         this.userConnected$.next(userId)
        
@@ -30,6 +33,7 @@ export class SocketAuthService {
         for (let [userId, socketId] of this.clientConnectionSocketIdMap) {
             if (socketId === socket.id) {
                 this.clientConnectionSocketIdMap.delete(userId)
+                this.clientCurrentConvIdClickedMap.delete(userId)
                // console.log(`User ${userId} removed from the map`)
                 this.userDisconnected$.next(userId)
                 break

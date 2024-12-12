@@ -8,6 +8,7 @@ import { Socket } from 'socket.io-client'
     providedIn: 'root',
 })
 export class ConSocketService implements ngCore.OnDestroy {
+
     constructor() {
         //console.log(`ConSocketService initialized.`)
         this.setupSocketListeners()
@@ -72,6 +73,11 @@ export class ConSocketService implements ngCore.OnDestroy {
         socket.on('deleteCoversationResponse', (con: any) => {
             this.deletedConversation$.next(con)
         })
+        //notifies participants of the private conversation (self and participant alike)
+        //of both of them focusing the private conversation between then
+        socket.on('selfClickedConIdResponse', (con: any) =>{
+            console.log('selfClickedConIdResponse', con)
+        })
     }
 
     //---------------------------------------- EMITTERS ---------------------------------------//
@@ -111,6 +117,20 @@ export class ConSocketService implements ngCore.OnDestroy {
                     socket.emit('deleteCoversationRequest', deletedConversation)
                 } else {
                     console.error('Socket instance is undefined. Cannot emit conversation deleted request.')
+                }
+            })
+        ).subscribe()
+    }
+
+    selfClickedConIdRequest(clickedConId: models.Conversation.Id, selfId: models.User.Id): any {
+        this._connectedSocket$.pipe(
+            rxjs.take(1),
+            rxjs.tap(() => {
+                const socket = this._socketIOService.getSocket()
+                if (socket) {
+                    socket.emit('selfClickedConIdRequest', selfId, clickedConId)
+                } else {
+                    console.error('Socket instance is undefined. Cannot emit self clicked conId request.')
                 }
             })
         ).subscribe()

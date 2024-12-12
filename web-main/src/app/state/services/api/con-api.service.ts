@@ -6,6 +6,7 @@ import * as socketService from '../socket/';
 
 @ngCore.Injectable()
 export class ConApiService {
+
   private readonly _http = ngCore.inject(http.HttpClient)
   private readonly _msgSocketService = ngCore.inject(socketService.MessageSocketService)
   private readonly _conSocketService = ngCore.inject(socketService.ConSocketService)
@@ -93,6 +94,10 @@ export class ConApiService {
       })
     )
 
+  }
+
+  selfClickedConId(clickedConId: models.Conversation.Id, selfId: models.User.Id): rxjs.Observable<any> {
+    return rxjs.of(this._conSocketService.selfClickedConIdRequest(clickedConId,selfId))
   }
 
   /*-------------------- messages -----------------------*/

@@ -47,17 +47,16 @@ export class SocketMessageService {
         const conParticipantsIds = (await utils.ConUtils.getUserIdsByConversationId(conId))
         const filteredParticipantIds = conParticipantsIds.filter(userId => userId != selfId)
 
-       
-        console.log(`payloadPreflight`, seenMessageIds)
+      
         // Emit the seen message data to each participant
         filteredParticipantIds.forEach(userId => {
-          console.log(`userId is:`, userId)
+       
             const participantSocketId = this._authService.getSocketIdByUserId(userId)
             if (participantSocketId && seenMessageIds) {
                 // Send the grouped message IDs and conversationId to each participant
                 const data = seenMessageIds[userId]
                 if (data) {
-                  console.log(`payloadInflight`, data)
+             
                     this._ioServer.to(participantSocketId).emit('sendConClickedSeenResponse', data)
                 }
             }
@@ -78,7 +77,6 @@ export class SocketMessageService {
     })
     
     socket.on('sendConClickedSeenRequest', (conId: models.Conversation.id, selfId: models.User.id) => {
-      console.log(`we have a breach`, conId, selfId)
       this.sendConClickedSeenResponse(conId,selfId)
     })
   }

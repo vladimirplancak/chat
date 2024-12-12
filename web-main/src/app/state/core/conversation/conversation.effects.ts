@@ -359,5 +359,22 @@ export class ConversationEffects {
     },
     ),
   ))
+onSelfConIdClicked$ = ngrxEffects.createEffect(() => this._actions.pipe(
+  ngrxEffects.ofType(actions.Con.Ui.List.ConItem.actions.clicked),
+  rxjs.withLatestFrom(this._store.select(auth.selectors.Auth.SELF_ID)),
+  rxjs.switchMap(([action, selfId]) => {
+    const clickedConId = action.selectedId;
+
+    if (!clickedConId || !selfId) {
+      console.error('No conversation ID or Self ID available.');
+      return rxjs.EMPTY;  // Prevent proceeding if any value is missing
+    }
+
+    // Now we know clickedConId and selfId are both available
+    return this._conApiService.selfClickedConId(clickedConId, selfId).pipe(
+      // Handle further logic here if needed
+    );
+  })
+), { dispatch: false });
 
 }

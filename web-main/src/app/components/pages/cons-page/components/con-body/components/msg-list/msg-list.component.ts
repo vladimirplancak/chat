@@ -14,8 +14,8 @@ import {MatIconModule} from '@angular/material/icon'
 export class MsgListComponent implements ngCore.OnInit{
   ngOnInit(): void {
     setTimeout(() => {
-      console.log('unreadMessagesIdsSg',this.unreadMessagesIdsSg())
-      console.log('lastSeenMessageIdSg', this.lastSeenMessageIdSg())
+      // console.log('unreadMessagesIdsSg',this.unreadMessagesIdsSg())
+      // console.log('lastSeenMessageIdSg', this.lastSeenMessageIdSg())
     }, 400)
   }
 

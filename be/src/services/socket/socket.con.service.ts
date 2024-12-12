@@ -7,13 +7,90 @@ import * as utils from '../../utilities/conversation-utils'
 export class SocketConService {
   private _ioServer: socketIO.Server
   private _authService: services.SocketAuthService
+  
+  
 
   constructor(ioServer: socketIO.Server, authService: services.SocketAuthService) {
     this._ioServer = ioServer
     this._authService = authService
+    
+
   }
 
+
   //----------------------------------- NOTIFIER METHODS ---------------------------------------//
+  public async notifyParticipantsOfPrivateConClickedStatus(userId: models.User.id, clickedConId: models.Conversation.id) {
+
+    const clientCurrentConvIdClickedMap = this._authService.clientCurrentConvIdClickedMap
+    // Get the previous conversation this user had clicked (if any)
+    const previousConId = clientCurrentConvIdClickedMap.get(userId)
+    // Update the map with the user's clicked conversation
+    clientCurrentConvIdClickedMap.set(userId, clickedConId)
+    // Get all participants of the current conversation
+    const conParticipants = await utils.getUserIdsByConversationId(clickedConId)
+    // check if all participants have clicked on the same conversation
+    const allParticipantsClicked = conParticipants.every(participantId =>
+      clientCurrentConvIdClickedMap.get(participantId) === clickedConId
+    )
+
+    if (allParticipantsClicked) {
+      console.log(`Both participants have the conversation open. Sending notifications...`)
+
+      // Notify all participants
+      conParticipants.forEach(participantId => {
+        const participantSocketId = this._authService.getSocketIdByUserId(participantId)
+        const notSelfParticipantId = conParticipants.filter(userId => userId !== participantId)
+        if (participantSocketId) {
+          // Emit to self that the other participant has clicked on the private conversation
+          this._ioServer
+            .to(participantSocketId)
+            .emit(
+              'selfClickedConIdResponse',
+              `User ${notSelfParticipantId} has clicked on the conversation...`
+            )
+        }
+      })
+    }
+    // a case when either of the participants switches from their mutual conversation
+    else if (previousConId && previousConId !== clickedConId) {
+      console.log(
+        `User ${userId} switched from conversation ${previousConId} to ${clickedConId}.`
+      )
+
+      // Notify the participants of the previous conversation about the switch
+      const previousConParticipants = await utils.getUserIdsByConversationId(previousConId)
+      previousConParticipants.forEach(participantId => {
+        if (participantId !== userId) {
+          const participantSocketId = this._authService.getSocketIdByUserId(participantId)
+          if (participantSocketId) {
+            this._ioServer
+              .to(participantSocketId)
+              .emit(
+                'selfClickedConIdResponse',
+                `User ${userId} has switched to a different conversation.`
+              )
+          }
+        }
+      })
+    }
+    else {
+      console.log(`Not all participants have clicked on the conversation yet.`)
+      const notSelf = conParticipants.filter(participantId => participantId !== userId)
+      const participantSocketId = this._authService.getSocketIdByUserId(userId)
+      if (notSelf && participantSocketId) {
+        // Emit to self that the other participant has not yet clicked on private conversation
+        this._ioServer
+          .to(participantSocketId)
+          .emit(
+            'selfClickedConIdResponse',
+            `User ${notSelf} has NOT clicked on the conversation yet...`
+          )
+      }
+    }
+  }
+
+
+
 
   /**This method handles the notification of addition of participants to the conversation */
   public async notifyParticipantsOfAddion(conId: string) {
@@ -131,6 +208,10 @@ export class SocketConService {
       */
     socket.on('deleteCoversationRequest', (deletedConversation: models.Conversation.ConWithParticipants) => {
       this.notifyClientsOfDeletedConversation(deletedConversation)
+    })
+
+    socket.on('selfClickedConIdRequest', (userId: models.User.id, clickedConId:models.Conversation.id)=>{
+      this.notifyParticipantsOfPrivateConClickedStatus(userId, clickedConId)
     })
   }
 
