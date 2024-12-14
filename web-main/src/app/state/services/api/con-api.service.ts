@@ -15,6 +15,7 @@ export class ConApiService {
   public readonly conUpdated$ = new rxjs.Subject<models.Conversation>()
   public readonly conParticipantRemoved$ = new rxjs.Subject<models.Conversation.Id>()
   public readonly deletedConversation$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
+  public readonly conParticipantsClickedStatus$: rxjs.Subject<models.Conversation.conParticipantsClickedStatusResponse> = new rxjs.Subject()
 
   private _conversationAPIurl = 'http://localhost:5000/api/conversations'
   private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
@@ -43,8 +44,14 @@ export class ConApiService {
       this.deletedConversation$.next(con)
     })
     //Subscribe to the participant event of seeing client's messages
-    this._msgSocketService.seenMsgIdsReceived$.subscribe((result) =>{
+    this._msgSocketService.seenMsgIdsReceived$.subscribe((result) => {
       this.seenMsgIdsReceived$.next(result)
+    })
+    //Self subscrbies to the even of being notified by the server if the notself 
+    //from the private conversation has clicked the private conversation or not
+    this._conSocketService.conParticipantsClickedStatus$.subscribe((result) => {
+      this.conParticipantsClickedStatus$.next(result)
+      // console.log('con-api.service/result:', result)
     })
   }
 
@@ -59,6 +66,9 @@ export class ConApiService {
   public getParticipantsByConId(id: models.Conversation.Id): rxjs.Observable<models.Conversation> {
     return this._http.get<models.Conversation>(`${this._participantsByConIdAPIurl}/${id}`)
   }
+
+  /*--------------------- SOCKET EVENTS ---------------------------*/
+  /*-------------------- conversations  ---------------------------*/
   public createCon(input: models.Conversation.Input): rxjs.Observable<models.Conversation> {
     return this._http.post<models.Conversation>(`${this._conversationAPIurl}`, input).pipe(
 
@@ -70,6 +80,7 @@ export class ConApiService {
       })
     )
   }
+
   public updateCon(
     id: models.Conversation.Id,
     updates?: models.Conversation.Update)
@@ -87,6 +98,7 @@ export class ConApiService {
       })
     )
   }
+
   public deleteCon(id: models.Conversation.Id): rxjs.Observable<models.Conversation> {
     return this._http.delete<models.Conversation>(`${this._conversationAPIurl}/${id}`).pipe(
       rxjs.tap((deletedConversation) => {
@@ -97,7 +109,8 @@ export class ConApiService {
   }
 
   selfClickedConId(clickedConId: models.Conversation.Id, selfId: models.User.Id): rxjs.Observable<any> {
-    return rxjs.of(this._conSocketService.selfClickedConIdRequest(clickedConId,selfId))
+    rxjs.of(this._conSocketService.selfClickedConIdRequest(clickedConId, selfId))
+    return this.conParticipantsClickedStatus$
   }
 
   /*-------------------- messages -----------------------*/
@@ -112,9 +125,9 @@ export class ConApiService {
   }
 
   public sendConClickedSeenRequest(conId: models.Conversation.Id, selfId: models.User.Id):
-  rxjs.Observable<models.Conversation.Message.SeenMessagesInConResponse>{
-    this._msgSocketService.sendConClickedSeenRequest(conId,selfId)
-    return this.seenMsgIdsReceived$.pipe(rxjs.take(1))
+    rxjs.Observable<models.Conversation.Message.SeenMessagesInConResponse> {
+    this._msgSocketService.sendConClickedSeenRequest(conId, selfId)
+    return this.seenMsgIdsReceived$
   }
 }
 /*-------------------- misc -----------------------*/

@@ -29,34 +29,59 @@ export class SocketConService {
     // Get all participants of the current conversation
     const conParticipants = await utils.getUserIdsByConversationId(clickedConId)
     // check if all participants have clicked on the same conversation
-    const allParticipantsClicked = conParticipants.every(participantId =>
+    const haveBothParticipantsClickedSameCon = conParticipants.every(participantId =>
       clientCurrentConvIdClickedMap.get(participantId) === clickedConId
     )
 
-    if (allParticipantsClicked) {
-      console.log(`Both participants have the conversation open. Sending notifications...`)
-
+    if (haveBothParticipantsClickedSameCon) {
       // Notify all participants
       conParticipants.forEach(participantId => {
         const participantSocketId = this._authService.getSocketIdByUserId(participantId)
-        const notSelfParticipantId = conParticipants.filter(userId => userId !== participantId)
+        const notSelfParticipantId = conParticipants.filter(userId => userId !== participantId)[0]
         if (participantSocketId) {
           // Emit to self that the other participant has clicked on the private conversation
           this._ioServer
             .to(participantSocketId)
             .emit(
               'selfClickedConIdResponse',
-              `User ${notSelfParticipantId} has clicked on the conversation...`
+              {
+                participantId: notSelfParticipantId,
+                hasCurrentlyClickedConId: clickedConId,
+                status: true
+              }
             )
         }
       })
+
+      //notify the previous conversation participant of self clicking another conv
+      if (previousConId && previousConId !== clickedConId) {
+        console.log(`DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD`)
+        // Notify the participants of the previous conversation about the switch
+        const previousConParticipants = await utils.getUserIdsByConversationId(previousConId)
+        previousConParticipants.forEach(participantId => {
+          if (participantId !== userId) {
+            const participantSocketId = this._authService.getSocketIdByUserId(participantId)
+            if (participantSocketId) {
+              this._ioServer
+                .to(participantSocketId)
+                .emit(
+                  'selfClickedConIdResponse',
+                  {
+                    participantId: userId,
+                    hasCurrentlyClickedConId: clickedConId,
+                    status: true
+                  }
+                )
+            }
+          }
+        })
+      }
     }
-    // a case when either of the participants switches from their mutual conversation
+  
     else if (previousConId && previousConId !== clickedConId) {
       console.log(
         `User ${userId} switched from conversation ${previousConId} to ${clickedConId}.`
       )
-
       // Notify the participants of the previous conversation about the switch
       const previousConParticipants = await utils.getUserIdsByConversationId(previousConId)
       previousConParticipants.forEach(participantId => {
@@ -67,15 +92,19 @@ export class SocketConService {
               .to(participantSocketId)
               .emit(
                 'selfClickedConIdResponse',
-                `User ${userId} has switched to a different conversation.`
+                {
+                  participantId: userId,
+                  hasCurrentlyClickedConId: clickedConId,
+                  status: true
+                }
               )
           }
         }
       })
     }
     else {
-      console.log(`Not all participants have clicked on the conversation yet.`)
-      const notSelf = conParticipants.filter(participantId => participantId !== userId)
+      // console.log(`Not all participants have clicked on the conversation yet.`)
+      const notSelf = conParticipants.filter(participantId => participantId !== userId)[0]
       const participantSocketId = this._authService.getSocketIdByUserId(userId)
       if (notSelf && participantSocketId) {
         // Emit to self that the other participant has not yet clicked on private conversation
@@ -83,7 +112,11 @@ export class SocketConService {
           .to(participantSocketId)
           .emit(
             'selfClickedConIdResponse',
-            `User ${notSelf} has NOT clicked on the conversation yet...`
+            {
+              participantId: notSelf,
+              hasCurrentlyClickedConId: clickedConId,
+              status: false
+            }
           )
       }
     }

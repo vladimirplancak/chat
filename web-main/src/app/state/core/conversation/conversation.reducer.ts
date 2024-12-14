@@ -86,6 +86,13 @@ export interface ConState {
    */
   hoveredParticipantId: models.User.Id | undefined
 
+  /**
+   * Record based tracking feature for the self keeping track of private conversation participants 
+   * navigating "having clicked" the conversation with the self. Used for the purposes of quickly 
+   * establishing whether both self and not self participants of a private conversation have currently
+   * navigated to the same private conversation.
+   */
+  notSelfParticipantIdClickedStatus: Record<models.User.Id, models.Conversation.conParticipantsClickedStatusResponse>
 
 }
 export namespace ConState {
@@ -106,6 +113,7 @@ export namespace ConState {
       searchTerm: undefined
     },
     hoveredParticipantId: undefined,
+    notSelfParticipantIdClickedStatus: {}
   }
 
   export const REDUCER = createReducer<ConState>(
@@ -431,6 +439,24 @@ export namespace ConState {
     /* -------------------------------------------------------------------------- */
     /*                            SOCKET event reducers                           */
     /* -------------------------------------------------------------------------- */
+    on(actions.Con.Socket.Conversation.Event.NotSelfConClickedResponse.actions.clicked, (state, { response }) => {
+
+      const participantId = response.participantId
+      if (!participantId) {
+        throw new Error('No participantId supplied')
+      }
+
+      const updatedStatus = {
+        ...state.notSelfParticipantIdClickedStatus,
+        [participantId]: response
+      }
+
+      return {
+        ...state,
+        notSelfParticipantIdClickedStatus: updatedStatus
+      }
+    }),
+    
     on(actions.Con.Socket.Message.Event.SeenConMessagesStatus.actions.seen, (state, { seenMessagesInConIds }) => {
 
       const conId = seenMessagesInConIds.conversationId.toUpperCase()

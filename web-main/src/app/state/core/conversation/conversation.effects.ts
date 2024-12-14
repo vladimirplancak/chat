@@ -205,27 +205,27 @@ export class ConversationEffects {
     rxjs.withLatestFrom(
       this._store.select(selectors.Conversation.Selected.ID),
       this._store.select(authState.selectors.Auth.SELF_ID),
-      this._store.select(selectors.Message.InSelectedCon.IN_PROGRESS)
+      this._store.select(selectors.Message.InSelectedCon.IN_PROGRESS),
+      this._store.select(selectors.Conversation.Selected.IS_NOTSELF_FOCUSING_CURRENT_CON)
     ),
-    rxjs.map(([action, conId, userId, inProgressContent]) => {
+    rxjs.map(([action, currentConId, selfId, inProgressContent, isNotSelfFocusingCurrentCon]) => {
      
-      if (!conId) {
+      if (!currentConId) {
         throw new Error('No conversation')
       }
-      if (!userId) {
+      if (!selfId) {
         throw new Error('No user')
       }
       if (!inProgressContent) {
         throw new Error('No content')
       }
-
       return actions.Con.Api.Message.Send.actions.started({
         payloadMessage: {
-          conId,
+          conId: currentConId,
           content: inProgressContent,
           dateTime: new Date(),
-          userId,
-          isSeen: 0
+          userId: selfId,
+          isSeen: isNotSelfFocusingCurrentCon ? 1 : 0 
         }
       })
     })
@@ -311,11 +311,11 @@ export class ConversationEffects {
     this._conApiService.conParticipantRemoved$.pipe(
       rxjs.map((conId) => {
         this._router.navigate(['conversations'])
-        return actions.Con.Socket.Conversation.Event.UpdateConRequest.actions.removedSelf({ conversationId: conId });
+        return actions.Con.Socket.Conversation.Event.UpdateConRequest.actions.removedSelf({ conversationId: conId })
       }
       ),
     )
-  );
+  )
   // NOTE: Purpose of this effect is: 
   // back-end sends you new message, you receive it, through 'this_conApiSErvice.msgReceived$' stream, and then you dispatch an action,
   // that will update the state.
@@ -363,18 +363,21 @@ onSelfConIdClicked$ = ngrxEffects.createEffect(() => this._actions.pipe(
   ngrxEffects.ofType(actions.Con.Ui.List.ConItem.actions.clicked),
   rxjs.withLatestFrom(this._store.select(auth.selectors.Auth.SELF_ID)),
   rxjs.switchMap(([action, selfId]) => {
-    const clickedConId = action.selectedId;
+    const clickedConId = action.selectedId
 
     if (!clickedConId || !selfId) {
-      console.error('No conversation ID or Self ID available.');
-      return rxjs.EMPTY;  // Prevent proceeding if any value is missing
+      console.error('No conversation ID or Self ID available.')
+      return rxjs.EMPTY  
     }
-
-    // Now we know clickedConId and selfId are both available
+    
     return this._conApiService.selfClickedConId(clickedConId, selfId).pipe(
-      // Handle further logic here if needed
-    );
+      rxjs.map((res) => {
+        const notselfId = res.participantId
+        const response = res
+       return actions.Con.Socket.Conversation.Event.NotSelfConClickedResponse.actions.clicked({notSelfId: notselfId, response:response }) 
+      })
+    )
   })
-), { dispatch: false });
+))
 
 }

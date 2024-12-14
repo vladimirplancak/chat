@@ -3,7 +3,7 @@ import { ConState } from './conversation.reducer'
 import * as models from '../../../models'
 import * as ngrxRouterStore from '@ngrx/router-store'
 import * as auth from '../auth/auth.selectors';
-import lookup from 'socket.io-client';
+
 
 const {
   selectRouteParam, // factory function to select a route param
@@ -12,6 +12,8 @@ const {
 const STATE = ngrxStore.createFeatureSelector<ConState>(ConState.FEATURE_KEY)
 
 export namespace Conversation {
+
+
   export const CONS = ngrxStore.createSelector(
     STATE,
     state =>
@@ -53,7 +55,25 @@ export namespace Conversation {
       selectRouteParam('conversationId'),
       conversationId => conversationId
     )
-
+    export const SELECTED_NOTSELF_PARTICIPANT_ID = ngrxStore.createSelector(
+      LOOKUP,
+      ID,
+      auth.Auth.SELF_ID,
+      (lookUp,selectedConId,selfId) => {
+        return selectedConId ? lookUp[selectedConId]?.participantIds?.filter(participantId => participantId !== selfId)[0] : undefined
+      }
+    )
+    export const NOTSELF_PARTICIPANT_ID_CLICKED_STATUS = ngrxStore.createSelector(
+      STATE,
+      SELECTED_NOTSELF_PARTICIPANT_ID,
+      (state, notSelfId) => notSelfId ? state.notSelfParticipantIdClickedStatus[notSelfId] : undefined
+    )
+    export const IS_NOTSELF_FOCUSING_CURRENT_CON = ngrxStore.createSelector(
+      Selected.ID,
+      NOTSELF_PARTICIPANT_ID_CLICKED_STATUS,
+      (selectedConId,notSelfIdClickedStatus)=> notSelfIdClickedStatus?.status && notSelfIdClickedStatus.hasCurrentlyClickedConId == selectedConId
+    )
+    
     export const ENTRY = ngrxStore.createSelector(
       LOOKUP,
       ID,

@@ -30,6 +30,7 @@ export class ConSocketService implements ngCore.OnDestroy {
     public conParticipantRemoved$: rxjs.Subject<models.Conversation.Id> = new rxjs.Subject()
     public privateConCreated$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
     public deletedConversation$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
+    public conParticipantsClickedStatus$: rxjs.Subject<models.Conversation.conParticipantsClickedStatusResponse> = new rxjs.Subject()
 
     //---------------------------------------- LISTENERS ---------------------------------------//
     private setupSocketListeners(): void {
@@ -76,7 +77,7 @@ export class ConSocketService implements ngCore.OnDestroy {
         //notifies participants of the private conversation (self and participant alike)
         //of both of them focusing the private conversation between then
         socket.on('selfClickedConIdResponse', (con: any) =>{
-            console.log('selfClickedConIdResponse', con)
+            this.conParticipantsClickedStatus$.next(con)
         })
     }
 

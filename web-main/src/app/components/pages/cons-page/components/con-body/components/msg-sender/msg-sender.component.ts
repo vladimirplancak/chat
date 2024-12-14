@@ -8,9 +8,15 @@ import * as state from '../../../../../../../state'
   templateUrl: './msg-sender.component.html',
   selector: 'app-msg-sender'
 })
-export class MsgSenderComponent {
+export class MsgSenderComponent implements ngCore.OnInit{
+  ngOnInit(): void {
+    setTimeout(() => {
+      console.log(`the value of the selector is:`,this.isNotSelfFocusingCurrentConvSg())
+    }, 200);
+  }
   private readonly _store = ngCore.inject(ngrxStore.Store)
   public readonly inProgressMessageByConIdSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.IN_PROGRESS)
+  public readonly isNotSelfFocusingCurrentConvSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.IS_NOTSELF_FOCUSING_CURRENT_CON)
 
   // FIXME: TODO: Both of this handlers, should be "improved" in a way, that they are "saving" "sending" messages for a given conversation.
   public textAreaInputChangeHandler($event: Event) {

@@ -22,6 +22,11 @@ export namespace Conversation {
       participantIdsToRemove?: User.Id[]
       participantIdsToAdd?: User.Id[]
     }
+    export type conParticipantsClickedStatusResponse ={
+      participantId: User.Id
+      hasCurrentlyClickedConId: Conversation.Id
+      status: boolean
+    }
 
     export type MessageWithConversation = {
       conversationId: Id,

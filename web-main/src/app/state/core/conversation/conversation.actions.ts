@@ -33,6 +33,18 @@ export namespace Con {
             }
           });
         }
+        export namespace NotSelfConClickedResponse{
+          export const SOURCE = common.Action.Source.from(Event.SOURCE, 'NotSelfConClickedResponse')
+          export const actions = ngrxStore.createActionGroup({
+            source: SOURCE, 
+            events: {
+              'clicked': ngrxStore.props<{
+                notSelfId: models.User.Id, 
+                response: models.Conversation.conParticipantsClickedStatusResponse
+              }>(),
+            }
+          })
+        }
       }
     }
 
