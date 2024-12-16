@@ -108,7 +108,8 @@ export class ConApiService {
 
   }
 
-  selfClickedConId(clickedConId: models.Conversation.Id, selfId: models.User.Id): rxjs.Observable<any> {
+  selfClickedConId(clickedConId: models.Conversation.Id, selfId: models.User.Id):
+    rxjs.Observable<models.Conversation.conParticipantsClickedStatusResponse> {
     rxjs.of(this._conSocketService.selfClickedConIdRequest(clickedConId, selfId))
     return this.conParticipantsClickedStatus$
   }

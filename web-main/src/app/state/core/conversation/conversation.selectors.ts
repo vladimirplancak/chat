@@ -71,7 +71,8 @@ export namespace Conversation {
     export const IS_NOTSELF_FOCUSING_CURRENT_CON = ngrxStore.createSelector(
       Selected.ID,
       NOTSELF_PARTICIPANT_ID_CLICKED_STATUS,
-      (selectedConId,notSelfIdClickedStatus)=> notSelfIdClickedStatus?.status && notSelfIdClickedStatus.hasCurrentlyClickedConId == selectedConId
+      (currentlySelectedConId,notSelfIdClickedStatus)=> 
+        notSelfIdClickedStatus?.status && notSelfIdClickedStatus.hasCurrentlyClickedConId == currentlySelectedConId
     )
     
     export const ENTRY = ngrxStore.createSelector(

@@ -110,7 +110,7 @@ export class ConSocketService implements ngCore.OnDestroy {
         ).subscribe()
     }
 
-    public deleteConversationRequest(deletedConversation: models.Conversation) {
+    public deleteConversationRequest(deletedConversation: models.Conversation): void {
         this._connectedSocket$.pipe(
             rxjs.tap(() => {
                 const socket = this._socketIOService.getSocket()
@@ -123,7 +123,7 @@ export class ConSocketService implements ngCore.OnDestroy {
         ).subscribe()
     }
 
-    selfClickedConIdRequest(clickedConId: models.Conversation.Id, selfId: models.User.Id): any {
+    selfClickedConIdRequest(clickedConId: models.Conversation.Id, selfId: models.User.Id): void {
         this._connectedSocket$.pipe(
             rxjs.take(1),
             rxjs.tap(() => {
