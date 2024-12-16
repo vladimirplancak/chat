@@ -5,12 +5,12 @@ export class ApiMessageService {
 
     public async getAllMessages(): Promise<models.Messages.Message[]> {
         try {
-            const pool = await db.connectToDatabase();
-            const result = await pool.query('SELECT * FROM Messages');
-            return result.recordset as models.Messages.Message[];
+            const pool = await db.connectToDatabase()
+            const result = await pool.query('SELECT * FROM Messages')
+            return result.recordset as models.Messages.Message[]
         } catch (error) {
-            console.error('Error retrieving messages from database:', error);
-            throw error;
+            console.error('Error retrieving messages from database:', error)
+            throw error
         }
     }
 
@@ -63,7 +63,6 @@ export class ApiMessageService {
             FROM Messages 
             WHERE id = @id
         `)
-        console.log(`result.recordset[0]`, result.recordset[0])
         return result.recordset[0] || null
     }
 
@@ -99,9 +98,9 @@ export class ApiMessageService {
         conId: models.Conversation.id,
         selfId: models.User.id
     ): Promise<Record<models.User.id, { seenMessageIds: string[], conversationId: string }> | null> {
-        const pool = await db.connectToDatabase();
-        const lowerCaseConId = conId.toLowerCase();
-        const lowerCaseSelfId = selfId.toLowerCase();
+        const pool = await db.connectToDatabase()
+        const lowerCaseConId = conId.toLowerCase()
+        const lowerCaseSelfId = selfId.toLowerCase()
         const result = await pool.request()
             .input('conversationId', lowerCaseConId)
             .input('selfId', lowerCaseSelfId)
@@ -117,26 +116,25 @@ export class ApiMessageService {
                 SET isSeen = 1
                 OUTPUT INSERTED.id AS messageId, INSERTED.userId
                 WHERE id IN (SELECT id FROM UpdatedMessages)
-            `);
+            `)
     
         if (result.recordset.length > 0) {
-            const groupedByUserId: Record<string, { seenMessageIds: string[], conversationId: string }> = {};
+            const groupedByUserId: Record<string, { seenMessageIds: string[], conversationId: string }> = {}
     
             result.recordset.forEach(row => {
-                const userId = row.userId;
+                const userId = row.userId
                 if (!groupedByUserId[userId]) {
                     groupedByUserId[userId] = {
                         seenMessageIds: [],
                         conversationId: lowerCaseConId // Attach the conversationId here
-                    };
+                    }
                 }
-                groupedByUserId[userId].seenMessageIds.push(row.messageId);
-            });
-            console.log(groupedByUserId)
-            return groupedByUserId;
+                groupedByUserId[userId].seenMessageIds.push(row.messageId)
+            })
+            return groupedByUserId
         }
     
-        return null; // No messages were updated
+        return null // No messages were updated
     }
     
     

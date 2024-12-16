@@ -1,7 +1,7 @@
 import * as socketIO from 'socket.io'
 import * as models from '../../models'
 import * as services from '../../services'
-import * as utils from '../../utilities'
+import * as ConUtils from '../../utilities/conversation-utils'
 
 export class SocketMessageService {
   private _ioServer: socketIO.Server
@@ -26,7 +26,7 @@ export class SocketMessageService {
       // save message to the database
       const createdMessage = await this._apiMessageService.saveMessage(message)
       // extract participantIds
-      const conParticipantsIds = await utils.ConUtils.getUserIdsByConversationId(createdMessage.conversationId)
+      const conParticipantsIds = await ConUtils.API.getUserIdsByConversationId(createdMessage.conversationId)
       // Broadcast to all participants in the conversation
       conParticipantsIds.forEach(userId => {
         const participantSocketId = this._authService.getSocketIdByUserId(userId)
@@ -44,7 +44,7 @@ export class SocketMessageService {
        // Get the seen messages and group them by userId along with conversationId
        const seenMessageIds = await this._apiMessageService.setConvMessagesAsSeen(conId, selfId)
         // Get the participant IDs in the conversation
-        const conParticipantsIds = (await utils.ConUtils.getUserIdsByConversationId(conId))
+        const conParticipantsIds = (await ConUtils.API.getUserIdsByConversationId(conId))
         const filteredParticipantIds = conParticipantsIds.filter(userId => userId != selfId)
 
       
