@@ -250,3 +250,33 @@ ALTER TABLE [dbo].[RefreshTokens]  WITH CHECK ADD FOREIGN KEY([userId])
 REFERENCES [dbo].[Users] ([id])
 ON DELETE CASCADE
 
+/* -------------------------------------------------------------------------- */
+/*                        Creates MessageSeen Table                           */
+/* -------------------------------------------------------------------------- */
+CREATE TABLE [dbo].[MessageSeen](
+    [id] [uniqueidentifier] NOT NULL DEFAULT newid(),
+    [messageId] [uniqueidentifier] NOT NULL,
+    [userId] [uniqueidentifier] NOT NULL,
+    PRIMARY KEY CLUSTERED ([id] ASC) WITH (
+        PAD_INDEX = OFF,
+        STATISTICS_NORECOMPUTE = OFF,
+        IGNORE_DUP_KEY = OFF,
+        ALLOW_ROW_LOCKS = ON,
+        ALLOW_PAGE_LOCKS = ON,
+        OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
+    ) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/* -------------------------------------------------------------------------- */
+/*                        Add Foreign Key Constraints                         */
+/* -------------------------------------------------------------------------- */
+ALTER TABLE [dbo].[MessageSeen] WITH CHECK ADD CONSTRAINT FK_MessageSeen_Message
+FOREIGN KEY ([messageId]) REFERENCES [dbo].[Messages] ([id])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[MessageSeen] WITH CHECK ADD CONSTRAINT FK_MessageSeen_User
+FOREIGN KEY ([userId]) REFERENCES [dbo].[Users] ([id])
+-- NO DELETE CASCADE due to constraint restrictions
+GO
