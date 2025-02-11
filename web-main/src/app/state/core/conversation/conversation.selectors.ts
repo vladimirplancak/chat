@@ -2,12 +2,13 @@ import * as ngrxStore from '@ngrx/store'
 import { ConState } from './conversation.reducer'
 import * as models from '../../../models'
 import * as ngrxRouterStore from '@ngrx/router-store'
-import * as auth from '../auth/auth.selectors';
+import * as auth from '../auth/auth.selectors'
+
 
 
 const {
   selectRouteParam, // factory function to select a route param
-} = ngrxRouterStore.getRouterSelectors();
+} = ngrxRouterStore.getRouterSelectors()
 
 const STATE = ngrxStore.createFeatureSelector<ConState>(ConState.FEATURE_KEY)
 
@@ -60,21 +61,61 @@ export namespace Conversation {
       ID,
       auth.Auth.SELF_ID,
       (lookUp,selectedConId,selfId) => {
-        return selectedConId ? lookUp[selectedConId]?.participantIds?.filter(participantId => participantId !== selfId)[0] : undefined
+        const result = selectedConId ? lookUp[selectedConId]?.participantIds?.filter(participantId => participantId !== selfId)[0] : undefined
+
+        return result
       }
     )
     export const NOTSELF_PARTICIPANT_ID_CLICKED_STATUS = ngrxStore.createSelector(
       STATE,
       SELECTED_NOTSELF_PARTICIPANT_ID,
-      (state, notSelfId) => notSelfId ? state.notSelfParticipantIdClickedStatus[notSelfId] : undefined
+      (state, notSelfId) => {
+
+        const result =  notSelfId ? state.notSelfParticipantIdClickedStatus[notSelfId] : undefined
+     
+        return result
+      }
     )
     export const IS_NOTSELF_FOCUSING_CURRENT_CON = ngrxStore.createSelector(
       Selected.ID,
       NOTSELF_PARTICIPANT_ID_CLICKED_STATUS,
       (currentlySelectedConId,notSelfIdClickedStatus)=> 
-        notSelfIdClickedStatus?.status && notSelfIdClickedStatus.hasCurrentlyClickedConId == currentlySelectedConId
+        {
+
+          const status = notSelfIdClickedStatus?.status && notSelfIdClickedStatus.hasCurrentlyClickedConId == currentlySelectedConId
+          // console.log(`IS_NOTSELF_FOCUSING_CURRENT_CON`, notSelfIdClickedStatus?.status)
+          return status
+        }
+    )
+    export const PUB_CON_PARTICIPANTS_CLICKED_STATUS = ngrxStore.createSelector(
+      Selected.ID,
+      STATE,
+      (conId, state) => {
+        if (!conId || !state.publicConParticipantsClickedStatus[conId]) {
+          return {} as models.Conversation.PubConClickedStatusResponse
+        }
+        const status = state.publicConParticipantsClickedStatus[conId]
+        return status
+      }
     )
     
+    export const PUB_CON_CURRENTLY_CLICKED_PARTICIPANTS_IDS = ngrxStore.createSelector(
+      PUB_CON_PARTICIPANTS_CLICKED_STATUS,
+      (status) => status.participantIdsClickedStatus
+    )
+
+    export const PUB_CON_SEEN_MSGS_STATUS = ngrxStore.createSelector(
+      Selected.ID,
+      STATE,
+      (conId,state) => {
+        if(!conId){
+          return {} 
+        }
+        return state.seenPublicConMessagesStatus[conId]
+      }
+    )
+
+
     export const ENTRY = ngrxStore.createSelector(
       LOOKUP,
       ID,
@@ -190,14 +231,12 @@ export namespace Message {
     export const SORT_CON_MESSAGES = (messages: models.Conversation.Message[]) => ngrxStore.createSelector(
       () => messages.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
     )
-
+    //EDGE CASE
     export const UNREAD_MESSAGES_IDS = ngrxStore.createSelector(
       Conversation.Selected.SELECTED_CON_MSGS,
      
       (selectedConMsgs) =>{
-        if(!self){
-          throw new Error('Self not defined yet.')
-        }
+        // console.log(`SELECTOR/UNREAD_MESSAGES_IDS:`, selectedConMsgs)
         return selectedConMsgs?.filter(msg => !msg.isSeen).map(msg => msg.id) || []
       }
     )

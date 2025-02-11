@@ -17,6 +17,8 @@ export class ConversationEffects {
   private readonly _conApiService = ngCore.inject(services.ConApiService)
   private readonly _store = ngCore.inject(ngrxStore.Store)
   private readonly _router = ngCore.inject(ngRouter.Router)
+  private _previousConId$ = new rxjs.ReplaySubject<string | null>(1)
+
 
   onRootInitialized$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(rootState.actions.Root.Ui.actions.initialized),
@@ -209,7 +211,7 @@ export class ConversationEffects {
       this._store.select(selectors.Conversation.Selected.IS_NOTSELF_FOCUSING_CURRENT_CON)
     ),
     rxjs.map(([action, currentConId, selfId, inProgressContent, isNotSelfFocusingCurrentCon]) => {
-     
+      // console.log(`we are here:`, isNotSelfFocusingCurrentCon)
       if (!currentConId) {
         throw new Error('No conversation')
       }
@@ -233,15 +235,36 @@ export class ConversationEffects {
 
   onMessageSendStart$ = ngrxEffects.createEffect(() => this._actions.pipe(
     ngrxEffects.ofType(actions.Con.Api.Message.Send.actions.started),
-    rxjs.switchMap((action) => {
-      return this._conApiService.sendConMessage(action.payloadMessage).pipe(
-        rxjs.map(() => {
-          return actions.Con.Api.Message.Send.actions.succeeded({ conversationId: action.payloadMessage.conId })
-        }),
-        rxjs.catchError(error => {
-          return rxjs.of(actions.Con.Api.Message.Send.actions.failed({ errorMessage: error?.message }))
-        })
-      )
+    rxjs.withLatestFrom(this._store.select(selectors.Conversation.Selected.ENTRY)),
+    rxjs.switchMap(([action,selectedCon]) => {
+      if(!selectedCon?.participantIds?.length ){
+        throw new Error('Selected con is neither pub nor priv.')
+      }
+
+      const isConPrivate = selectedCon?.participantIds?.length <= 2
+
+      if(isConPrivate){
+        return this._conApiService.sendPrivConMessage(action.payloadMessage).pipe(
+          rxjs.map(() => {
+            return actions.Con.Api.Message.Send.actions.succeeded({ conversationId: action.payloadMessage.conId })
+          }),
+          rxjs.catchError(error => {
+            return rxjs.of(actions.Con.Api.Message.Send.actions.failed({ errorMessage: error?.message }))
+          })
+        )
+      }else{
+        // console.log(`1.we dispatch public sendConMesg`)
+        return this._conApiService.sendPubConMessage(action.payloadMessage).pipe(
+          rxjs.map(()=>{
+            return actions.Con.Api.Message.Send.actions.succeeded({ conversationId: action.payloadMessage.conId })
+          }),
+          rxjs.catchError(error => {
+            return rxjs.of(actions.Con.Api.Message.Send.actions.failed({ errorMessage: error?.message }))
+          })
+        )
+        
+      }
+      
     })
   ))
 
@@ -293,6 +316,16 @@ export class ConversationEffects {
     )
   )
   //------------------------SOCKET EVENTS-----------------------------------//
+  onNotSelfSeenPublicMessage$ = ngrxEffects.createEffect(() =>
+    this._conApiService.notSelfPubMsgsSeenReceived$.pipe(
+      rxjs.map((result)=>{
+        const conId = result.conId
+        const response = result. response
+        // console.log(`result effect:`, result)
+       return actions.Con.Socket.Conversation.Event.NotSelfPubConSeenMessagesResponse.actions.seen({conId,response})
+      })
+    )
+  )
   /**
    * This effect listens for conversation updates from the socket and directly updates the state
    */
@@ -319,14 +352,66 @@ export class ConversationEffects {
   // NOTE: Purpose of this effect is: 
   // back-end sends you new message, you receive it, through 'this_conApiSErvice.msgReceived$' stream, and then you dispatch an action,
   // that will update the state.
-  onMessageReceived$ = ngrxEffects.createEffect(() =>
-    this._conApiService.msgReceived$.pipe(
+  onPrivMessageReceived$ = ngrxEffects.createEffect(() =>
+    this._conApiService.privMsgReceived$.pipe(
       rxjs.map((message) => {
         return actions.Con.Api.Message.Subscriptions.actions.messageReceived({ message })
       }
       ),
     )
   )
+  onPubMessageReceived$ = ngrxEffects.createEffect(() =>
+    this._conApiService.pubMsgReceived$.pipe(
+      rxjs.map((message) => {
+        // console.log('effect/onPubMessageReceived')
+        return actions.Con.Api.Message.Subscriptions.actions.messageReceived({ message })
+      }
+      ),
+    )
+  )
+
+  onReceivedPubMessageSeen$ = ngrxEffects.createEffect(() =>
+    this._actions.pipe(
+      ngrxEffects.ofType(actions.Con.Api.Message.Subscriptions.actions.messageReceived),
+      rxjs.withLatestFrom(
+        this._store.select(auth.selectors.Auth.SELF_ID),
+        this._store.select(selectors.Conversation.Selected.ID),
+        this._store.select(selectors.Conversation.Selected.PUB_CON_CURRENTLY_CLICKED_PARTICIPANTS_IDS)
+      ),
+      rxjs.filter(([message, selfId, conId,currentlyClickedParticipantsIds]) => !!conId),
+      rxjs.switchMap(([message, selfId, conId, currentlyClickedParticipantsIds]) => {
+        if (!conId) {
+          console.warn('No conversation selected.')
+        return rxjs.EMPTY // No action is dispatched
+        }
+        
+        //  console.log(`currentlyClickedParticipantsIds`, currentlyClickedParticipantsIds)
+  
+       
+        if(currentlyClickedParticipantsIds == undefined){
+          return rxjs.EMPTY
+        }
+         // Filter out selfId and prepare the response
+        //  console.log(`currentlyClickedParticipantsIds`, currentlyClickedParticipantsIds)
+        const participantIdsClickedStatus = Object.entries(currentlyClickedParticipantsIds)
+          .filter(([userId, clickedStatus]) => userId !== selfId && clickedStatus)
+          .map(([userId]) => userId) // Extract only the user IDs that are true and not selfId
+          // console.log(`conId`, participantIdsClickedStatus)
+          // console.log(`participantIdsClickedStatus`, participantIdsClickedStatus)
+          const response = {
+            [message.message.id]: participantIdsClickedStatus, // Map message ID to participant IDs
+          }
+          // console.log(`participantIdsClickedStatus`, participantIdsClickedStatus)
+        return rxjs.of(
+          actions.Con.Socket.Conversation.Event.NotSelfPubConSeenMessagesResponse.actions.seen({
+            conId,
+            response,
+          })
+        )
+      })
+    )
+  )
+  
   onPrivateConversationDeleted$ = ngrxEffects.createEffect(()=>
   this._conApiService.deletedConversation$.pipe(
     rxjs.map((deletedConversation)=>{
@@ -337,8 +422,11 @@ export class ConversationEffects {
   )
 
   onConversationSeeMsgClicked$ = ngrxEffects.createEffect(() => this._actions.pipe(
-    ngrxEffects.ofType(actions.Con.Ui.List.ConItem.actions.clicked),
-    rxjs.withLatestFrom(this._store.select(auth.selectors.Auth.SELF_ID)),
+    ngrxEffects.ofType(actions.Con.Api.Con.LoadConParticipantsByConId.actions.succeeded),
+    rxjs.withLatestFrom(
+      this._store.select(auth.selectors.Auth.SELF_ID),
+      this._previousConId$.asObservable().pipe(rxjs.startWith(null))
+    ),
     /** We need to send convId and selfId to the server here
      *  The server will find the conversation and set all of the 
      *  messages not sent by the self, but by other conv participant
@@ -347,36 +435,91 @@ export class ConversationEffects {
      *  whose property isSeen has been changed to true.
      */
     rxjs.switchMap(([clickedConvId, selfId]) => {
-      const clickedCon = clickedConvId.selectedId
+      const conType = clickedConvId.participantIds.length <= 2
+      const clickedCon = clickedConvId.id
       if (!selfId) {
         throw new Error(`Self does not exist yet.`)
       }
-      return this._conApiService.sendConClickedSeenRequest(clickedCon, selfId).pipe(
-        rxjs.map((res) => {
-          return actions.Con.Socket.Message.Event.SeenConMessagesStatus.actions.seen({ seenMessagesInConIds: res })
-        })
-      )
+      this._previousConId$.next(clickedCon)
+    //  console.log(`effect onConversationSeeMsgClicked$/conType`, conType)
+      if(conType){
+        return this._conApiService.sendPrivConClickedSeenRequest(clickedCon, selfId).pipe(
+          rxjs.map((res) => {
+            // console.log(`effect fires`)
+            return actions.Con.Socket.Message.Event.SeenPrivateConMessagesStatus.actions.seen({ seenPrivMsgsIdsInCon: res })
+          })
+        )
+      }else{
+        return this._conApiService.sendPubConClickedSeenRequest(clickedCon,selfId).pipe(
+          rxjs.map((res)=>{
+            // console.log(`effect 2 fires`)
+            return actions.Con.Socket.Message.Event.SeenPublicConMessagesStatus.actions.seen({ conId: clickedCon, seenPubMsgsIdsInCon: res })
+          })
+        )
+      }
+
     },
     ),
   ))
+// entire effect is mema solution but it works
+onPreviousConversationChanged$ = ngrxEffects.createEffect(() => this._previousConId$.pipe(
+  rxjs.pairwise(), // Emit [previous, current] whenever the value changes
+  rxjs.filter(([prev, curr]) => !!prev && prev !== curr), // Only trigger when previous exists and changed
+  rxjs.withLatestFrom(this._store.select(auth.selectors.Auth.SELF_ID)), // Get selfId along with the previous conversation
+  rxjs.switchMap(([[previousConId, _], selfId]) => {
+    
+    // console.log(`Previous conversation changed: ${previousConId}, Self ID: ${selfId}`)
+    if(!previousConId){
+      throw new Error('doesnt exist')
+    }
+    if (!selfId) {
+      throw new Error(`Self does not exist yet.`)
+    }
+    return this._conApiService.sendPrivConClickedSeenRequest(previousConId, selfId).pipe(
+      rxjs.map((res) => {
+        // console.log(`effect fires`)
+        return actions.Con.Socket.Message.Event.SeenPrivateConMessagesStatus.actions.seen({ seenPrivMsgsIdsInCon: res })
+      })
+    )
+  })
+))
+
+  
 onSelfConIdClicked$ = ngrxEffects.createEffect(() => this._actions.pipe(
-  ngrxEffects.ofType(actions.Con.Ui.List.ConItem.actions.clicked),
+  ngrxEffects.ofType(actions.Con.Api.Con.LoadConParticipantsByConId.actions.succeeded),
   rxjs.withLatestFrom(this._store.select(auth.selectors.Auth.SELF_ID)),
   rxjs.switchMap(([action, selfId]) => {
-    const clickedConId = action.selectedId
-
+    const clickedConId = action.id
+    //if true its private con otherwise pub
+    const conType = action.participantIds.length <= 2
     if (!clickedConId || !selfId) {
       console.error('No conversation ID or Self ID available.')
       return rxjs.EMPTY  
     }
-    
-    return this._conApiService.selfClickedConId(clickedConId, selfId).pipe(
-      rxjs.map((res) => {
-        const notselfId = res.participantId
-        const response = res
-       return actions.Con.Socket.Conversation.Event.NotSelfConClickedResponse.actions.clicked({notSelfId: notselfId, response:response }) 
-      })
-    )
+   
+    if(conType){
+    //  console.log(`EFFECT/PRIV CON [request]`, clickedConId, selfId)
+      return this._conApiService.selfClickedConId(clickedConId, selfId).pipe(
+        rxjs.map((res) => {
+          const notselfId = res.participantId
+          const response = res
+      
+         return actions.Con.Socket.Conversation.Event.NotSelfPrivConClickedResponse.actions.clicked({notSelfId: notselfId, response:response }) 
+        })
+      )
+    }
+    else{
+      // console.log(`THIS ONE`)
+     
+      return this._conApiService.selfClickedPubConId(clickedConId, selfId).pipe(
+        rxjs.map((res) =>{
+          const conId = res.currentlyClickedPubCon
+          const response = res
+         return actions.Con.Socket.Conversation.Event.NotSelfPubConClickedResponse.actions.clicked({conId: conId, response:response }) 
+        })
+      )
+    }
+
   })
 ))
 

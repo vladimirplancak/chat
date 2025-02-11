@@ -27,6 +27,10 @@ export namespace Conversation {
       hasCurrentlyClickedConId: Conversation.Id
       status: boolean
     }
+    export type PubConClickedStatusResponse = {
+      currentlyClickedPubCon: Conversation.Id,
+      participantIdsClickedStatus: User.Id[]
+    }
 
     export type MessageWithConversation = {
       conversationId: Id,
@@ -45,9 +49,12 @@ export namespace Conversation {
       export type Input = Omit<Message, 'id'>
       export type Update = Pick<Message, 'content'>
       
-      export interface SeenMessagesInConResponse{
+      export interface SeenPrivateMsgsResponse{
         seenMessageIds: Message.Id[]
         conversationId: Conversation.Id
+      }
+      export interface SeenPublicMsgsResponse{
+        [messageId: Conversation.Message.Id]: User.Id[]
       }
       export interface InContext extends Message{
         conId: Conversation.Id

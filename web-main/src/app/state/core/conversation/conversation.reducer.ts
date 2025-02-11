@@ -87,13 +87,18 @@ export interface ConState {
   hoveredParticipantId: models.User.Id | undefined
 
   /**
-   * Record based tracking feature for the self keeping track of private conversation participants 
+   * Record based tracking feature for the self keeping track of private conversation participants (notSelves) 
    * navigating "having clicked" the conversation with the self. Used for the purposes of quickly 
    * establishing whether both self and not self participants of a private conversation have currently
-   * navigated to the same private conversation.
+   * navigated the same private conversation.
    */
   notSelfParticipantIdClickedStatus: Record<models.User.Id, models.Conversation.conParticipantsClickedStatusResponse>
-
+  /**Record based tracking feature which keeps track of the public conversation participants having focused the given
+   * public conversation.
+   */
+  publicConParticipantsClickedStatus: Record<models.Conversation.Id, models.Conversation.PubConClickedStatusResponse>
+  /**Record based tracking of public messages seen status by other participants of the conversation. */
+  seenPublicConMessagesStatus: Record<models.Conversation.Id, Record<models.Conversation.Message.Id, models.User.Id[]>>
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -113,7 +118,9 @@ export namespace ConState {
       searchTerm: undefined
     },
     hoveredParticipantId: undefined,
-    notSelfParticipantIdClickedStatus: {}
+    notSelfParticipantIdClickedStatus: {},
+    publicConParticipantsClickedStatus: {},
+    seenPublicConMessagesStatus: {}
   }
 
   export const REDUCER = createReducer<ConState>(
@@ -226,16 +233,16 @@ export namespace ConState {
 
     on(actions.Con.Api.Con.Delete.actions.succeeded, (state, { conversation }) => {
 
-      const filteredIds = state.ids.filter(id => id !== conversation.id);
-      const conLookupCopy = { ...state.conLookup };
-      delete conLookupCopy[conversation.id];
+      const filteredIds = state.ids.filter(id => id !== conversation.id)
+      const conLookupCopy = { ...state.conLookup }
+      delete conLookupCopy[conversation.id]
   
       return {
         ...state,
         ids: filteredIds,
         conLookup: conLookupCopy,
         
-      };
+      }
     }),
     
 
@@ -439,11 +446,73 @@ export namespace ConState {
     /* -------------------------------------------------------------------------- */
     /*                            SOCKET event reducers                           */
     /* -------------------------------------------------------------------------- */
-    on(actions.Con.Socket.Conversation.Event.NotSelfConClickedResponse.actions.clicked, (state, { response }) => {
+    on(
+      actions.Con.Socket.Conversation.Event.NotSelfPubConSeenMessagesResponse.actions.seen,
+      (state, { conId, response }) => {
+         console.log('Reducer/response:', response)
+    
+        if (!conId) {
+          console.warn('No conversation ID provided.')
+          return state
+        }
+    
+        // console.log('Reducer/state.seenPublicConMessagesStatus[conId]:', state.seenPublicConMessagesStatus[conId])
+    
+        // Get the current seen status for the conversation, or initialize it if it doesn't exist
+        const currentSeenPubMsgStatus = state.seenPublicConMessagesStatus[conId] || {}
+    
+        // Merge the new response into the existing seen status
+        const updatedConStatus = Object.entries(response).reduce((acc, [messageId, newParticipantIds]) => {
+          // Retrieve the existing participants for this messageId or initialize as empty
+          const existingParticipantIds = currentSeenPubMsgStatus[messageId] || []
+          
+          // Merge existing and new participant IDs, ensuring no duplicates
+          const mergedParticipantIds = Array.from(new Set([...existingParticipantIds, ...newParticipantIds]))
+    
+          return {
+            ...acc,
+            [messageId]: mergedParticipantIds, // Update the messageId entry
+          }
+        }, currentSeenPubMsgStatus)
+    
+        // Update the state with the new seen status for the given conversation ID
+        const updatedSeenStatus = {
+          ...state.seenPublicConMessagesStatus,
+          [conId]: updatedConStatus,
+        }
+    
+        return {
+          ...state,
+          seenPublicConMessagesStatus: updatedSeenStatus,
+        }
+      }
+    ),
+    
+    
+    
+    on(actions.Con.Socket.Conversation.Event.NotSelfPubConClickedResponse.actions.clicked, (state, { response }) => {
+      const conId = response.currentlyClickedPubCon
+      // const participantIdsClickedStatus = response.participantIdsClickedStatus
+      
+      if(!conId){
+        console.warn('no con id.')
+      }
+      const updatedStatus = {
+        ...state.publicConParticipantsClickedStatus,
+        [conId]: response
+      }
+     //console.log('reducer/updatedStatus', updatedStatus)
+      return {
+        ...state,
+        publicConParticipantsClickedStatus: updatedStatus
+      }
+    }),
 
+    on(actions.Con.Socket.Conversation.Event.NotSelfPrivConClickedResponse.actions.clicked, (state, { response }) => {
+      // console.log(`reducer/we are here`)
       const participantId = response.participantId
       if (!participantId) {
-        throw new Error('No participantId supplied')
+       console.warn('No participantId supplied')
       }
 
       const updatedStatus = {
@@ -456,9 +525,25 @@ export namespace ConState {
         notSelfParticipantIdClickedStatus: updatedStatus
       }
     }),
-    
-    on(actions.Con.Socket.Message.Event.SeenConMessagesStatus.actions.seen, (state, { seenMessagesInConIds }) => {
 
+    on(actions.Con.Socket.Message.Event.SeenPublicConMessagesStatus.actions.seen, (state, { conId, seenPubMsgsIdsInCon }) => {
+      // console.log(`reducer reached`)
+       console.log(`seenpubMsgsIdsInCon`, seenPubMsgsIdsInCon)
+  
+      return {
+        ...state,
+        seenPublicConMessagesStatus:{
+          ...state.seenPublicConMessagesStatus,
+          [conId]:{
+            ...(state.seenPublicConMessagesStatus[conId] || {}),
+            ...seenPubMsgsIdsInCon
+          }
+        }
+      }
+    }),
+
+    on(actions.Con.Socket.Message.Event.SeenPrivateConMessagesStatus.actions.seen, (state, { seenPrivMsgsIdsInCon: seenMessagesInConIds }) => {
+      console.log(`reducer fires nominally`)
       const conId = seenMessagesInConIds.conversationId.toUpperCase()
       const msgIds = seenMessagesInConIds.seenMessageIds
 
@@ -495,7 +580,7 @@ export namespace ConState {
     }),
 
     on(actions.Con.Socket.Conversation.Event.UpdateConRequest.actions.updated, (state, { conversation }) => {
-      const existingConversation = state.conLookup[conversation.id];
+      const existingConversation = state.conLookup[conversation.id]
       const existingMessagesInCon = state.conLookup[conversation.id]?.messages || []
       //const existingConName = state.conLookup[conversation.id]?.name 
       
@@ -509,7 +594,7 @@ export namespace ConState {
             ...state.conLookup,
             [conversation.id]: { ...conversation, messages: existingMessagesInCon } 
           }
-        };
+        }
       }
     
       // If the conversation already exists, only update its participantIds
@@ -524,48 +609,48 @@ export namespace ConState {
             messages: existingMessagesInCon
           }
         }
-      };
+      }
     }),
     
     on(actions.Con.Socket.Conversation.Event.UpdateConRequest.actions.removedSelf, (state, { conversationId }) => {
-      const conId = conversationId;
-      // console.log(`conId from action:`, conId);
-      // console.log(`Available keys in conLookup:`, Object.keys(state.conLookup));
+      const conId = conversationId
+      // console.log(`conId from action:`, conId)
+      // console.log(`Available keys in conLookup:`, Object.keys(state.conLookup))
     
       if (!state.conLookup[conId]) {
-        console.warn(`Conversation ID ${conId} not found in state.`);
-        return state;
+        console.warn(`Conversation ID ${conId} not found in state.`)
+        return state
       }
     
       // Create a new state with the conversation removed
-      const { [conId]: removed, ...newConLookup } = state.conLookup;
-      const newIds = state.ids.filter(id => id !== conId);
+      const { [conId]: removed, ...newConLookup } = state.conLookup
+      const newIds = state.ids.filter(id => id !== conId)
     
       return {
         ...state,
         ids: newIds,
         conLookup: newConLookup,
-      };
+      }
     }),
     
     on(actions.Con.Socket.Conversation.Event.DeleteConRequest.actions.deleted, (state, { conversationId }) => {
       // Check if the conversation exists in the state
       if (!state.conLookup[conversationId]) {
-        console.warn(`Conversation ID ${conversationId} not found in state.`);
-        return state; // Return the current state if the conversation doesn't exist
+        console.warn(`Conversation ID ${conversationId} not found in state.`)
+        return state // Return the current state if the conversation doesn't exist
       }
     
       // Remove the conversation from `conLookup`
-      const { [conversationId]: removed, ...updatedConLookup } = state.conLookup;
+      const { [conversationId]: removed, ...updatedConLookup } = state.conLookup
     
       // Remove the conversation ID from `ids`
-      const updatedIds = state.ids.filter(id => id !== conversationId);
+      const updatedIds = state.ids.filter(id => id !== conversationId)
     
       return {
         ...state,
         ids: updatedIds,
         conLookup: updatedConLookup,
-      };
+      }
     }),
     
 

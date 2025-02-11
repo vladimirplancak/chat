@@ -33,14 +33,40 @@ export namespace Con {
             }
           });
         }
-        export namespace NotSelfConClickedResponse{
-          export const SOURCE = common.Action.Source.from(Event.SOURCE, 'NotSelfConClickedResponse')
+        export namespace NotSelfPrivConClickedResponse{
+          export const SOURCE = common.Action.Source.from(Event.SOURCE, 'NotSelfPrivConClickedResponse')
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE, 
             events: {
               'clicked': ngrxStore.props<{
                 notSelfId: models.User.Id, 
                 response: models.Conversation.conParticipantsClickedStatusResponse
+              }>(),
+            }
+          })
+        }
+      
+        export namespace NotSelfPubConClickedResponse{
+          export const SOURCE = common.Action.Source.from(Event.SOURCE, 'NotSelfPubConClickedResponse')
+          export const actions = ngrxStore.createActionGroup({
+            source: SOURCE, 
+            events: {
+              'clicked': ngrxStore.props<{
+                conId: models.Conversation.Id, 
+                response: models.Conversation.PubConClickedStatusResponse
+              }>(),
+            }
+          })
+        }
+
+        export namespace NotSelfPubConSeenMessagesResponse{
+          export const SOURCE = common.Action.Source.from(Event.SOURCE, 'NotSelfPubConSeenMessagesResponse')
+          export const actions = ngrxStore.createActionGroup({
+            source: SOURCE, 
+            events: {
+              'seen': ngrxStore.props<{
+                conId: models.Conversation.Id
+                response: models.Conversation.Message.SeenPublicMsgsResponse
               }>(),
             }
           })
@@ -52,11 +78,21 @@ export namespace Con {
       export const SOURCE = common.Action.Source.from(Socket.SOURCE, 'Message');
         export namespace Event {
           export const SOURCE = common.Action.Source.from(Message.SOURCE, 'Event')
-            export namespace SeenConMessagesStatus{
+            export namespace SeenPrivateConMessagesStatus{
+              export const SOURCE = common.Action.Source.from(Event.SOURCE, 'SeenPrivateConMessagesStatus')
               export const actions = ngrxStore.createActionGroup({
                 source: SOURCE,
                 events:{
-                  'seen': ngrxStore.props<{seenMessagesInConIds: models.Conversation.Message.SeenMessagesInConResponse}>()
+                  'seen': ngrxStore.props<{seenPrivMsgsIdsInCon: models.Conversation.Message.SeenPrivateMsgsResponse}>()
+                }
+              })
+            }
+            export namespace SeenPublicConMessagesStatus{
+              export const SOURCE = common.Action.Source.from(Event.SOURCE, 'SeenPublicConMessagesStatus')
+              export const actions = ngrxStore.createActionGroup({
+                source: SOURCE,
+                events:{
+                  'seen': ngrxStore.props<{conId: models.Conversation.Id, seenPubMsgsIdsInCon: models.Conversation.Message.SeenPublicMsgsResponse}>()
                 }
               })
             }

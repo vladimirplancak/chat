@@ -24,7 +24,7 @@
             [class.message-list__item-date--not-self]="selfIdSg() !== msg.userId"
             >{{msg.dateTime | date:'HH:mm:ss'}}
           </div>
-        @if(selfIdSg() == msg.userId){
+        @if(selfIdSg() == msg.userId && isConPrivate() <= 2){
           <div class="message-list_item-isSeen">
             @if(isMsgSeenMapSg()[msg.id] === false){
               <mat-icon class="small-icon">check</mat-icon>
@@ -34,7 +34,29 @@
             }
           </div>
         }
+      <!-- Handling Seen Status for Public Messages -->
+      @else if (msg.id === this.lastestSelfMessageIdSg() && selfIdSg() === msg.userId && hasSeenPubMsgUserNameListSg()) {
+      <div class="message-list_item-isSeen">
+        <!-- Ensure hasSeenPubMsgUserNameListSg and msg.id exist -->
+        @if (hasSeenPubMsgUserNameListSg() && hasSeenPubMsgUserNameListSg()[msg.id] &&
+        hasSeenPubMsgUserNameListSg()[msg.id].length > 0) {
+        <div [matTooltip]="hasSeenPubMsgUserNameListSg()[msg.id].join(', ') || 'No viewers yet'"
+          [attr.aria-label]="hasSeenPubMsgUserNameListSg()[msg.id].join(', ') || 'No viewers yet'">
+          <mat-icon class="small-icon">people</mat-icon>
         </div>
+        } @else {
+        <!-- Single Check Mark for Not Seen -->
+        <div [matTooltip]="'no viwers yet'">
+          <mat-icon class="small-icon">people_outline</mat-icon>
+        </div>
+        }
+      </div>
+      }
+
+
+
+        </div>
+        
       </div>
     }
   </div>

@@ -12,4 +12,5 @@ export namespace User {
   export type Input = Omit<User, 'id'>
   
   export type Update = Partial<Input>
+  
 }

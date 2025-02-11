@@ -2,21 +2,42 @@ import * as ngCore from '@angular/core'
 import * as ngrxStore from '@ngrx/store'
 import * as state from '../../../../../../../state'
 
+
 @ngCore.Component({
   standalone: true,
   styleUrl: './msg-sender.component.scss',
   templateUrl: './msg-sender.component.html',
   selector: 'app-msg-sender'
 })
-export class MsgSenderComponent implements ngCore.OnInit{
-  ngOnInit(): void {
-    setTimeout(() => {
-      console.log(`the value of the selector is:`,this.isNotSelfFocusingCurrentConvSg())
-    }, 200);
-  }
+export class MsgSenderComponent{
   private readonly _store = ngCore.inject(ngrxStore.Store)
   public readonly inProgressMessageByConIdSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.IN_PROGRESS)
-  public readonly isNotSelfFocusingCurrentConvSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.IS_NOTSELF_FOCUSING_CURRENT_CON)
+ // public readonly pubConCurrentlyCLickedParticipantNamesSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.PUB_CON_CURRENTLY_CLICKED_PARTICIPANT_NAMES)
+ // public readonly userLookUpSg = this._store.selectSignal(state.core.user.selectors.User.USER_LOOKUP) as ngCore.Signal<Partial<Record<models.User.Id, models.User>>>
+  public readonly pubConSeenMsgsIdsSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.PUB_CON_SEEN_MSGS_STATUS)
+  public readonly pubConCurrentlyCLickedParticipantsIdsSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.PUB_CON_CURRENTLY_CLICKED_PARTICIPANTS_IDS)
+  // public readonly hasSeenPubMsgUserNameListSg = ngCore.computed((
+  //   userLookup = this.userLookUpSg(),
+  //   currentUserIds = this.pubConCurrentlyCLickedParticipantNamesSg()
+  // ) => {
+
+
+  //   if (!userLookup || !currentUserIds) {
+  //     return {}
+  //   }
+
+  //   const result: Record<string, boolean> = {}
+
+  //   for (const [userId, hasSeen] of Object.entries(currentUserIds)) {
+  //     const user = userLookup[userId]
+  //     if (user) {
+  //       result[user.name] = Boolean(hasSeen) // Explicitly cast to boolean
+  //     }
+  //   }
+
+  //   return result
+  // })
+
 
   // FIXME: TODO: Both of this handlers, should be "improved" in a way, that they are "saving" "sending" messages for a given conversation.
   public textAreaInputChangeHandler($event: Event) {
@@ -26,15 +47,10 @@ export class MsgSenderComponent implements ngCore.OnInit{
     if (!conversationId) {
       throw new Error('It is not possible to send message, if we dont have selected conversation.')
     }
-
+  
+   //console.log(`the value of the selector is:`,this.pubConCurrentlyCLickedParticipantsIdsSg())
     // TODO: (future improvements) debounce the input 
     this._store.dispatch(state.core.con.actions.Con.Ui.MessageSender.TextArea.Input.actions.changed({ conversationId, messageText: value }))
-  }
-
-
-
-  public sendButtonClickedHandler() {
-    this._store.dispatch(state.core.con.actions.Con.Ui.MessageSender.Buttons.Send.actions.clicked())
   }
 
   onEnterPressedHandler(event: KeyboardEvent) {
@@ -42,5 +58,11 @@ export class MsgSenderComponent implements ngCore.OnInit{
       event.preventDefault()
       this.sendButtonClickedHandler()
     }
+  } 
+
+  public sendButtonClickedHandler() {
+    this._store.dispatch(state.core.con.actions.Con.Ui.MessageSender.Buttons.Send.actions.clicked())
   }
+
+
 }

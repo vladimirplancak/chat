@@ -30,7 +30,9 @@ export class ConSocketService implements ngCore.OnDestroy {
     public conParticipantRemoved$: rxjs.Subject<models.Conversation.Id> = new rxjs.Subject()
     public privateConCreated$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
     public deletedConversation$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
-    public conParticipantsClickedStatus$: rxjs.Subject<models.Conversation.conParticipantsClickedStatusResponse> = new rxjs.Subject()
+    public privConParticipantsClickedStatus$: rxjs.Subject<models.Conversation.conParticipantsClickedStatusResponse> = new rxjs.Subject()
+    public pubConParticipantsClickedStatus$: rxjs.Subject<models.Conversation.PubConClickedStatusResponse> = new rxjs.Subject()
+    
 
     //---------------------------------------- LISTENERS ---------------------------------------//
     private setupSocketListeners(): void {
@@ -77,7 +79,14 @@ export class ConSocketService implements ngCore.OnDestroy {
         //notifies participants of the private conversation (self and participant alike)
         //of both of them focusing the private conversation between then
         socket.on('selfClickedConIdResponse', (con: any) =>{
-            this.conParticipantsClickedStatus$.next(con)
+            // console.log(`back end priv response::`,con)
+            this.privConParticipantsClickedStatus$.next(con)
+        })
+        //notifies participants of the public conversation (self and other participants alike)
+        //of both of them focusing the private conversation between then
+        socket.on('selfClickedPubConIdResponse', (con: any) =>{
+          //  console.log(`back end pub response::`,con)
+            this.pubConParticipantsClickedStatus$.next(con)
         })
     }
 
@@ -130,6 +139,7 @@ export class ConSocketService implements ngCore.OnDestroy {
                 const socket = this._socketIOService.getSocket()
                 if (socket) {
                     socket.emit('selfClickedConIdRequest', selfId, clickedConId)
+                    // console.log(`successful emission of:`, selfId, clickedConId)
                 } else {
                     console.error('Socket instance is undefined. Cannot emit self clicked conId request.')
                 }
