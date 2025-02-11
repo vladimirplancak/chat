@@ -19,65 +19,133 @@ export class SocketMessageService {
   }
 
   //----------------------------------- NOTIFIER METHODS ---------------------------------------//
-  // Broadcast the message to all connected clients
-  public async sendMessageResponse(message: models.Messages.FrontendMessage) {
+  // Broadcast private message to corresponding connected client
+  public async sendPrivMessageResponse(message: models.Messages.FrontendMessage) {
 
     try {
       // save message to the database
-      const createdMessage = await this._apiMessageService.saveMessage(message)
+      const savedMessage = await this._apiMessageService.saveMessage(message)
       // extract participantIds
+      const conParticipantsIds = await ConUtils.API.getUserIdsByConversationId(savedMessage.conversationId)
+      // Broadcast to all participants in the conversation
+      conParticipantsIds.forEach(userId => {
+        const participantSocketId = this._authService.getSocketIdByUserId(userId)
+        if (participantSocketId) {
+          this._ioServer.to(participantSocketId).emit('receivedPrivMessageResponse', savedMessage)
+        }
+      })
+    } catch (error) {
+      console.error('Error saving private message to database:', error)
+    }
+  }
+   // Broadcast public message to corresponding connected clients
+  public async sendPubMessageResponse(message: models.Messages.FrontendMessage) {
+    try {
+      // save message to the database
+      const createdMessage = await this._apiMessageService.saveMessage(message)
       const conParticipantsIds = await ConUtils.API.getUserIdsByConversationId(createdMessage.conversationId)
       // Broadcast to all participants in the conversation
       conParticipantsIds.forEach(userId => {
         const participantSocketId = this._authService.getSocketIdByUserId(userId)
         if (participantSocketId) {
-          this._ioServer.to(participantSocketId).emit('receivedMessageResponse', createdMessage)
+          this._ioServer.to(participantSocketId).emit('receivedPubMessageResponse', createdMessage)
         }
       })
+
+    } catch (error) {
+      console.error('Error saving public message to database:', error)
+    }
+  }
+  /**
+   * Marks private message/s to `seen` on a private conversation click event and then it 
+   * dispatches the notifcation other partcipant of his message/s being seen.
+   */
+  public async sendPrivConClickedSeenResponse(conId: models.Conversation.id, selfId: models.User.id) {
+    try {
+
+      // Get the seen messages and group them by userId along with conversationId
+      const seenMessageIds = await this._apiMessageService.setPrivConvMessagesAsSeen(conId, selfId)
+      // Get the participant IDs in the conversation
+      const conParticipantsIds = (await ConUtils.API.getUserIdsByConversationId(conId))
+      const notselfParticipantId = conParticipantsIds.filter(userId => userId != selfId)
+
+
+      // Emit the seen message data to each participant
+      notselfParticipantId.forEach(userId => {
+ 
+        const participantSocketId = this._authService.getSocketIdByUserId(userId)
+        if (participantSocketId && seenMessageIds) {
+          // Send the grouped message IDs and conversationId to each participant
+          const data = seenMessageIds[userId]
+          if (data) {
+            this._ioServer.to(participantSocketId).emit('sendConClickedSeenResponse', data)
+          }
+        }
+      })
+
     } catch (error) {
       console.error('Error saving message to database:', error)
     }
   }
 
-  public async sendConClickedSeenResponse(conId: models.Conversation.id, selfId: models.User.id) {
+  public async sendPubConClickedSeenResponse(conId: models.Conversation.id, selfId: models.User.id): Promise<void> {
     try {
-       // Get the seen messages and group them by userId along with conversationId
-       const seenMessageIds = await this._apiMessageService.setConvMessagesAsSeen(conId, selfId)
-        // Get the participant IDs in the conversation
-        const conParticipantsIds = (await ConUtils.API.getUserIdsByConversationId(conId))
-        const filteredParticipantIds = conParticipantsIds.filter(userId => userId != selfId)
+        //1. find the con and mark all messages in it as seen by selfId (messageSeen table entries)
+        const seenMessages = await this._apiMessageService.setPubConvMessagesAsSeen(conId, selfId)
 
-      
-        // Emit the seen message data to each participant
-        filteredParticipantIds.forEach(userId => {
-       
-            const participantSocketId = this._authService.getSocketIdByUserId(userId)
-            if (participantSocketId && seenMessageIds) {
-                // Send the grouped message IDs and conversationId to each participant
-                const data = seenMessageIds[userId]
-                if (data) {
-             
-                    this._ioServer.to(participantSocketId).emit('sendConClickedSeenResponse', data)
-                }
-            }
-        })
+        if (seenMessages) {
+          // Send the seen message data to other participants via socket
+          this.sendSeenPubMessagesToSender(seenMessages)
+        }
+
+        const payload = await this._apiMessageService.seenSelfMsgIdsByConversationId(selfId,conId)
+        //console.log(`payload:`,payload)
+        //2. dispatch a notification of this to the sender of the message, so that he can update his state.
+        const participantSocketId = this._authService.getSocketIdByUserId(selfId)
+        if(participantSocketId){
+          this._ioServer.to(participantSocketId).emit('sendPubConClickedSeenResponse', payload)
+        }
+
 
     } catch (error) {
-        console.error('Error saving message to database:', error)
+      console.error('Error saving message to database:', error)
     }
-}
+  }
+
+  sendSeenPubMessagesToSender(seenMessages: any) {
+    for (const userId in seenMessages) {
+      const userPayload = seenMessages[userId]
+
+      // Emit only messages seen by the specific user
+      // console.log(`Emitting a message to ${userId}`)
+      // console.log(`Message:`,JSON.stringify(userPayload))
+      const participantSocketId = this._authService.getSocketIdByUserId(userId)
+      if(participantSocketId){
+        this._ioServer.to(participantSocketId).emit('sendSeenPubMessagesToSenderResponse', userPayload)
+      }
+      
+    }
+  }
 
 
    //----------------------------------- LISTENER METHODS ---------------------------------------//
   // This method will register the events to the socket.
   public registerMessageEvents(socket: socketIO.Socket): void {
 
-    socket.on('sendMessageRequest', (message: models.Messages.FrontendMessage) => {
-      this.sendMessageResponse(message)
+    socket.on('sendPrivMessageRequest', (message: models.Messages.FrontendMessage) => {
+      this.sendPrivMessageResponse(message)
     })
-    
-    socket.on('sendConClickedSeenRequest', (conId: models.Conversation.id, selfId: models.User.id) => {
-      this.sendConClickedSeenResponse(conId,selfId)
+
+    socket.on('sendPubMessageRequest', (message: models.Messages.FrontendMessage) => {
+      this.sendPubMessageResponse(message)
+    })
+    socket.on('sendPrivConClickedSeenRequest', (conId: models.Conversation.id, selfId: models.User.id) => {
+      //console.log(`1. BACK END RECEIVED:`, conId,selfId)
+      this.sendPrivConClickedSeenResponse(conId,selfId)
+    })
+    socket.on('sendPubConClickedSeenRequest', (conId: models.Conversation.id, selfId: models.User.id) => {
+    // console.log(`1. BACK END PUB MSG SEEN REQUEST RECEIVED:`, conId,selfId)
+      this.sendPubConClickedSeenResponse(conId,selfId)
     })
   }
 }

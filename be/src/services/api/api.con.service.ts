@@ -101,7 +101,7 @@ export class ApiConService {
         participantIdsToAdd?: string[],
         participantIdsToRemove?: string[]
     ): Promise<models.Conversation.Con> {
-        return utils.ConUtils.updateConversationParticipants(id, participantIdsToAdd, participantIdsToRemove);
+        return utils.ConUtils.API.updateConversationParticipants(id, participantIdsToAdd, participantIdsToRemove);
     }
 
     /**
@@ -113,7 +113,7 @@ export class ApiConService {
         const pool = await db.connectToDatabase();
 
         // Extract participants before deletion.
-        const participantsInCon = await utils.ConUtils.getUserIdsByConversationId(id);
+        const participantsInCon = await utils.ConUtils.API.getUserIdsByConversationId(id);
 
         // Delete the conversation.
         const result = await pool.request()

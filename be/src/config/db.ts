@@ -7,12 +7,14 @@ const dbConfig = {
   password: '6xwSfiDzgBoD0x8n',
   server: 'localhost',
   database: 'TiacChatExpress',
+ 
   
   options: {
     encrypt: false,
     trustServerCertificate: true,
     
   },
+
   
 }
 

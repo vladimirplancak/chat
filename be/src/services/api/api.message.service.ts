@@ -3,6 +3,7 @@ import * as models from '../../models'
 
 export class ApiMessageService {
 
+
     public async getAllMessages(): Promise<models.Messages.Message[]> {
         try {
             const pool = await db.connectToDatabase()
@@ -53,7 +54,58 @@ export class ApiMessageService {
         const message: models.Messages.Message[] | [] = result.recordset
         return message
     }
-
+    
+    public async seenSelfMsgIdsByConversationId(
+        selfId: string, 
+        conversationId: string
+    ): Promise<Record<string, string[]>> {
+        const pool = await db.connectToDatabase()
+    
+        // Step 1: Get message IDs
+        const result = await pool.request()
+            .input('conversationId', conversationId)
+            .input('userId', selfId)
+            .query(`SELECT id 
+                    FROM Messages 
+                    WHERE conversationId = @conversationId AND userId = @userId`)
+    
+        const messageIds = result.recordset.map((record) => record.id)
+    
+        if (messageIds.length === 0) {
+            // No message IDs found
+            return {}
+        }
+    
+        // Step 2: Dynamically generate query for messageIds
+        const query = `
+            SELECT messageId, userId
+            FROM MessageSeen
+            WHERE messageId IN (${messageIds.map((_, i) => `@id${i}`).join(',')})
+        `
+    
+        const request = pool.request()
+    
+        // Dynamically bind each messageId to the query
+        messageIds.forEach((id, index) => {
+            request.input(`id${index}`, id)
+        })
+    
+        const queryResult = await request.query(query)
+    
+        // Step 3: Group userIds by messageId
+        const groupedByMessageId: Record<string, string[]> = {}
+    
+        queryResult.recordset.forEach((row) => {
+            const { messageId, userId } = row
+            if (!groupedByMessageId[messageId]) {
+                groupedByMessageId[messageId] = []
+            }
+            groupedByMessageId[messageId].push(userId)
+        })
+    // console.log(`source:`, groupedByMessageId)
+        return groupedByMessageId
+    }
+    
     public async getMessageById(id: string): Promise<models.Messages.Message | null> {
         const pool = await db.connectToDatabase()
         const result = await pool.request()
@@ -94,10 +146,10 @@ export class ApiMessageService {
         return result.recordset[0] || null
     }
 
-    public async setConvMessagesAsSeen(
-        conId: models.Conversation.id,
-        selfId: models.User.id
-    ): Promise<Record<models.User.id, { seenMessageIds: string[], conversationId: string }> | null> {
+    public async setPrivConvMessagesAsSeen
+    (conId: models.Conversation.id,selfId: models.User.id):
+    Promise<Record<models.User.id, { seenMessageIds: string[], conversationId: string }> | null> 
+    {
         const pool = await db.connectToDatabase()
         const lowerCaseConId = conId.toLowerCase()
         const lowerCaseSelfId = selfId.toLowerCase()
@@ -117,7 +169,7 @@ export class ApiMessageService {
                 OUTPUT INSERTED.id AS messageId, INSERTED.userId
                 WHERE id IN (SELECT id FROM UpdatedMessages)
             `)
-    
+       
         if (result.recordset.length > 0) {
             const groupedByUserId: Record<string, { seenMessageIds: string[], conversationId: string }> = {}
     
@@ -126,17 +178,111 @@ export class ApiMessageService {
                 if (!groupedByUserId[userId]) {
                     groupedByUserId[userId] = {
                         seenMessageIds: [],
-                        conversationId: lowerCaseConId // Attach the conversationId here
+                        conversationId: lowerCaseConId 
                     }
                 }
                 groupedByUserId[userId].seenMessageIds.push(row.messageId)
             })
+           
             return groupedByUserId
         }
     
-        return null // No messages were updated
+        return null 
+    }
+
+    public async setPubConvMessagesAsSeen(conId: models.Conversation.id,selfId: models.User.id):
+     Promise<any> 
+     {
+        const pool = await db.connectToDatabase()
+
+        //const lowerCaseConId = conId.toLowerCase()
+        const lowerCaseSelfId = selfId.toLowerCase()
+        const allPubConMsgs = await this.getMessagesByConversationId(conId) 
+        //console.log('setPubConvMessagesAsSeen', allPubConMsgs)
+        
+        //pub message Ids seen by the participant
+        const allPubMsgsIds: string[] = []
+
+        for (const pubMsg of allPubConMsgs) {
+           
+            // Check if the entry already exists
+            const existingEntry = await pool.request()
+                .input('messageId', pubMsg.id)
+                .input('userId', lowerCaseSelfId)
+                .query(`
+                    SELECT 1
+                    FROM MessageSeen
+                    WHERE messageId = @messageId AND userId = @userId
+                `)
+            
+            // If the entry doesn't exist, insert it
+            if (existingEntry.recordset.length === 0 && pubMsg.userId != selfId ) {
+                console.log(`does this ever work?`)
+              const result =  await pool.request()
+                    .input('messageId', pubMsg.id)
+                    .input('userId', lowerCaseSelfId)
+                    .query(`
+                        INSERT INTO MessageSeen (messageId, userId)
+                        OUTPUT inserted.*
+                        VALUES (@messageId, @userId)
+                    `)
+            // collect all of the messageIds into a singular array for the purposes of using it
+            // in a dynamic sql querry in order to obtain entire message, messageSeen objects of it
+             const insertedRows = result.recordset
+             //const messageId = insertedRows.map(row => row.messageId)
+             const messageId = insertedRows.map(({messageId}) => messageId)
+             allPubMsgsIds.push(...messageId)
+            }
+            
+        }
+        // console.log(`result refined:`, allPubMsgsIds)
+        if(allPubMsgsIds.length > 0){
+            const query =`
+            SELECT
+                m.conversationId,
+                m.userId,
+                m.id AS messageId,
+                ms.userId as seenByUserIds
+            FROM Messages AS m
+            JOIN MessageSeen as ms
+                ON m.id = ms.messageId
+            WHERE m.id IN (${allPubMsgsIds.map((_,i)=>`@messageId${i}`).join(",")})
+            `
+
+            const request = pool.request()
+            allPubMsgsIds.forEach((id, index)=>{
+                request.input(`messageId${index}`, id)
+            })
+
+            const result = await request.query(query)
+            // console.log("Joined Data:", result.recordset)
+            
+            //extract distinct(set) userIds(senderIds) that we need to dispatch the information to
+            const seenPubMsgsObjs = result.recordset
+             console.log(`1[seenPubMsgsObjs]:`, seenPubMsgsObjs)
+            const msgSendersIds = [
+                ...new Set(seenPubMsgsObjs.map(({userId})=> userId))
+            ]
+            //  console.log(`2[msgSendersIds]:`,msgSendersIds)
+            //format the payload to match the expecting type of the front end
+
+            
+            // Group messages by userId
+            const userMessagesRecord = seenPubMsgsObjs.reduce((acc, { userId, ...rest }) => {
+                if (!acc[userId]) {
+                    acc[userId] = [] // If the userId doesn't exist, initialize an empty array
+                }
+                acc[userId].push(rest) // Add the message object to the user's array
+                return acc
+            }, {})
+            
+            console.log(JSON.stringify(userMessagesRecord, null, 2))
+            // console.log(`final return obj:`, userMessagesRecord)
+            return userMessagesRecord
+       
+        
+    
+        }
     }
     
-    
-
 }
