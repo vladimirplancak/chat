@@ -1,14 +1,14 @@
 import * as db from '../../config/db'
-import * as models from '../../models'
+import * as models from '@common/models'
 
 export class ApiMessageService {
 
 
-    public async getAllMessages(): Promise<models.Messages.Message[]> {
+    public async getAllMessages(): Promise<models.Conversation.Message[]> {
         try {
             const pool = await db.connectToDatabase()
             const result = await pool.query('SELECT * FROM Messages')
-            return result.recordset as models.Messages.Message[]
+            return result.recordset as models.Conversation.Message[]
         } catch (error) {
             console.error('Error retrieving messages from database:', error)
             throw error
@@ -16,7 +16,7 @@ export class ApiMessageService {
     }
 
 
-    public async saveMessage(message: models.Messages.FrontendMessage): Promise<models.Messages.Message> {
+    public async saveMessage(message: models.Conversation.Message.Input): Promise<models.Conversation.Message> {
         try {
             const pool = await db.connectToDatabase()
             const result = await pool.request()
@@ -31,7 +31,7 @@ export class ApiMessageService {
               VALUES (@content, @conversationId, @userId, @dateTime, @isSeen)
             `)
 
-            const createdMessage: models.Messages.Message = result.recordset[0]
+            const createdMessage: models.Conversation.Message = result.recordset[0]
 
             if (!createdMessage) {
                 throw new Error('Message creation failed')
@@ -44,14 +44,14 @@ export class ApiMessageService {
         }
     }
 
-    public async getMessagesByConversationId(conversationId: string): Promise<models.Messages.Message[]> {
+    public async getMessagesByConversationId(conversationId: string): Promise<models.Conversation.Message[]> {
         const pool = await db.connectToDatabase()
         const result = await pool.request()
             .input('conversationId', conversationId)
             .query(`SELECT * 
                 FROM Messages 
                 WHERE conversationId = @conversationId`)
-        const message: models.Messages.Message[] | [] = result.recordset
+        const message: models.Conversation.Message[] | [] = result.recordset
         return message
     }
     
@@ -106,7 +106,7 @@ export class ApiMessageService {
         return groupedByMessageId
     }
     
-    public async getMessageById(id: string): Promise<models.Messages.Message | null> {
+    public async getMessageById(id: string): Promise<models.Conversation.Message | null> {
         const pool = await db.connectToDatabase()
         const result = await pool.request()
             .input('id', id)
@@ -118,7 +118,7 @@ export class ApiMessageService {
         return result.recordset[0] || null
     }
 
-    public async updateMessage(id: string, messageBody: string): Promise<models.Messages.Message | null> {
+    public async updateMessage(id: string, messageBody: string): Promise<models.Conversation.Message | null> {
         const pool = await db.connectToDatabase()
         const result = await pool.request()
             .input('id', id)
@@ -133,7 +133,7 @@ export class ApiMessageService {
         return result.recordset[0] || null
     }
 
-    public async deleteMessage(id: string): Promise<models.Messages.Message | null> {
+    public async deleteMessage(id: string): Promise<models.Conversation.Message | null> {
         const pool = await db.connectToDatabase()
         const result = await pool.request()
             .input('id', id)
@@ -147,8 +147,8 @@ export class ApiMessageService {
     }
 
     public async setPrivConvMessagesAsSeen
-    (conId: models.Conversation.id,selfId: models.User.id):
-    Promise<Record<models.User.id, { seenMessageIds: string[], conversationId: string }> | null> 
+    (conId: models.Conversation.Id,selfId: models.User.Id):
+    Promise<Record<models.User.Id, { seenMessageIds: string[], conversationId: string }> | null> 
     {
         const pool = await db.connectToDatabase()
         const lowerCaseConId = conId.toLowerCase()
@@ -190,7 +190,7 @@ export class ApiMessageService {
         return null 
     }
 
-    public async setPubConvMessagesAsSeen(conId: models.Conversation.id,selfId: models.User.id):
+    public async setPubConvMessagesAsSeen(conId: models.Conversation.Id,selfId: models.User.Id):
      Promise<any> 
      {
         const pool = await db.connectToDatabase()

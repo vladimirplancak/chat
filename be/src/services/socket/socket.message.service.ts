@@ -1,5 +1,5 @@
 import * as socketIO from 'socket.io'
-import * as models from '../../models'
+import * as models from '@common/models'
 import * as services from '../../services'
 import * as ConUtils from '../../utilities/conversation-utils'
 
@@ -20,14 +20,15 @@ export class SocketMessageService {
 
   //----------------------------------- NOTIFIER METHODS ---------------------------------------//
   // Broadcast private message to corresponding connected client
-  public async sendPrivMessageResponse(message: models.Messages.FrontendMessage) {
-
+  public async sendPrivMessageResponse(message: models.Conversation.Message.Input) {
+    
     try {
       // save message to the database
       const savedMessage = await this._apiMessageService.saveMessage(message)
       // extract participantIds
-      const conParticipantsIds = await ConUtils.API.getUserIdsByConversationId(savedMessage.conversationId)
+      const conParticipantsIds = await ConUtils.API.getUserIdsByConversationId(message.conId)
       // Broadcast to all participants in the conversation
+     
       conParticipantsIds.forEach(userId => {
         const participantSocketId = this._authService.getSocketIdByUserId(userId)
         if (participantSocketId) {
@@ -39,16 +40,17 @@ export class SocketMessageService {
     }
   }
    // Broadcast public message to corresponding connected clients
-  public async sendPubMessageResponse(message: models.Messages.FrontendMessage) {
+  public async sendPubMessageResponse(message: models.Conversation.Message.Input) {
     try {
       // save message to the database
-      const createdMessage = await this._apiMessageService.saveMessage(message)
-      const conParticipantsIds = await ConUtils.API.getUserIdsByConversationId(createdMessage.conversationId)
+      const savedMessage = await this._apiMessageService.saveMessage(message)
+      // collect pub conv pariticipant ids
+      const conParticipantsIds = await ConUtils.API.getUserIdsByConversationId(message.conId)
       // Broadcast to all participants in the conversation
       conParticipantsIds.forEach(userId => {
         const participantSocketId = this._authService.getSocketIdByUserId(userId)
         if (participantSocketId) {
-          this._ioServer.to(participantSocketId).emit('receivedPubMessageResponse', createdMessage)
+          this._ioServer.to(participantSocketId).emit('receivedPubMessageResponse', savedMessage)
         }
       })
 
@@ -60,7 +62,7 @@ export class SocketMessageService {
    * Marks private message/s to `seen` on a private conversation click event and then it 
    * dispatches the notifcation other partcipant of his message/s being seen.
    */
-  public async sendPrivConClickedSeenResponse(conId: models.Conversation.id, selfId: models.User.id) {
+  public async sendPrivConClickedSeenResponse(conId: models.Conversation.Id, selfId: models.User.Id) {
     try {
 
       // Get the seen messages and group them by userId along with conversationId
@@ -88,7 +90,7 @@ export class SocketMessageService {
     }
   }
 
-  public async sendPubConClickedSeenResponse(conId: models.Conversation.id, selfId: models.User.id): Promise<void> {
+  public async sendPubConClickedSeenResponse(conId: models.Conversation.Id, selfId: models.User.Id): Promise<void> {
     try {
         //1. find the con and mark all messages in it as seen by selfId (messageSeen table entries)
         const seenMessages = await this._apiMessageService.setPubConvMessagesAsSeen(conId, selfId)
@@ -132,18 +134,18 @@ export class SocketMessageService {
   // This method will register the events to the socket.
   public registerMessageEvents(socket: socketIO.Socket): void {
 
-    socket.on('sendPrivMessageRequest', (message: models.Messages.FrontendMessage) => {
+    socket.on('sendPrivMessageRequest', (message: models.Conversation.Message.Input) => {
       this.sendPrivMessageResponse(message)
     })
 
-    socket.on('sendPubMessageRequest', (message: models.Messages.FrontendMessage) => {
+    socket.on('sendPubMessageRequest', (message: models.Conversation.Message.Input) => {
       this.sendPubMessageResponse(message)
     })
-    socket.on('sendPrivConClickedSeenRequest', (conId: models.Conversation.id, selfId: models.User.id) => {
+    socket.on('sendPrivConClickedSeenRequest', (conId: models.Conversation.Id, selfId: models.User.Id) => {
       //console.log(`1. BACK END RECEIVED:`, conId,selfId)
       this.sendPrivConClickedSeenResponse(conId,selfId)
     })
-    socket.on('sendPubConClickedSeenRequest', (conId: models.Conversation.id, selfId: models.User.id) => {
+    socket.on('sendPubConClickedSeenRequest', (conId: models.Conversation.Id, selfId: models.User.Id) => {
     // console.log(`1. BACK END PUB MSG SEEN REQUEST RECEIVED:`, conId,selfId)
       this.sendPubConClickedSeenResponse(conId,selfId)
     })

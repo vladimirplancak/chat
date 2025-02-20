@@ -1,6 +1,6 @@
 // socket.con.service.ts
 import * as socketIO from 'socket.io'
-import * as models from '../../models'
+import * as models from '@common/models'
 import * as services from './socket.auth.service'
 import * as conUtils from '../../utilities/conversation-utils'
 
@@ -16,9 +16,9 @@ export class SocketConService {
   //----------------------------------- NOTIFIER METHODS ---------------------------------------//
   public async notifyParticipantsOfPublicConClickedStatus
     (
-      userId: models.User.id,
-      clickedConId: models.Conversation.id,
-      switchedPrivToPubConId?: models.Conversation.id
+      userId: models.User.Id,
+      clickedConId: models.Conversation.Id,
+      switchedPrivToPubConId?: models.Conversation.Id
     ) {
     try {
       //notify not self participant that the self has clicked away from the mutual private conv
@@ -92,9 +92,9 @@ export class SocketConService {
 
   public async notifyParticipantsOfPrivateConClickedStatus
     (
-      userId: models.User.id, 
-      clickedConId: models.Conversation.id, 
-      switchedPubToPrivConId?: models.Conversation.id
+      userId: models.User.Id, 
+      clickedConId: models.Conversation.Id, 
+      switchedPubToPrivConId?: models.Conversation.Id
     ) {
     try {
       if (switchedPubToPrivConId) {
@@ -185,7 +185,7 @@ export class SocketConService {
     }
   }
   /**This method handles the notification of removal of the participants from the conversation */
-  public async notifyParticipantsOfRemoval(conId: string, participantIds: models.Conversation.ConWithParticipants) {
+  public async notifyParticipantsOfRemoval(conId: string, participantIds: models.Conversation.Backend.ConWithParticipants) {
     try {
       const removedParticipantIds = participantIds?.participantIdsToRemove
       const currentConParticipants = await conUtils.API.getUserIdsByConversationId(conId)
@@ -212,14 +212,14 @@ export class SocketConService {
   }
   /**This method handles the notification of updating the client about being added to a new conversation */
   public async notifyAddedClientOfNewConversation(
-    con: models.Conversation.ConWithParticipants,
-    addedParticipantsId: models.User.id[]
+    con: models.Conversation.Backend.ConWithParticipants,
+    addedParticipantsId: models.User.Id[]
   ) {
     try {
       // addedParticipantsId[1] is here because this is an addition to private conversation, where the
       // user's id (self) that is adding a participant's id (notself), is an array containing two values.
       const addedParticipantSocketId = this._authService.getSocketIdByUserId(addedParticipantsId[1])
-      const conWithParticipants: models.Conversation.ConWithParticipants = {
+      const conWithParticipants: models.Conversation.Backend.ConWithParticipants = {
         id: con.id,
         name: con.name,
         createdAt: con.createdAt,
@@ -236,7 +236,7 @@ export class SocketConService {
     }
   }
 
-  public async notifyClientsOfDeletedConversation(deletedConversation: models.Conversation.ConWithParticipants) {
+  public async notifyClientsOfDeletedConversation(deletedConversation: models.Conversation.Backend.ConWithParticipants) {
     try {
 
       const participantIdsToNotify = deletedConversation.participantIds
@@ -258,7 +258,7 @@ export class SocketConService {
      * This request method determines whether we will notify the client of addition
      * or removal of participants in a given conversation.
      */
-    socket.on('updateConParticipantListRequest', (conId: string, participantIds: models.Conversation.ConWithParticipants) => {
+    socket.on('updateConParticipantListRequest', (conId: string, participantIds: models.Conversation.Backend.ConWithParticipants) => {
       if (participantIds.participantIdsToAdd) {
         this.notifyConParticipantsOfAddion(conId)
       } else {
@@ -270,19 +270,19 @@ export class SocketConService {
      */
     socket.on('updateParticipantOfPrivateConCreationRequest',
       (
-        con: models.Conversation.ConWithParticipants,
-        addedParticipantsId: models.User.id[]
+        con: models.Conversation.Backend.ConWithParticipants,
+        addedParticipantsId: models.User.Id[]
       ) => {
         this.notifyAddedClientOfNewConversation(con, addedParticipantsId)
       })
     /**
       * Similarly, this request method forwards the payload request to the notifier method.
       */
-    socket.on('deleteCoversationRequest', (deletedConversation: models.Conversation.ConWithParticipants) => {
+    socket.on('deleteCoversationRequest', (deletedConversation: models.Conversation.Backend.ConWithParticipants) => {
       this.notifyClientsOfDeletedConversation(deletedConversation)
     })
 
-    socket.on('selfClickedConIdRequest', async (userId: models.User.id, clickedConId: models.Conversation.id) => {
+    socket.on('selfClickedConIdRequest', async (userId: models.User.Id, clickedConId: models.Conversation.Id) => {
       // console.log(`received [userId][clickedConId]`, userId, clickedConId)
       const conParticipants = await conUtils.API.getUserIdsByConversationId(clickedConId)
       // console.log(`conParticipants:`, conParticipants)
@@ -330,8 +330,8 @@ export class SocketConService {
   }
 
   private async notifyParticipantsOfSameCon(
-    conParticipants: models.User.id[],
-    clickedConId: models.Conversation.id
+    conParticipants: models.User.Id[],
+    clickedConId: models.Conversation.Id
   ) {
     conParticipants.forEach(participantId => {
       const participantSocketId = this._authService.getSocketIdByUserId(participantId)
@@ -348,9 +348,9 @@ export class SocketConService {
   }
 
   private async notifyNotSelfParticipantOfPreviousCon(
-    previousConId: models.Conversation.id,
-    userId: models.User.id,
-    currentConId: models.Conversation.id
+    previousConId: models.Conversation.Id,
+    userId: models.User.Id,
+    currentConId: models.Conversation.Id
   ) {
     const previousConParticipants = await conUtils.API.getUserIdsByConversationId(previousConId)
     previousConParticipants.forEach(participantId => {
@@ -367,9 +367,9 @@ export class SocketConService {
     })
   }
   private notifySelfOfUnclickedCon(
-    userId: models.User.id,
-    conParticipants: models.User.id[],
-    clickedConId: models.Conversation.id
+    userId: models.User.Id,
+    conParticipants: models.User.Id[],
+    clickedConId: models.Conversation.Id
   ) {
     const notSelf = conParticipants.filter(participantId => participantId !== userId)[0]
     const selfSocketId = this._authService.getSocketIdByUserId(userId)

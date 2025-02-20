@@ -1,5 +1,5 @@
 import * as db from '../../config/db'
-import * as models from '../../models'
+import * as models from '@common/models'
 import * as utils from '../../utilities'
 import mssql from 'mssql'
 
@@ -9,7 +9,7 @@ export class ApiConService {
     * @param userId - The ID of the user.
     * @returns A promise resolving to an array of conversations.
     */
-    public async getConversationsByUserId(userId: string): Promise<models.Conversation.Con[]> {
+    public async getConversationsByUserId(userId: string): Promise<models.Conversation.Base[]> {
         const pool = await db.connectToDatabase();
 
         // Fetch conversation IDs associated with the user.
@@ -37,7 +37,7 @@ export class ApiConService {
      * @param conversationId - The unique ID of the conversation.
      * @returns A promise resolving to the conversation or undefined if not found.
      */
-    public async getConversationById(conversationId: string): Promise<models.Conversation.Con | undefined> {
+    public async getConversationById(conversationId: string): Promise<models.Conversation.Base | undefined> {
         const pool = await db.connectToDatabase();
 
         const result = await pool.request()
@@ -52,7 +52,7 @@ export class ApiConService {
      * @param newConv - The conversation data to create.
      * @returns A promise resolving to the created conversation.
      */
-    public async createConversation(newConv: models.Conversation.ConWithParticipants): Promise<models.Conversation.Con> {
+    public async createConversation(newConv: models.Conversation.Backend.ConWithParticipants): Promise<models.Conversation.Base> {
         const pool = await db.connectToDatabase();
 
         // Find user for naming the conversation.
@@ -72,7 +72,7 @@ export class ApiConService {
             .input('CreatorId', newConv.creatorId)
             .query('INSERT INTO Conversations (Name, CreatorId) OUTPUT inserted.* VALUES (@Name, @CreatorId)');
 
-        const createdConversation: models.Conversation.Con = createConv.recordset[0];
+        const createdConversation: models.Conversation.Base = createConv.recordset[0];
 
         if (!createdConversation) {
             throw new Error('Conversation creation failed');
@@ -100,7 +100,7 @@ export class ApiConService {
         id: string,
         participantIdsToAdd?: string[],
         participantIdsToRemove?: string[]
-    ): Promise<models.Conversation.Con> {
+    ): Promise<models.Conversation.Base> {
         return utils.ConUtils.API.updateConversationParticipants(id, participantIdsToAdd, participantIdsToRemove);
     }
 
@@ -109,7 +109,7 @@ export class ApiConService {
      * @param id - The unique ID of the conversation to delete.
      * @returns A promise resolving to the deleted conversation data.
      */
-    public async deleteConversation(id: string): Promise<models.Conversation.ConWithParticipants> {
+    public async deleteConversation(id: string): Promise<models.Conversation.Backend.ConWithParticipants> {
         const pool = await db.connectToDatabase();
 
         // Extract participants before deletion.
@@ -124,7 +124,7 @@ export class ApiConService {
                 WHERE id = @id
             `);
 
-        const deletedConversation: models.Conversation.ConWithParticipants = result.recordset[0];
+        const deletedConversation: models.Conversation.Backend.ConWithParticipants = result.recordset[0];
 
         if (!deletedConversation) {
             throw new Error('Conversation not found or already deleted');

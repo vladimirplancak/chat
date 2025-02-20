@@ -18,6 +18,7 @@ export interface Conversation {
 export namespace Conversation {
     export type Id = string
     export type Input = Omit<Conversation, 'id'>
+
     export interface Update extends Partial<Omit<Input, 'participantIds'>> {
       participantIdsToRemove?: User.Id[]
       participantIdsToAdd?: User.Id[]
@@ -44,6 +45,7 @@ export namespace Conversation {
       dateTime: Date
       isSeen: number
     }
+    
     export namespace Message {
       export type Id = string
       export type Input = Omit<Message, 'id'>

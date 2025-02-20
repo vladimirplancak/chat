@@ -1,5 +1,5 @@
 import * as db from '../config/db'
-import * as models from '../models'
+import * as models from '@common/models'
 
 export namespace API {
   /**
@@ -7,13 +7,13 @@ export namespace API {
    * @param conversationId - The unique identifier of the conversation.
    * @param participantIdsToAdd - The list of participant IDs to be added.
    * @param participantIdsToRemove - The list of participant IDs to be removed.
-   * @returns {models.Conversation.ConWithParticipants} - The updated conversation with participants.
+   * @returns {models.Conversation.Backend.ConWithParticipants} - The updated conversation with participants.
    */
   export async function updateConversationParticipants(
     conversationId: string,
     participantIdsToAdd?: string[],
     participantIdsToRemove?: string[]
-  ): Promise<models.Conversation.ConWithParticipants> {
+  ): Promise<models.Conversation.Backend.ConWithParticipants> {
     const pool = await db.connectToDatabase()
 
     // Add participants
@@ -51,7 +51,7 @@ export namespace API {
       WHERE c.id = @ConversationId
     `)
 
-    const conversationWithParticipants: models.Conversation.ConWithParticipants = {
+    const conversationWithParticipants: models.Conversation.Backend.ConWithParticipants = {
       id: updatedConversation.recordset[0].id,
       name: updatedConversation.recordset[0].name,
       participantIds: updatedConversation.recordset.map(row => row.participantId),
