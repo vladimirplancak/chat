@@ -151,12 +151,12 @@ export class ConApiService {
   public getConMessages(conId: models.Conversation.Id): rxjs.Observable<models.Conversation.Message[]> {
     return this._http.get<models.Conversation.Message[]>(`${this._messageAPIurl}/${conId}`)
   }
-  public sendPrivConMessage(payloadMessage: models.Conversation.Message.InContext.Input):
+  public sendPrivConMessage(payloadMessage: commonModels.Conversation.Message.InContext.Input):
     rxjs.Observable<models.Conversation.Message.InContext.Input> {
     this._msgSocketService.sendPrivMessage(payloadMessage)
     return this.privMsgReceived$.pipe(rxjs.take(1))
   }
-  public sendPubConMessage(payloadMessage: models.Conversation.Message.InContext.Input):
+  public sendPubConMessage(payloadMessage: commonModels.Conversation.Message.InContext.Input):
     rxjs.Observable<models.Conversation.Message.InContext.Input> {
     this._msgSocketService.sendPubMessage(payloadMessage)
     return this.pubMsgReceived$.pipe(rxjs.take(1))

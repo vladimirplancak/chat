@@ -1,6 +1,5 @@
 import * as common from '../../common'
 import * as ngrxStore from '@ngrx/store'
-import * as models from '../../../models'
 import * as commonModels from '@common/models'
 
 export const CON_SOURCE = 'Con'
@@ -20,7 +19,7 @@ export namespace Con {
             source: SOURCE,
             events: {
               'updated': ngrxStore.props<{ conversation: commonModels.Conversation.Base }>(),
-              'removedSelf':ngrxStore.props<{ conversationId: models.Conversation.Id }>(),
+              'removedSelf':ngrxStore.props<{ conversationId: commonModels.Conversation.Id }>(),
             }
           });
         }
@@ -29,7 +28,7 @@ export namespace Con {
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE,
             events: {
-              'deleted': ngrxStore.props<{ conversationId: models.Conversation.Id }>(),
+              'deleted': ngrxStore.props<{ conversationId: commonModels.Conversation.Id }>(),
     
             }
           });
@@ -40,8 +39,8 @@ export namespace Con {
             source: SOURCE, 
             events: {
               'clicked': ngrxStore.props<{
-                notSelfId: models.User.Id, 
-                response: models.Conversation.conParticipantsClickedStatusResponse
+                notSelfId: commonModels.User.Id, 
+                response: commonModels.Conversation.conParticipantsClickedStatusResponse
               }>(),
             }
           })
@@ -53,8 +52,8 @@ export namespace Con {
             source: SOURCE, 
             events: {
               'clicked': ngrxStore.props<{
-                conId: models.Conversation.Id, 
-                response: models.Conversation.PubConClickedStatusResponse
+                conId: commonModels.Conversation.Id, 
+                response: commonModels.Conversation.PubConClickedStatusResponse
               }>(),
             }
           })
@@ -66,8 +65,8 @@ export namespace Con {
             source: SOURCE, 
             events: {
               'seen': ngrxStore.props<{
-                conId: models.Conversation.Id
-                response: models.Conversation.Message.SeenPublicMsgsResponse
+                conId: commonModels.Conversation.Id
+                response: commonModels.Conversation.Message.SeenPublicMsgsResponse
               }>(),
             }
           })
@@ -84,7 +83,7 @@ export namespace Con {
               export const actions = ngrxStore.createActionGroup({
                 source: SOURCE,
                 events:{
-                  'seen': ngrxStore.props<{seenPrivMsgsIdsInCon: models.Conversation.Message.SeenPrivateMsgsResponse}>()
+                  'seen': ngrxStore.props<{seenPrivMsgsIdsInCon: commonModels.Conversation.Message.SeenPrivateMsgsResponse}>()
                 }
               })
             }
@@ -93,7 +92,7 @@ export namespace Con {
               export const actions = ngrxStore.createActionGroup({
                 source: SOURCE,
                 events:{
-                  'seen': ngrxStore.props<{conId: models.Conversation.Id, seenPubMsgsIdsInCon: models.Conversation.Message.SeenPublicMsgsResponse}>()
+                  'seen': ngrxStore.props<{conId: commonModels.Conversation.Id, seenPubMsgsIdsInCon: commonModels.Conversation.Message.SeenPublicMsgsResponse}>()
                 }
               })
             }
@@ -111,8 +110,8 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
-            'hovered': ngrxStore.props<{ participantId: models.User.Id }>(),
-            'unHovered': ngrxStore.props<{ participantId: models.User.Id }>(),
+            'hovered': ngrxStore.props<{ participantId: commonModels.User.Id }>(),
+            'unHovered': ngrxStore.props<{ participantId: commonModels.User.Id }>(),
           }
         })
       }
@@ -124,7 +123,7 @@ export namespace Con {
       export const actions = ngrxStore.createActionGroup({
         source: SOURCE,
         events: {
-          'selected': ngrxStore.props<{ userId: models.User.Id }>()
+          'selected': ngrxStore.props<{ userId: commonModels.User.Id }>()
         }
       })
     }
@@ -148,7 +147,7 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
-            'clicked': ngrxStore.props<{ userId: models.User.Id }>(),
+            'clicked': ngrxStore.props<{ userId: commonModels.User.Id }>(),
           }
         })
       }
@@ -160,7 +159,7 @@ export namespace Con {
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE,
             events: {
-              'clicked': ngrxStore.props<{ selectedParticipantIds: models.User.Id[] }>(),
+              'clicked': ngrxStore.props<{ selectedParticipantIds: commonModels.User.Id[] }>(),
             }
           })
         }
@@ -186,7 +185,7 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
-            'clicked': ngrxStore.props<{ selectedId: models.Conversation.Id }>(),
+            'clicked': ngrxStore.props<{ selectedId: commonModels.Conversation.Id }>(),
           }
         })
       }
@@ -209,7 +208,7 @@ export namespace Con {
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE,
             events: {
-              'clicked': ngrxStore.props<{ participantId: models.User.Id }>()
+              'clicked': ngrxStore.props<{ participantId: commonModels.User.Id }>()
             }
           })
         }
@@ -226,7 +225,7 @@ export namespace Con {
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE,
             events: {
-              'changed': ngrxStore.props<{ conversationId: models.Conversation.Id, messageText: string }>(),
+              'changed': ngrxStore.props<{ conversationId: commonModels.Conversation.Id, messageText: string }>(),
             }
           })
         }
@@ -281,8 +280,8 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
-            'started': ngrxStore.props<{ conversationId: models.Conversation.Id }>(),
-            'succeeded': ngrxStore.props<{ conversation: models.Conversation | undefined }>(),
+            'started': ngrxStore.props<{ conversationId: commonModels.Conversation.Id }>(),
+            'succeeded': ngrxStore.props<{ conversation: commonModels.Conversation.Base | undefined }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })
@@ -293,8 +292,8 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
-            'started': ngrxStore.props<{ input: models.Conversation.Input }>(),
-            'succeeded': ngrxStore.props<{ conversation: models.Conversation }>(),
+            'started': ngrxStore.props<{ input: commonModels.Conversation.Input }>(),
+            'succeeded': ngrxStore.props<{ conversation: commonModels.Conversation.Base }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })
@@ -305,8 +304,8 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
-            'started': ngrxStore.props<{ id: models.Conversation.Id; updates: models.Conversation.Update }>(),
-            'succeeded': ngrxStore.props<{ conversation: models.Conversation }>(),
+            'started': ngrxStore.props<{ id: commonModels.Conversation.Id; updates: commonModels.Conversation.Update }>(),
+            'succeeded': ngrxStore.props<{ conversation: commonModels.Conversation.Base }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })
@@ -317,8 +316,8 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
-            'started': ngrxStore.props<{ id: models.Conversation.Id }>(),
-            'succeeded': ngrxStore.props<{ conversation: models.Conversation }>(),
+            'started': ngrxStore.props<{ id: commonModels.Conversation.Id }>(),
+            'succeeded': ngrxStore.props<{ conversation: commonModels.Conversation.Base }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })
@@ -333,9 +332,9 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
-            'started': ngrxStore.props<{ conversationId: models.Conversation.Id }>(),
-            'succeeded': ngrxStore.props<{ conversationId: models.Conversation.Id, messages: readonly models.Conversation.Message[] }>(),
-            'failed': ngrxStore.props<{ conversationId: models.Conversation.Id, errorMessage?: string }>(),
+            'started': ngrxStore.props<{ conversationId: commonModels.Conversation.Id }>(),
+            'succeeded': ngrxStore.props<{ conversationId: commonModels.Conversation.Id, messages: readonly commonModels.Conversation.Message[] }>(),
+            'failed': ngrxStore.props<{ conversationId: commonModels.Conversation.Id, errorMessage?: string }>(),
           }
         })
       }
@@ -348,7 +347,7 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
-            'messageReceived': ngrxStore.props<{ message: models.Conversation.Message.InContext }>(),
+            'messageReceived': ngrxStore.props<{ message: commonModels.Conversation.Message.InContext }>(),
           }
         })
       }
@@ -358,8 +357,8 @@ export namespace Con {
         export const actions = ngrxStore.createActionGroup({
           source: SOURCE,
           events: {
-            'started': ngrxStore.props<{ payloadMessage: models.Conversation.Message.InContext.Input }>(),
-            'succeeded': ngrxStore.props<{ conversationId: models.Conversation.Id }>(),
+            'started': ngrxStore.props<{ payloadMessage: commonModels.Conversation.Message.InContext.Input }>(),
+            'succeeded': ngrxStore.props<{ conversationId: commonModels.Conversation.Id }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })
@@ -375,7 +374,7 @@ export namespace Con {
       export const actions = ngrxStore.createActionGroup({
         source: SOURCE,
         events: {
-          'requested': ngrxStore.props<{ directConId: models.Conversation.Id }>(),
+          'requested': ngrxStore.props<{ directConId: commonModels.Conversation.Id }>(),
         }
       });
     }

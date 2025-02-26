@@ -3,6 +3,7 @@ import { Socket } from 'socket.io-client'
 import * as service from '../socket/socketIO.service'
 import * as rxjs from 'rxjs'
 import * as models from '../../../models'
+import * as commonModels from '@common/models'
 
 @ngCore.Injectable({
   providedIn: 'root',
@@ -96,7 +97,7 @@ export class MessageSocketService implements ngCore.OnDestroy {
   }
 
   //---------------------------------------- EMITTERS ---------------------------------------//
-  public sendPrivMessage(message: models.Conversation.Message.InContext.Input): void {
+  public sendPrivMessage(message: commonModels.Conversation.Message.InContext.Input): void {
     this._connectedSocket$.pipe(
       rxjs.tap(() => {
         const socket = this._socketIOService.getSocket()
@@ -110,7 +111,7 @@ export class MessageSocketService implements ngCore.OnDestroy {
 
   }
 
-  public sendPubMessage(message: models.Conversation.Message.InContext.Input): void {
+  public sendPubMessage(message: commonModels.Conversation.Message.InContext.Input): void {
     this._connectedSocket$.pipe(
       rxjs.tap(() => {
         const socket = this._socketIOService.getSocket()
