@@ -2,7 +2,7 @@ import * as ngCore from '@angular/core'
 import * as ngrxStore from '@ngrx/store'
 import * as state from '../../../../../../../state'
 import * as common from '@angular/common'
-import * as models from '../../../../../../../models'
+import * as commonModels from '@common/models'
 import * as matIcon from '@angular/material/icon'
 import {MatTooltipModule} from '@angular/material/tooltip'
 @ngCore.Component({
@@ -12,13 +12,7 @@ import {MatTooltipModule} from '@angular/material/tooltip'
   selector: 'app-msg-list',
   imports: [common.CommonModule, matIcon.MatIconModule,MatTooltipModule]
 })
-export class MsgListComponent implements ngCore.OnInit{
-  ngOnInit(): void {
-    // setTimeout(() => {
-    //   // console.log('unreadMessagesIdsSg',this.unreadMessagesIdsSg())
-    // //  console.log('filteredSelfMessagesSg', this.lastestSelfMessageIdSg())
-    // }, 400)
-  }
+export class MsgListComponent {
 
   private readonly _store = ngCore.inject(ngrxStore.Store)
   private readonly _presentUserLoaderSg = this._store.selectSignal(state.core.user.selectors.User.PRESENT_LOADER)
@@ -28,7 +22,7 @@ export class MsgListComponent implements ngCore.OnInit{
   public readonly unreadMessagesIdsSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.UNREAD_MESSAGES_IDS)
   public readonly lastSeenMessageIdSg = this._store.selectSignal(state.core.con.selectors.Message.InSelectedCon.LAST_SEEN_MSG_ID)
   
-  public readonly userLookUpSg = this._store.selectSignal(state.core.user.selectors.User.USER_LOOKUP) as ngCore.Signal<Partial<Record<models.User.Id, models.User>>>
+  public readonly userLookUpSg = this._store.selectSignal(state.core.user.selectors.User.USER_LOOKUP) as ngCore.Signal<Partial<Record<commonModels.User.Id, commonModels.User>>>
   public readonly pubConSeenMsgsIdsSg = this._store.selectSignal(state.core.con.selectors.Conversation.Selected.PUB_CON_SEEN_MSGS_STATUS)
 
   public readonly hasSeenPubMsgUserNameListSg = ngCore.computed(() => {

@@ -1,6 +1,7 @@
 import * as common from '../../common'
 import * as ngrxStore from '@ngrx/store'
 import * as models from '../../../models'
+import * as commonModels from '@common/models'
 
 export const CON_SOURCE = 'Con'
 
@@ -18,7 +19,7 @@ export namespace Con {
           export const actions = ngrxStore.createActionGroup({
             source: SOURCE,
             events: {
-              'updated': ngrxStore.props<{ conversation: models.Conversation }>(),
+              'updated': ngrxStore.props<{ conversation: commonModels.Conversation.Base }>(),
               'removedSelf':ngrxStore.props<{ conversationId: models.Conversation.Id }>(),
             }
           });
@@ -257,7 +258,7 @@ export namespace Con {
           source: SOURCE,
           events: {
             'started': ngrxStore.emptyProps(),
-            'succeeded': ngrxStore.props<{ conversations: readonly models.Conversation[] }>(),
+            'succeeded': ngrxStore.props<{ conversations: readonly commonModels.Conversation.Base[] }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })
@@ -269,7 +270,7 @@ export namespace Con {
           source: SOURCE,
           events: {
             'started': ngrxStore.emptyProps(),
-            'succeeded': ngrxStore.props<{ id: models.Conversation.Id, participantIds: models.User.Id[] }>(),
+            'succeeded': ngrxStore.props<{ id: commonModels.Conversation.Id, participantIds: commonModels.User.Id[] }>(),
             'failed': ngrxStore.props<{ errorMessage?: string }>(),
           }
         })

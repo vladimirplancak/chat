@@ -1,6 +1,7 @@
 import * as ngrxStore from '@ngrx/store'
 import { ConState } from './conversation.reducer'
 import * as models from '../../../models'
+import * as commonModels from '@common/models'
 import * as ngrxRouterStore from '@ngrx/router-store'
 import * as auth from '../auth/auth.selectors'
 
@@ -20,7 +21,7 @@ export namespace Conversation {
     state =>
       Object.entries(state.conLookup)
         .map(([id, con]) => (con ? con : undefined))
-        .filter((conOrUndefined): conOrUndefined is models.Conversation.WithMessages => conOrUndefined !== undefined)
+        .filter((conOrUndefined): conOrUndefined is commonModels.Conversation.WithMessages => conOrUndefined !== undefined)
   )
 
   export const LOOKUP = ngrxStore.createSelector(
@@ -37,7 +38,7 @@ export namespace Conversation {
    * Selector that returns the conversations where participant is present
    */
   export const BY_PARTICIPANT = (participantId: models.User.Id) => ngrxStore.createSelector(CONS, cons => {
-    return cons.filter(con => con.participantIds?.includes(participantId))
+    return cons.filter(con => con?.participantIds?.includes(participantId))
   })
 
   /**
@@ -47,7 +48,7 @@ export namespace Conversation {
   export const DIRECT = (participantId: models.User.Id) => ngrxStore.createSelector(
     BY_PARTICIPANT(participantId),
     // TODO: Explore what will happen if more conversation are found here, because it might happen?
-    cons => cons.find(con => con.participantIds?.length === 2)
+    cons => cons.find(con => con?.participantIds?.length === 2)
   )
 
 
@@ -228,7 +229,7 @@ export namespace Message {
           : undefined
     )
     /** Sorts messages based on the time sent */
-    export const SORT_CON_MESSAGES = (messages: models.Conversation.Message[]) => ngrxStore.createSelector(
+    export const SORT_CON_MESSAGES = (messages: commonModels.Conversation.Message[]) => ngrxStore.createSelector(
       () => messages.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
     )
     //EDGE CASE

@@ -2,6 +2,7 @@ import * as ngCore from '@angular/core'
 import * as service from '../socket/socketIO.service'
 import * as rxjs from 'rxjs'
 import * as models from '../../../models'
+import * as commonModels from '@common/models'
 import { Socket } from 'socket.io-client'
 
 @ngCore.Injectable({
@@ -25,10 +26,10 @@ export class ConSocketService implements ngCore.OnDestroy {
             rxjs.takeUntil(this._destroySubscription$)
         )
 
-    public conParticipantsUpdated$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
+    public conParticipantsUpdated$: rxjs.Subject<commonModels.Conversation.Base> = new rxjs.Subject()
     public conParticipantAdded$: rxjs.Subject<models.Conversation.Id> = new rxjs.Subject()
     public conParticipantRemoved$: rxjs.Subject<models.Conversation.Id> = new rxjs.Subject()
-    public privateConCreated$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
+    public privateConCreated$: rxjs.Subject<commonModels.Conversation.Base> = new rxjs.Subject()
     public deletedConversation$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
     public privConParticipantsClickedStatus$: rxjs.Subject<models.Conversation.conParticipantsClickedStatusResponse> = new rxjs.Subject()
     public pubConParticipantsClickedStatus$: rxjs.Subject<models.Conversation.PubConClickedStatusResponse> = new rxjs.Subject()
@@ -51,13 +52,14 @@ export class ConSocketService implements ngCore.OnDestroy {
         //notifies the all current participants of the conv of additions/removals of
         //additional participants
         socket.on('conParticipantListUpdatedResponse', (conversation: any) => {
-
-            const transformConv: models.Conversation = {
+            console.log(`registerSocketListeners\conParticipantListUpdatedResponse:`, conversation)
+            const transformConv: commonModels.Conversation.Backend.ConWithParticipants = {
                 id: conversation.conId,
                 name: conversation.name,
                 participantIds: conversation.participantIds,
                 creatorId: conversation.creatorId
             }
+            console.log(`transformed con:`, transformConv)
             this.conParticipantsUpdated$.next(transformConv)
         })
         //notifies the self of being added to the conv

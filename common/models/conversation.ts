@@ -7,6 +7,7 @@ export namespace Conversation {
     id: Id
     name?: string
     creatorId: User.Id
+    participantIds?: User.Id[]
     createdAt?: Date 
   }
 
@@ -22,7 +23,6 @@ export namespace Conversation {
 
   export interface Message {
     id: Message.Id
-    conId: Conversation.Id
     userId: User.Id
     content: string
     dateTime: Date
@@ -79,7 +79,6 @@ export namespace Conversation {
   // Backend-Specific Types
   export namespace Backend {
     export interface ConWithParticipants extends Base {
-      participantIds: User.Id[]
       participantIdsToAdd?: User.Id[] 
       participantIdsToRemove?: User.Id[] 
     }

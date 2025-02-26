@@ -1,21 +1,22 @@
 import { createReducer, on, } from '@ngrx/store'
 import * as models from '../../../models'
+import * as commonModels from '@common/models'
 import * as actions from './conversation.actions'
 import  * as services from '../../services'
 
 
 export interface ConState {
   /**
- * Loaded {@link models.Conversation} entities.
+ * Loaded {@link commonModels.Conversation.Base} entities.
  */
-  conLookup: Partial<Record<models.Conversation.Id, models.Conversation.WithMessages>>
+  conLookup: Partial<Record<commonModels.Conversation.Id, commonModels.Conversation.WithMessages>>
   /**
-   * Loaded {@link models.Conversation.Id} ids.
+   * Loaded {@link commonModels.Conversation.Id} ids.
    * 
    * NOTE: this is a list of ids, and should remain in sync with the
    * {@link conLookup} object.
    */
-  ids: models.Conversation.Id[]
+  ids: commonModels.Conversation.Id[]
   /** 
    * Indicates whether a request has been made to the API to fetch the list of conversations.
    * 
@@ -27,14 +28,14 @@ export interface ConState {
    * 
    * @see {@link services.ConApiService.getConById}
    */
-  pendingGetConRequests: Set<models.Conversation.Id>
+  pendingGetConRequests: Set<commonModels.Conversation.Id>
 
   /**
    * Indicates if the conversation message are currently being loaded.
    * 
    * @see {@link services.ConApiService.getConMessages}
    */
-  pendingConListMessagesRequests: Set<models.Conversation.Id>
+  pendingConListMessagesRequests: Set<commonModels.Conversation.Id>
   /**
    * Indicates whether a mutation is currently ongoing.
    * 
@@ -54,7 +55,7 @@ export interface ConState {
    *  'con-id-2': 'I am doing well, thank you for asking.'
    * }
    */
-  inProgressMessageByConId?: Partial<Record<models.Conversation.Id, string>>
+  inProgressMessageByConId?: Partial<Record<commonModels.Conversation.Id, string>>
 
 
   /**
@@ -62,7 +63,7 @@ export interface ConState {
    */
   participantSelectorDialog: {
     open?: boolean
-    newSelectedIds?: models.User.Id[]
+    newSelectedIds?: commonModels.User.Id[]
     /**
      * Search term value holds the string input which is used to filter
      * potential participants
@@ -84,7 +85,7 @@ export interface ConState {
   /**
    * Mouse-over flag for tracking the currently hovered userId of conParticipant that is being hovered.
    */
-  hoveredParticipantId: models.User.Id | undefined
+  hoveredParticipantId: commonModels.User.Id | undefined
 
   /**
    * Record based tracking feature for the self keeping track of private conversation participants (notSelves) 
@@ -92,13 +93,13 @@ export interface ConState {
    * establishing whether both self and not self participants of a private conversation have currently
    * navigated the same private conversation.
    */
-  notSelfParticipantIdClickedStatus: Record<models.User.Id, models.Conversation.conParticipantsClickedStatusResponse>
+  notSelfParticipantIdClickedStatus: Record<commonModels.User.Id, commonModels.Conversation.conParticipantsClickedStatusResponse>
   /**Record based tracking feature which keeps track of the public conversation participants having focused the given
    * public conversation.
    */
-  publicConParticipantsClickedStatus: Record<models.Conversation.Id, models.Conversation.PubConClickedStatusResponse>
+  publicConParticipantsClickedStatus: Record<commonModels.Conversation.Id, commonModels.Conversation.PubConClickedStatusResponse>
   /**Record based tracking of public messages seen status by other participants of the conversation. */
-  seenPublicConMessagesStatus: Record<models.Conversation.Id, Record<models.Conversation.Message.Id, models.User.Id[]>>
+  seenPublicConMessagesStatus: Record<commonModels.Conversation.Id, Record<commonModels.Conversation.Message.Id, commonModels.User.Id[]>>
 }
 export namespace ConState {
   export const FEATURE_KEY = 'Con'
@@ -151,7 +152,7 @@ export namespace ConState {
             ...stateSnapShot,
             participantIds: participantIds,
             messages: stateSnapShot?.messages ?? []
-          } as models.Conversation.WithMessages
+          } as commonModels.Conversation.WithMessages
         }
       }
     }),
@@ -162,7 +163,7 @@ export namespace ConState {
         ...state,
         pendingConListRequest: false,
         ids: conversations.map(conversation => conversation.id),
-        conLookup: conversations.reduce<Partial<Record<models.Conversation.Id, models.Conversation.WithMessages>>>((lookup, con) => {
+        conLookup: conversations.reduce<Partial<Record<commonModels.Conversation.Id, commonModels.Conversation.WithMessages>>>((lookup, con) => {
 
           const lookupEntry = state.conLookup[con.id]
           if (!!lookupEntry) {
@@ -342,7 +343,7 @@ export namespace ConState {
         return state
       }
 
-      const updatedCon: models.Conversation.WithMessages = {
+      const updatedCon: commonModels.Conversation.WithMessages = {
         ...conversation,
         messages: [...conversation.messages, message]
       }
@@ -528,7 +529,7 @@ export namespace ConState {
 
     on(actions.Con.Socket.Message.Event.SeenPublicConMessagesStatus.actions.seen, (state, { conId, seenPubMsgsIdsInCon }) => {
       // console.log(`reducer reached`)
-       console.log(`seenpubMsgsIdsInCon`, seenPubMsgsIdsInCon)
+      //  console.log(`seenpubMsgsIdsInCon`, seenPubMsgsIdsInCon)
   
       return {
         ...state,

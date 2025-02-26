@@ -1,8 +1,9 @@
-import * as ngCore from '@angular/core';
-import * as models from '../../../models';
+import * as ngCore from '@angular/core'
+import * as models from '../../../models'
+import * as commonModels from '@common/models'
 import * as rxjs from 'rxjs'
 import * as http from '@angular/common/http'
-import * as socketService from '../socket/';
+import * as socketService from '../socket/'
 
 @ngCore.Injectable()
 export class ConApiService {
@@ -14,15 +15,15 @@ export class ConApiService {
   public readonly pubMsgReceived$ = new rxjs.Subject<models.Conversation.Message.InContext>()
   public readonly seenPrivMsgIdsReceived$ = new rxjs.Subject<models.Conversation.Message.SeenPrivateMsgsResponse>()
   public readonly seenPubMsgsIdsReceived$: rxjs.Subject<models.Conversation.Message.SeenPublicMsgsResponse> = new rxjs.Subject()
-  public readonly conUpdated$ = new rxjs.Subject<models.Conversation>()
+  public readonly conUpdated$ = new rxjs.Subject<commonModels.Conversation.Base>()
   public readonly conParticipantRemoved$ = new rxjs.Subject<models.Conversation.Id>()
   public readonly deletedConversation$: rxjs.Subject<models.Conversation> = new rxjs.Subject()
   public readonly conParticipantsClickedStatus$: rxjs.Subject<models.Conversation.conParticipantsClickedStatusResponse> = new rxjs.Subject()
   public readonly PubconParticipantsClickedStatus$: rxjs.Subject<models.Conversation.PubConClickedStatusResponse> = new rxjs.Subject()
   public notSelfPubMsgsSeenReceived$: rxjs.Subject<{
-    conId: models.Conversation.Id;
-    response: models.Conversation.Message.SeenPublicMsgsResponse;
-  }> = new rxjs.Subject();
+    conId: models.Conversation.Id
+    response: models.Conversation.Message.SeenPublicMsgsResponse
+  }> = new rxjs.Subject()
 
   private _conversationAPIurl = 'http://localhost:5000/api/conversations'
   private _messageAPIurl = 'http://localhost:5000/api/conversationMessages'
@@ -32,12 +33,12 @@ export class ConApiService {
   constructor() {
     // Subscribe to incoming private messages from the socket and push them into privMsgReceived$
     this._msgSocketService.privMessageReceived$.subscribe((message) => {
-      this.privMsgReceived$.next(message);
-    });
+      this.privMsgReceived$.next(message)
+    })
     // Subscribe to incoming public messages from the socket and push them into pubMsgReceived$
     this._msgSocketService.pubMessageReceived$.subscribe((message) => {
-      this.pubMsgReceived$.next(message);
-    });
+      this.pubMsgReceived$.next(message)
+    })
     // Subscribe to updates (additions/removals) of participants in the conversation
     this._conSocketService.conParticipantsUpdated$.subscribe((con) => {
       this.conUpdated$.next(con)
@@ -88,8 +89,8 @@ export class ConApiService {
   public getAllCons(clientId: models.User.Id): rxjs.Observable<models.Conversation[]> {
     return this._http.get<models.Conversation[]>(`${this._conversationAPIurl}/${clientId}`)
   }
-  public getParticipantsByConId(id: models.Conversation.Id): rxjs.Observable<models.Conversation> {
-    return this._http.get<models.Conversation>(`${this._participantsByConIdAPIurl}/${id}`)
+  public getParticipantsByConId(id: models.Conversation.Id): rxjs.Observable<commonModels.Conversation.Base> {
+    return this._http.get<commonModels.Conversation.Base>(`${this._participantsByConIdAPIurl}/${id}`)
   }
 
   /*--------------------- SOCKET EVENTS ---------------------------*/
@@ -152,12 +153,12 @@ export class ConApiService {
   }
   public sendPrivConMessage(payloadMessage: models.Conversation.Message.InContext.Input):
     rxjs.Observable<models.Conversation.Message.InContext.Input> {
-    this._msgSocketService.sendPrivMessage(payloadMessage);
+    this._msgSocketService.sendPrivMessage(payloadMessage)
     return this.privMsgReceived$.pipe(rxjs.take(1))
   }
   public sendPubConMessage(payloadMessage: models.Conversation.Message.InContext.Input):
     rxjs.Observable<models.Conversation.Message.InContext.Input> {
-    this._msgSocketService.sendPubMessage(payloadMessage);
+    this._msgSocketService.sendPubMessage(payloadMessage)
     return this.pubMsgReceived$.pipe(rxjs.take(1))
   }
   public sendPrivConClickedSeenRequest(conId: models.Conversation.Id, selfId: models.User.Id):
@@ -177,5 +178,5 @@ function randomDelayOperator<T>(): rxjs.OperatorFunction<T, T> {
   return (source: rxjs.Observable<T>): rxjs.Observable<T> =>
     source.pipe(
       rxjs.delay(Math.random() * 2500),
-    );
+    )
 }
