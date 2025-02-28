@@ -1,5 +1,6 @@
 import * as db from '../../config/db'
 import * as models from '../../models'
+import * as commonModels from '@common/models'
 import jwt from 'jsonwebtoken'
 import * as bcrypt from 'bcrypt'
 import * as crypto from 'crypto'
@@ -10,7 +11,7 @@ console.log('Your generated JWT_SECRET:', JWT_SECRET)
 
 export class ApiAuthService {
 
-    public async registerUser(registerInformation: models.Auth.registerInfo): Promise<void> {
+    public async registerUser(registerInformation: commonModels.Auth.Request): Promise<void> {
         const { username, password } = registerInformation
 
         if (!username || !password) {

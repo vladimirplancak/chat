@@ -82,6 +82,10 @@ export namespace Conversation {
       participantIdsToAdd?: User.Id[] 
       participantIdsToRemove?: User.Id[] 
     }
+    export interface UserConversation {
+      userId: User.Id 
+      conversationId: Conversation.Id
+    }
   }
 
   // Frontend-Specific Types

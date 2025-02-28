@@ -1,6 +1,5 @@
 import * as ngrxStore from '@ngrx/store'
 import { ConState } from './conversation.reducer'
-import * as models from '../../../models'
 import * as commonModels from '@common/models'
 import * as ngrxRouterStore from '@ngrx/router-store'
 import * as auth from '../auth/auth.selectors'
@@ -37,7 +36,7 @@ export namespace Conversation {
   /**
    * Selector that returns the conversations where participant is present
    */
-  export const BY_PARTICIPANT = (participantId: models.User.Id) => ngrxStore.createSelector(CONS, cons => {
+  export const BY_PARTICIPANT = (participantId: commonModels.User.Id) => ngrxStore.createSelector(CONS, cons => {
     return cons.filter(con => con?.participantIds?.includes(participantId))
   })
 
@@ -45,7 +44,7 @@ export namespace Conversation {
    * Selector that returns the conversations where participant is present and
    * the conversation is a direct conversation to "self".
    */
-  export const DIRECT = (participantId: models.User.Id) => ngrxStore.createSelector(
+  export const DIRECT = (participantId: commonModels.User.Id) => ngrxStore.createSelector(
     BY_PARTICIPANT(participantId),
     // TODO: Explore what will happen if more conversation are found here, because it might happen?
     cons => cons.find(con => con?.participantIds?.length === 2)
@@ -93,7 +92,7 @@ export namespace Conversation {
       STATE,
       (conId, state) => {
         if (!conId || !state.publicConParticipantsClickedStatus[conId]) {
-          return {} as models.Conversation.PubConClickedStatusResponse
+          return {} as commonModels.Conversation.PubConClickedStatusResponse
         }
         const status = state.publicConParticipantsClickedStatus[conId]
         return status
@@ -146,7 +145,7 @@ export namespace Conversation {
     )
 
   }
-  export const CON_EXISTS = (conversationId: string) => ngrxStore.createSelector(
+  export const CON_EXISTS = (conversationId: commonModels.Conversation.Id) => ngrxStore.createSelector(
     LOOKUP,
     (lookup) => !!lookup[conversationId]
   )
@@ -185,12 +184,12 @@ export namespace Message {
      * Present a loader for passed conversation id if there is an ongoing
      * request to fetch messages for that conversation.
      */
-    export const PRESENT_LOADER = (conId: models.Conversation.Id) => ngrxStore.createSelector(
+    export const PRESENT_LOADER = (conId: commonModels.Conversation.Id) => ngrxStore.createSelector(
       STATE,
       state => state.pendingConListMessagesRequests.has(conId)
     )
 
-    export const ERROR = (conId: models.Conversation.Id) => ngrxStore.createSelector(
+    export const ERROR = (conId: commonModels.Conversation.Id) => ngrxStore.createSelector(
       STATE,
       state => undefined 
     )
